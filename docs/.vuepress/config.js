@@ -18,6 +18,10 @@ module.exports = {
         text: '数据结构与算法',
         link: '/data-structure-and-algorithm/'
       },
+      {
+        text: '前端工程化',
+        link: '/frontend-engineering/'
+      },
     ],
     sidebar: {
       '/data-structure-and-algorithm/': [
@@ -25,6 +29,13 @@ module.exports = {
           title: '数据结构与算法',
           collapsable: false,
           children: [['', '前言'], 'linked-list', 'binary-tree']
+        }
+      ],
+      '/frontend-engineering/': [
+        {
+          title: '前端工程化',
+          collapsable: false,
+          children: [['', 'Git提交规范化']]
         }
       ],
     }
