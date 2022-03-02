@@ -56,3 +56,34 @@ module.exports = {
   subjectLimit: 72
 }
 ```
+
+## 三、提交测试
+
+### 1、在 package.json 中添加脚本
+
+``` bash
+"commit": "git add . && git-cz"
+```
+
+### 2、提交
+
+``` bash
+yarn commit
+
+# yarn run v1.22.11
+# $ git add . && git-cz
+# cz-cli@4.2.4, cz-customizable@6.3.0
+
+# All lines except first will be wrapped after 100 characters.
+# ? 请选择提交的类型： feat: 新功能
+# ? 请输入修改的范围（可选） git
+# ? 请简要描述提交（必填） 添加commitizen
+# ? 请输入详细描述（可选） 
+# ? 请输入要关闭的issue（可选） 
+
+# ###--------------------------------------------------------###
+# feat(git): 添加commitizen
+# ###--------------------------------------------------------###
+
+# ? 确认要使用以上信息提交？（y/n） Yes
+```
