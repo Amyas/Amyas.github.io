@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Amyas/docs#readme",
   "devDependencies": {
-    "vuepress": "^1.9.7"
+    "vuepress": "^1.9.7",
+    "vuepress-theme-reco": "^1.6.11"
   }
 }
