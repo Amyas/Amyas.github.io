@@ -1,32 +1,16 @@
-# 代码规范
+---
+title: Git提交规范自动化
+---
 
-## 一、Git提交规范化
+## 一、规范 Git 提交规范
 
-### 1、安装 commitizen
-
-``` bash
-pnpm install commitizen --save-dev
-```
-
-### 2、安装并配置 cz-customizable
-
-#### 1、安装
+### 1、安装依赖
 
 ``` bash
-pnpm install cz-customizable --save-dev
+pnpm install commitizen cz-customizable --save-dev
 ```
 
-#### 2、在 package.json 中添加配置
-
-``` bash
-"config": {
-  "commitizen": {
-    "path": "node_modules/cz-customizable"
-  }
-}
-```
-
-#### 3、创建 .cz-config.js 文件并写入配置
+### 2、创建 Git 提交规范文件
 
 ``` bash
 touch .cz-config.js
@@ -59,18 +43,24 @@ module.exports = {
 }
 ```
 
-### 3、提交测试
+### 3、在 package.json 添加相关配置
 
-#### 1、在 package.json 中添加脚本
-
-``` bash
-"commit": "git add . && git-cz"
+``` json
+"scripts": {
+  // ...
+  "commit": "git add . && git-cz",
+},
+"config": {
+  "commitizen": {
+    "path": "node_modules/cz-customizable"
+  }
+}
 ```
 
-#### 2、提交
+### 4、 验证测试结果
 
 ``` bash
-yarn commit
+npm run commit
 
 # yarn run v1.22.11
 # $ git add . && git-cz
@@ -90,15 +80,15 @@ yarn commit
 # ? 确认要使用以上信息提交？（y/n） Yes
 ```
 
-## 二、使用 husky + commitlint 检查提交信息是否符合规范
+## 二、校验 Git 提交规范
 
-### 1、安装 husky、commitlint相关以来
+### 1、安装依赖
 
 ``` bash
 pnpm install husky @commitlint/cli @commitlint/config-conventional --save-dev
 ```
 
-### 2、配置 commitlint 文件
+### 2、创建 Git 提交校验文件
 
 ``` bash
 touch commitlint.config.js
@@ -112,15 +102,12 @@ module.exports = {
 }
 ```
 
-### 3、创建 husky 文件并生成 commit-msg
-
 ``` bash
 npx husky install
-npx husky add .husky/commit-msg 'npx --no-install commitlint --edit "$1"'      
+npx husky add .husky/commit-msg 'npx --no-install commitlint --edit "$1"'    
 ```
 
-
-### 4、测试是否生效
+### 3、验证测试结果
 
 ``` bash
 git commit -m "test"
@@ -132,10 +119,4 @@ git commit -m "test"
 ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
 
 husky - commit-msg hook exited with code 1 (error)
-```
-
-## 使用 pre-commit 检测提交前不合规代码
-
-``` bash
-npx husky add .husky/pre-commit "npx eslint --ext .js,.vue src"
 ```

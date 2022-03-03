@@ -12,6 +12,7 @@ module.exports = {
     author: 'Amyas',
     subSidebar: 'auto',
     lastUpdated: 'Last Updated',
+    noFoundPageByTencent: false,
     nav: [
       { text: "首页", link: "/" },
       {
@@ -35,7 +36,7 @@ module.exports = {
         {
           title: '前端工程化',
           collapsable: false,
-          children: [['', 'Git提交规范化']]
+          children: ['']
         }
       ],
     }
