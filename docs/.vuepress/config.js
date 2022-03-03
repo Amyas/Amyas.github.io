@@ -30,7 +30,7 @@ module.exports = {
           title: '数据结构与算法',
           collapsable: false,
           path: '/data-structure-and-algorithm/stack/',
-          children: ['stack', 'linked-list', 'binary-tree']
+          children: ['stack', 'queue','linked-list', 'binary-tree']
         }
       ],
       '/frontend-engineering/': [
