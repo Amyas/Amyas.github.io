@@ -1,20 +1,22 @@
-# Git提交规范化
+# 代码规范
 
-## 一、安装 commitizen
+## 一、Git提交规范化
+
+### 1、安装 commitizen
 
 ``` bash
 pnpm install commitizen --save-dev
 ```
 
-## 二、安装并配置 cz-customizable
+### 2、安装并配置 cz-customizable
 
-### 1、安装
+#### 1、安装
 
 ``` bash
 pnpm install cz-customizable --save-dev
 ```
 
-### 2、在 package.json 中添加配置
+#### 2、在 package.json 中添加配置
 
 ``` bash
 "config": {
@@ -24,7 +26,7 @@ pnpm install cz-customizable --save-dev
 }
 ```
 
-### 3、创建 .cz-config.js 文件并写入配置
+#### 3、创建 .cz-config.js 文件并写入配置
 
 ``` bash
 touch .cz-config.js
@@ -57,15 +59,15 @@ module.exports = {
 }
 ```
 
-## 三、提交测试
+### 3、提交测试
 
-### 1、在 package.json 中添加脚本
+#### 1、在 package.json 中添加脚本
 
 ``` bash
 "commit": "git add . && git-cz"
 ```
 
-### 2、提交
+#### 2、提交
 
 ``` bash
 yarn commit
@@ -88,7 +90,7 @@ yarn commit
 # ? 确认要使用以上信息提交？（y/n） Yes
 ```
 
-## 使用 husky + commitlint 检查提交信息是否符合规范
+## 二、使用 husky + commitlint 检查提交信息是否符合规范
 
 ### 1、安装 husky、commitlint相关以来
 
@@ -130,4 +132,10 @@ git commit -m "test"
 ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
 
 husky - commit-msg hook exited with code 1 (error)
+```
+
+## 使用 pre-commit 检测提交前不合规代码
+
+``` bash
+npx husky add .husky/pre-commit "npx eslint --ext .js,.vue src"
 ```
