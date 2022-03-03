@@ -29,14 +29,16 @@ module.exports = {
         {
           title: '数据结构与算法',
           collapsable: false,
-          children: [['', '前言'], 'linked-list', 'binary-tree']
+          path: '/data-structure-and-algorithm/stack/',
+          children: ['stack', 'linked-list', 'binary-tree']
         }
       ],
       '/frontend-engineering/': [
         {
           title: '前端工程化',
           collapsable: false,
-          children: ['']
+          path: '/frontend-engineering/git/',
+          children: ['git']
         }
       ],
     }
