@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vuepress dev docs",
     "build": "vuepress build docs",
-    "commit": "git add . && git-cz"
+    "commit": "git add . && git-cz",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -20,8 +21,11 @@
   },
   "homepage": "https://github.com/Amyas/docs#readme",
   "devDependencies": {
+    "@commitlint/cli": "^16.2.1",
+    "@commitlint/config-conventional": "^16.2.1",
     "commitizen": "^4.2.4",
     "cz-customizable": "^6.3.0",
+    "husky": "^7.0.4",
     "vuepress": "^1.9.7",
     "vuepress-theme-reco": "^1.6.11"
   },

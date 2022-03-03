@@ -87,3 +87,47 @@ yarn commit
 
 # ? 确认要使用以上信息提交？（y/n） Yes
 ```
+
+## 使用 husky + commitlint 检查提交信息是否符合规范
+
+### 1、安装 husky、commitlint相关以来
+
+``` bash
+pnpm install husky @commitlint/cli @commitlint/config-conventional --save-dev
+```
+
+### 2、配置 commitlint 文件
+
+``` bash
+touch commitlint.config.js
+```
+
+``` js
+// commitlint.config.js
+
+module.exports = {
+  extends: ['@commitlint/config-conventional']
+}
+```
+
+### 3、创建 husky 文件并生成 commit-msg
+
+``` bash
+npx husky install
+npx husky add .husky/commit-msg 'npx --no-install commitlint --edit "$1"'      
+```
+
+
+### 4、测试是否生效
+
+``` bash
+git commit -m "test"
+⧗   input: test
+✖   subject may not be empty [subject-empty]
+✖   type may not be empty [type-empty]
+
+✖   found 2 problems, 0 warnings
+ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+
+husky - commit-msg hook exited with code 1 (error)
+```
