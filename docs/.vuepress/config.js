@@ -22,15 +22,41 @@ module.exports = {
     nav: [
       { text: "首页", link: "/" },
       {
-        text: "数据结构与算法",
-        link: "/data-structure-and-algorithm/",
+        text: "总结",
+        link: "/interview-questions/",
       },
       {
         text: "前端工程化",
         link: "/frontend-engineering/",
       },
+      {
+        text: "数据结构与算法",
+        link: "/data-structure-and-algorithm/",
+      },
     ],
     sidebar: {
+      "/interview-questions/": [
+        {
+          title: "总结",
+          collapsable: false,
+          path: "/interview-questions/html/",
+          children: [
+            "htmlcss",
+            "http",
+            "js",
+            "async",
+            "seecodesaywhy",
+            "writecode",
+            "mobile",
+            "vue",
+            "engineering",
+            "git",
+            "algorithm",
+            "typescript",
+            "react",
+          ],
+        },
+      ],
       "/data-structure-and-algorithm/": [
         {
           title: "数据结构与算法",
