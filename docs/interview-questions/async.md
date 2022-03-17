@@ -1,5 +1,5 @@
 ---
-title: 4、Async
+title: 3、Async
 ---
 
 ## 介绍下promise

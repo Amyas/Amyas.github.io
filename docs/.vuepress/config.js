@@ -42,7 +42,6 @@ module.exports = {
           path: "/interview-questions/html/",
           children: [
             "htmlcss",
-            "http",
             "js",
             "async",
             "seecodesaywhy",
@@ -54,6 +53,7 @@ module.exports = {
             "algorithm",
             "typescript",
             "react",
+            "http",
           ],
         },
       ],

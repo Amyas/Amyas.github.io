@@ -1,5 +1,5 @@
 ---
-title: 6、Write Code
+title: 5、Write Code
 ---
 
 ## 实现 ob 和 watch 方法，希望当方法传入 watch 函数时会执行一次，之后每次修改 data 上的属性时，会触发对应的 console

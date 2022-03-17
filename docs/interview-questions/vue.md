@@ -1,5 +1,5 @@
 ---
-title: 8、Vue
+title: 7、Vue
 ---
 
 ## 介绍一下 vite 的原理，它会去编译你的代码吗，vite 引用 commonjs 的包的时候怎么处理

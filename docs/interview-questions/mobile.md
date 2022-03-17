@@ -1,5 +1,5 @@
 ---
-title: 7、Mobile
+title: 6、Mobile
 ---
 
 ## 移动端适配是用 rem 还是 vw？分别的原理是什么？你们用什么方案？

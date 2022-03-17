@@ -1,5 +1,5 @@
 ---
-title: 12、TypeScript
+title: 11、TypeScript
 ---
 
 ## Typescript 类型了解过吗
