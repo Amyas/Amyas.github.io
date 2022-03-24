@@ -968,7 +968,276 @@ function objectFactory(){
 }
 ```
 
-## 节流和防抖的原理是什么
+## 8、节流和防抖的原理是什么
+
+### 防抖
+
+在前端开发中会遇到一些频繁的事件触发，比如：
+
+1. window的resize、scroll
+2. mousedown、mousemove
+3. keyup、keydown
+
+为此，我们举个例子来了解事件是如何频繁出发的：
+
+``` html
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge, chrome=1">
+    <title>debounce</title>
+    <style>
+        #container{
+            width: 100%; height: 200px; line-height: 200px; text-align: center; color: #fff; background-color: #444; font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+      var count = 1;
+      var container = document.getElementById('container');
+
+      function getUserAction() {
+          container.innerHTML = count++;
+      };
+
+      container.onmousemove = getUserAction;
+    </script>
+</body>
+
+</html>
+```
+
+我们来看下效果
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-03-21-15-06-57.gif" alt="js2022-03-21-15-06-57" width="" height="" />
+
+从左边滑到右边就触发了165次getUserAction函数！
+
+因为这个例子很简单，所以浏览器完全能反应过来，可是如果是复杂的回调函数或者ajax请求呢？假设1秒触发60次，每个回调就必须在1000 / 60 = 16.ms内完成，否则就会出现卡顿。
+
+为了解决这个问题，一边有两种解决方案：
+
+1. debounce 防抖
+2. throttle 节流
+
+今天主讲防抖的实现。
+
+**防抖的原理就是：触发事件后n秒内如果继续触发该事件，则重置之前的事件，如果n秒内没有事件触发，在n秒后执行事件。**
+
+**总的说就是只执行最后一次**
+
+#### 第一版
+
+``` js
+function debounce(func, wait) {
+  var timeout
+  return function(){
+    clearTimeout(timeout)
+    timeout = setTimeout(func, wait)
+  }
+}
+```
+
+如果我们要使用它，以最一开始的例子为例：
+
+``` js
+container.onmousemove = debounce(getUserAction, 1000)
+```
+
+现在随你怎么移动，反正你移动完 1000ms 内不再触发，我才执行事件。看看使用效果：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-03-21-15-07-18.gif" alt="js2022-03-21-15-07-18" width="" height="" />
+
+顿时就从 165 次降低成了 1 次!我们接着完善它。
+
+#### this问题
+
+如果我们在`getUserAction`函数汇总`console.log(this)`，在不使用`debounce`函数的时候，`this`的值为：
+
+`` html
+<div id="container"></div>
+```
+
+但是如果使用我们的`debounce`函数，`this`就会指向`Window`对象。
+
+所以我们需要讲`this`指向正确的对象。
+
+我们修改下代码：
+
+``` js
+function debounce(func, wait) {
+  var timeout
+  return function(){
+    var context = this
+    clearTimeout(timeout)
+    timeout = setTimeout(function(){
+      func.apply(context)
+    }, wait)
+  }
+}
+```
+
+现在`this`已经可以正确指向了，让我们看下个问题：
+
+#### event对象
+
+`JavaScript`在事件处理函数中会提供事件对象`event`，我们修改下`getUserAction`函数：
+
+``` js
+function getUserAction(e){
+  console.log(e)
+  container.innerHTML = count++
+}
+```
+
+如果我们不使用`debounce`函数，这里会打印`MouseEvent`对象
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-03-18-18-56-16.png" alt="js2022-03-18-18-56-16" width="" height="" />
+
+但是在我们实现的`debounce`函数，却只会打印`undefined`
+
+所以我们在修改一下代码：
+
+``` js
+function debounce(func, wait) {
+  var timeout
+  return function(){
+    var context = this
+    var args = arguments
+    clearTimeout(timeout)
+    timeout = setTimeout(function(){
+      func.apply(context, args)
+    }, wait)
+  }
+}
+```
+
+到此为止，我们修复了两个问题：
+
+1. `this`指向
+2. `event`对象
+
+#### 实现立即执行
+
+这个时候，代码已经很完善了，但是为了让这个函数更加完善，我们考虑一个新需求。
+
+这个需求是：
+
+我不希望非要等到事件停止触发后采取执行，我希望函数立即执行，然后等到停止触发n秒后，才可以重新触发执行。
+
+想想这个需求也是很有道理的，那我们加个`immediate`参数判断是否是立即执行。
+
+``` js
+function debounce(func, wait, immediate) {
+  var timeout
+  return function(){
+    var context = this
+    var args = arguments
+
+    if(timeout) clearTimeout(timeout)
+    if(immediate && !timer) {
+      func.apply(context, args)
+    } else {
+      timeout = setTimeout(function(){
+        func.apply(context, args)
+      }, wait)
+    }
+  }
+}
+```
+
+再来看看使用效果：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-03-21-15-07-48.gif" alt="js2022-03-21-15-07-48" width="" height="" />
+
+### 节流
+
+节流的原理很简单：
+
+如果你持续触发事件，每隔一段时间，只执行一次事件。
+
+根据首次是否执行以及结束后是否执行，效果有所不同，实现的方式也有所变动。
+
+我们用`leading`代表首次是否执行，`trailing`代表结束后是否再执行一次。
+
+关于节流的实现，有两种主流实现方式，一种是使用时间戳，一种是设置定时器。
+
+#### 使用时间戳
+
+让我们来看第一种方法：使用时间戳，当触发事件的时候，我们取出当前的时间戳，然后减去之前的时间戳（最开始值为0），如果大于设置的事件周期，就执行函数，然后更新时间戳为当前的时间戳，如果小于，就不执行。
+
+``` js
+function throttle(func, wait) {
+  var context;
+  var args;
+  var previous = 0;
+
+  return function() {
+    var now = +new Date()
+    context = this;
+    args = arguments;
+
+    if(now - previous > wait) {
+      func.apply(context, args);
+      previous = now;
+    }
+  }
+}
+```
+
+例子依然是用讲`debounce`中的例子，如果你要使用：
+
+``` js
+container.onmousemove = throttle(getUserAction, 1000)
+```
+
+效果演示如下：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-03-22-12-06-47.gif" alt="js2022-03-22-12-06-47" width="" height="" />
+
+我们可以看到：当鼠标移入的时候，事件立刻执行，每过1s会执行一次，如果在4.2s停止触发，以后不会再执行事件。
+
+#### 使用定时器
+
+接下来，我们讲讲第二种实现方式，使用定时器。
+
+当触发事件的时候，我们设置一个定时器，再触发事件的时候，如果定时器存在，就不执行，直到定时器执行，然后执行函数，晴空定时器，这样就可以设置下个定时器。
+
+``` js
+function throttle(func, wait) {
+  var timeout;
+  var previous = 0;
+
+  return function(){
+    context = this;
+    args = arguments;
+
+    if(!timeout) {
+      timeout = setTimeout(function(){
+        timeout = null;
+        func.apply(context, args)
+      }, wait)
+    }
+  }
+}
+```
+
+为了让效果明显，我们设置wait事件为3s，演示效果如下：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-03-22-12-10-25.gif" alt="js2022-03-22-12-10-25" width="" height="" />
+
+我们可以看到：当鼠标移入的时候，事件不会立刻执行，晃了3s后终于执行了一次，此后每3s执行一次，当数字显示为3的时候，立刻移除鼠标，相当于大约9.2s的时候停止触发，但是依然会在第12s的时候执行一次事件。
+
+所以比较两个方法：
+
+1. 第一种事件会立即执行，第二种会在n秒后第一次执行。
+2. 第一种事件停止触发后没有办法再次执行事件，第二种事件停止触发后依然会再执行一次事件。
+
 
 ## 事件循环介绍一下
 
@@ -998,7 +1267,7 @@ function objectFactory(){
 
 ## 对线上各类异常如何处理，对线上的静态资源加载失败如何捕获
 
-## bridge原理有了解么
+## jsBridge原理有了解么
 
 ## js的数据类型都有哪些，有什么区别，为什么基本数据类型存到栈但是引用数据类型存到堆
 
@@ -1013,9 +1282,10 @@ function objectFactory(){
 ## 如果页面中有大量的DOM更新，导致页面变卡，有哪些方案可以优化
 
 ## 对闭包的理解，闭包的适用场景和缺点
-
+ 
 ## 从输入URL到页面渲染都发生了什么
 
 ## 做过唤起app么，有遇到过什么问题吗，如何判断唤起是否成功
 
 ## 小程序和H5都有哪些区别，有看过小程序底层如何实现的么
+
