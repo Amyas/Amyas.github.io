@@ -1239,7 +1239,7 @@ function throttle(func, wait) {
 2. 第一种事件停止触发后没有办法再次执行事件，第二种事件停止触发后依然会再执行一次事件。
 
 
-## EventLoop事件循环介绍一下
+## 9、EventLoop事件循环介绍一下
 
 详细介绍了全过程
 https://www.bilibili.com/video/BV1oV411k7XY
@@ -1313,51 +1313,246 @@ req.send()
 
 上面代码中的req.send方法是Ajax操作向服务器发送数据，它是一个异步任务，意味着只有当前脚本所有代码执行完，系统才回去读取“任务队列”。
 
-## 0.1 + 0.2 为什么不等于 0.3，为什么会有误差，如何解决
+## 10、0.1 + 0.2 为什么不等于 0.3，为什么会有误差，如何解决
 
-## 大数加法如何实现
+计算机是通过二进制的方式存储数据的，所以计算机在计算0.1+0.2的时候，实际上是计算两个数的二进制的和。0.1和0.2这两个数的二进制都是无限循环的。
 
-## export 和 module.exports 的区别
+但是在JavaScript中只有一种数字类型：Number，它是标准的double双精度浮点数。在二进制科学表示法中，双精度浮点数的小数部分最多保留52位，剩余的需要舍去，遵从“0舍1入”原则。
 
-## 在工作中有用到什么设计模式么
+所以导致0.1+0.2不等与0.3
 
-## 举例一下 Map 和 object 的区别，如果需要一个字典的需求，都是 key: value 的形式，那应该怎么选择这两个呢
+最简单的解决方法是，((0.1*10) + (0.2*10)) / 10
 
-## Map 和 WeakMap 有什么区别
+## 11、exports 和 module.exports、import、export 的区别
 
-## js 垃圾回收机制有了解吗
+* require：node和es6都支持的导入
+* import/export：只有es6支持的导入和导出
+* module.exports/exports：只有node支持的导出
 
-## ES5 的继承都有哪几种，主要介绍一下组合寄生
+### Node
 
-## proxy和defineProperty的区别是什么，各自的优势和缺点是什么
+nodejs的模块模遵循commonjs规范
 
-## 如何理解线程和进程
+node执行一个文件时，会给这个文件内生成一个exports和module模块，而module又有一个exports属性。他们之间的关系如下：
 
-## Object.create(null)和直接创建一个{}有什么区别
+``` js
+exports = module.exports = {}
+```
 
-## new一个函数做了哪些事
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-03-29-17-15-31.png" alt="js2022-03-29-17-15-31" width="" height="" />
 
-## 对线上各类异常如何处理，对线上的静态资源加载失败如何捕获
+接下来看下代码：
 
-## jsBridge原理有了解么
+``` js
+// utils.js
+let a = 100
+console.log(module.exports) // {}
+console.log(exports) // {}
 
-## js的数据类型都有哪些，有什么区别，为什么基本数据类型存到栈但是引用数据类型存到堆
+exports.a = 200
+exports = '指向其他内存'
 
-## 数据类型常用的判断方式都有哪些
+// test.js
+var a = require('./utils')
+console.log(a) // {a: 200}
+```
 
-## 异步加载js的方式都有哪些
+从上面可以看出，require引入的是module.exports指向的内容，exports只是module.exports的引用。
 
-## 加载css和js时会阻塞dom渲染么
+### ES6
 
-## get和post有什么区别
+import、export 和 export default
 
-## 如果页面中有大量的DOM更新，导致页面变卡，有哪些方案可以优化
+* export和export default均用于到处常量、函数、文件、模块等。
+* 在一个文件或模块中，export、import可以有多个，export default仅有一个。
+* 通过export方式导出，在导入时要加{}，export default则不需要。
+* export能直接导出变量表达式，export default不行。
 
-## 对闭包的理解，闭包的适用场景和缺点
+``` js
+// es6export.js
+// 导出变量
+export const a = '100'
+
+// 导出方法
+export const dogSay = function(){
+  console.log("wang wang")
+}
+
+// 导出方法第二种
+export function catSay(){
+  console.log("miao miao")
+}
+
+// 导出方法第三种
+export function sayTest(){
+  console.log("test")
+}
+
+export {sayTest}
+
+const m = 100
+export default m
+
+// test.js
+import {dogSay, catSay} from './es6export'
+import m from './es6export'
+import * as testModule from './es6export'
+
+dogSay()
+catSay()
+console.log(m) // 100
+testModule.sayTest()
+console.log(testModule.m) // undefined，因为在default属性里
+console.log(testModule.default) // 100
+```
+
+## 12、举例一下 Map 和 object 的区别，如果需要一个字典的需求，都是 key: value 的形式，那应该怎么选择这两个呢
+
+object本质上是哈希结构的键值对的集合，它只能用字符串，数字，或者symbol等简单数据类型当作键，这就带来了很大的限制。
+
+比如我想讲dom节点作为键，但是由于对象只接受字符串作为键名，虽哦咦键被自动转为字符串[object HTMLDivElement]，这显然不是我们想要的。
+
+通过map就可实现，如下：
+
+``` js
+let DOM = document.getElementById('main')
+let m = new Map()
+m.set(DOM, 'hello world')
+console.log(m)
+console.log(m.get(DOM))
+```
+
+二者的区别主要有以下几点：
+
+### 同名碰撞
+
+我们知道，对象其实就是在堆开辟一块内存，其实map的键村的就是这块内存的地址。只要地址不一样，就是两个不同的键，这就解决了同名属性的碰撞问题。而传统的object显然做不到这一点。
+
+``` js
+let m = new Map()
+
+m.set({}, 1)
+m.set({}, 2)
+m.set({}, 3) // 每次都是开辟新的堆内存作为键
+m.set(1, 1)
+m.set(1, 2) // 数字会直接顶替
+m.set('1', 1)
+m.set('1', 2) // 字符串相同也会顶替，但是不会顶替数字1
+console.log(m) // Map {{}=>1, {}=>2, {}=>3, 1=>2, '1'=>2}
+```
+
+### 可迭代
+
+``` js
+// new Map([iterable])
+
+let DOM = document.getElementById('main')
+let m = new Map()
+m.set(DOM, 'hello world') // dom
+m.set(['username'], 'amyas') // 数组
+m.set(true, 1) // boolean
+
+for(let val of m) {
+  console.log(val[0]) // key
+  console.log(val[1])
+}
+```
+
+### 长度
+
+map可以直接拿到长度，而object不行
+
+``` js
+let m = new Map()
+m.set({a:1}, 'hello world')
+m.set(['username'], 'amyas')
+m.set(true, 1)
+console.log(m.size)
+```
+
+object 可以只用 Object.keys(obj).length 方式拿到
+
+### 有序性
+
+填入map的元素，会保持原有的顺序，而object无法做到。
+
+``` js
+let cont = document.getElementById('cont')
+let m = new Map()
+m.set(cont, 'hello,world')//dom对象作为键
+m.set(['username'],'jack')//数组作为键
+m.set(true,1)//boolean类型作为键
+//可以保持原有顺序打印
+for(let [key,value] of m){
+    console.log(key) // cont ['username'] true
+}
+
+let obj = new Object()
+obj['jack'] =  1
+obj[0] = 2
+obj[5] = 3
+obj['tom'] = 4
+//填入Object的元素key是自动按照字符串排序的，数字排在前面
+for(let k in obj){
+    console.log(k) // 0 5 jack tom
+}
+```
+
+### 可展开
+
+map可以使用省略号语法展开，而object不行
+
+``` js
+let m = new Map()
+m.set({a:1}, 'hello,world')//dom对象作为键
+m.set(['username'],'jack')//数组作为键
+m.set(true,1)//boolean类型作为键
+
+console.log([...m])//可以展开为二维数组 [[key, val], [key, val]]
+
+let obj = new Object()
+obj['jack'] =  1
+obj[0] = 2
+obj[5] = 3
+obj['tom'] = 4
+console.log([...obj])//TypeError: obj is not iterable
+```
+
+## 13、Map 和 WeakMap 有什么区别
+
+weakmap只接受对象（null除外）作为key，不接受其他类型（会报错）
+weakmap的key的val是弱引用，不会影响垃圾回收。
+
+## 14、js 垃圾回收机制有了解吗
+
+## 16、proxy和defineProperty的区别是什么，各自的优势和缺点是什么
+
+## 17、如何理解线程和进程
+
+## 18、Object.create(null)和直接创建一个{}有什么区别
+
+## 19、new一个函数做了哪些事
+
+## 20、对线上各类异常如何处理，对线上的静态资源加载失败如何捕获
+
+## 21、jsBridge原理有了解么
+
+## 23、数据类型常用的判断方式都有哪些
+
+## 24、异步加载js的方式都有哪些
+
+## 25、加载css和js时会阻塞dom渲染么
+
+## 26、get和post有什么区别
+
+## 27、如果页面中有大量的DOM更新，导致页面变卡，有哪些方案可以优化
+
+## 28、对闭包的理解，闭包的适用场景和缺点
  
-## 从输入URL到页面渲染都发生了什么
+## 29、从输入URL到页面渲染都发生了什么
 
-## 做过唤起app么，有遇到过什么问题吗，如何判断唤起是否成功
+## 30、做过唤起app么，有遇到过什么问题吗，如何判断唤起是否成功
 
-## 小程序和H5都有哪些区别，有看过小程序底层如何实现的么
+## 31、小程序和H5都有哪些区别，有看过小程序底层如何实现的么
 
+## 32、在工作中有用到什么设计模式么
