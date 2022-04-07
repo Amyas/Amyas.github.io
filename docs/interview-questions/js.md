@@ -1525,34 +1525,372 @@ weakmap的key的val是弱引用，不会影响垃圾回收。
 
 ## 14、js 垃圾回收机制有了解吗
 
-## 16、proxy和defineProperty的区别是什么，各自的优势和缺点是什么
+一句话解释：没有被任务变量引用的数据会定期被js引擎回收
 
-## 17、如何理解线程和进程
+## 15、proxy和defineProperty的区别是什么，各自的优势和缺点是什么
 
-## 18、Object.create(null)和直接创建一个{}有什么区别
+* proxy
+  * 可以监听整个对象，而defineProperty只能遍历监听属性
+  * 可以直接监听数组的变化，而defineProperty不行
 
-## 19、new一个函数做了哪些事
+* defineProperty
+  * 兼容性好，支持IE9，而proxy存在兼容问题。
+
+## 16、Object.create(null)和直接创建一个{}有什么区别
+
+* Object.create(null)
+  * 这种方式创建的obj没有任何原型方法toString、hasOwnProperty等方法，比较纯粹，可以自己实现
+
+## 17、jsBridge原理有了解么
+
+* IOS
+  * UIWebView：window.postBridgeMessage(message); （postBridgeMessage）自定义名字
+  * WKWebView：window.webkit.messageHandlers.nativeBridge.postMessage(message); （nativeBridge)自定义名字
+
+* Android：window.nativeBridge.postMessage(message); （nativeBridge）自定义名字
+
+``` js
+const PandoraJSBridge = {
+  /**
+   * 调用app方法并传递数据
+   * @param {String} event 事件名，也就是与app方约定好的name
+   * @param {Object} data 数据对象，最终进行JSON化传递给app
+   */
+  emit (event, data) {
+    // 对数据JSON化
+    const json = data ? JSON.stringify(data) : ''
+    if (isIOS()) {
+      // IOS兼容
+      try {
+        window.webkit.messageHandlers[event].postMessage(json)
+      } catch (e) {
+        // 处理异常，以防止影响常规逻辑
+        console.warn('APP未处理此交互', event, data)
+      }
+    } else {
+      // Android兼容
+      try {
+        /* global pandoraApp */ // 处理eslint异常
+        pandoraApp[event](json)
+      } catch (e) {
+        // 处理异常，以防止影响常规逻辑
+        console.warn('APP未处理此交互', 'event', data)
+      }
+    }
+  },
+  on (event, handler) {
+    this.events[event] = handler
+  },
+  callEvent (event, params) {
+    this.events[event] && this.events[event](params)
+  },
+  events: {}
+}
+
+window.PandoraJSBridge = PandoraJSBridge
+export default PandoraJSBridge
+```
+
+## 18、数据类型常用的判断方式都有哪些
+
+**typeof：** 主要用于判断数据是不是基础数据类型，对于Date、Array、Null、都会返回object，不够精准。
+
+**instanceof：** 主要目的是检测引用类型，返回布尔值，但必须是指定数据类型才能进行判断。如：
+
+``` js
+function Person(){}
+var person = new Person()
+console.log(person instanceof Person) // true
+console.log(person instanceof Object) // true，instaceof会根据原型链一直向上找
+```
+
+**Object.prototype.toString.call()：** 对象的一个原型函数，能够精确的区分数据类型，是目前判断一个对象类型的最好办法。
+
+``` js
+Object.prototype.toString.call('5') // [object String]
+Object.prototype.toString.call(5) // [object Number]
+Object.prototype.toString.call([5]) // [object Array]
+Object.prototype.toString.call(true) // [object Boolean]
+Object.prototype.toString.call(undefined) // [object Undefined]
+Object.prototype.toString.call(null) // [object Null]
+Object.prototype.toString.call(new Function()); // [object Function]
+Object.prototype.toString.call(new Date()); // [object Date]
+Object.prototype.toString.call(new RegExp()); // [object RegExp]
+Object.prototype.toString.call(new Error()); // [object Error]
+```
+
+## 19、异步加载js的方式都有哪些
+
+defer：会让js并行下载，但是会等到html解析完成后执行，在window.onload时间之前
+
+async：会让js并行下载，下载完后立即执行，无论html是否解析完成
+
+ajax
+
+``` js
+var xhr = new XMLHttpRequest();
+xhr.open("get", "your_file.js", true);
+xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+        if (xhr.status >= 200 && xhr.status < 300 || xhr.status == 304) {
+            let script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'your_file.js';
+            script.text = xhr.responseText;
+            // 只有添加到html文件中才会开始下载
+            document.body.append(script);
+        }
+    }
+}
+xhr.send(null);
+```
+
+动态创建script：只有添加到html文件中才会开始下载
+
+``` js
+let script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = 'your_file.js';
+// 只有添加到html文件中才会开始下载
+document.body.append(script);
+```
+
+import()
+
+## 20、加载css和js时会阻塞dom渲染么
+
+* 加载CSS不会阻塞DOM的解析
+  * 在CSS未下载完成前可以通过JS获取到DOM结构
+
+* 加载CSS会阻塞DOM的渲染
+  * 在CSS未下载完成前，DOM不会渲染
+
+* 加载CSS会阻塞后面的JS代码执行
+
+* 加载JS会影响影响DOM的解析、渲染（使用async或defer可以解决）
+
+## 21、get和post有什么区别
+
+### 作用不同
+
+* GET一般用于从服务端获取数据
+* POST一般用于向服务端提交数据
+
+### 传参方式不同
+
+* GET一般通过在url?后面添加参数，多个参数通过&连接
+* POST参数一般在request body中
+
+### 安全性不同
+
+相对来说GET比POST更不安全，因为参数都暴露在URL上
+
+### 参数长度不同
+
+* GET传递数据量较小，不大于2KB
+* POST传递的数据量较大，一般默认不限制
+
+**这些限制主要是服务和浏览器进行限制，HTTP协议本身不限制。主要是为了性能和安全**
+
+### 编码方式不同
+
+* GET请求只能进行URL编码(application/x-www-form-urlencoded)
+* POST支持多种编码方式(application/x-ww-form-urlencoded、multipart/form-data、application/json)
+
+### 缓存机制不同
+
+GET请求会被浏览器主动缓存，POST不会
+GET请求会被完整保留在浏览器历史记录中，POST中的参数不会被保留
+
+## 22、对闭包的理解，闭包的适用场景和缺点
+
+**闭包就是能够在函数内访问到其外层函数的作用域变量**
+
+闭包的特性：
+
+1. 封闭性：外界无法访问闭包内部的函数，除非闭包函数主动向外提供访问方法。
+2. 持久性：一般的函数调用完毕后，函数自动销毁，但是对于闭包来说，函数被调用后，闭包中的数据依然存在，从而实现对数据的持久使用。
+
+优点：
+
+1. 减少全局变量
+2. 较少传递函数的参数量
+3. 可以封装
+
+缺点：
+
+1. 使用闭包会占用内存资源，过多的使用闭包会导致内存溢出等。
+
+## 23、如果页面中有大量的DOM更新，导致页面变卡，有哪些方案可以优化
+
+* 懒加载
+* 分页
+* 虚拟列表
+
+虚拟列表核心就是只渲染可视区域的数据
+
+[虚拟列表的具体实现](https://juejin.cn/post/6844903982742110216)
+
+## 24、DNS协议是什么？说说DNS完整的查询过程？
+
+### 一、是什么
+
+**DNS(Domain Names System)**，域名系统，是互联网一项服务，是进行域名和与之相对应的`IP`地址进行转换的服务器。
+
+简单来说，`DNS`相当于一个翻译官，负责将域名翻译成`IP`地址。
+
+* IP地址：一长串能够唯一的标记网络上的计算机的数字。
+* 域名：是由一串用`.`分割的名字组成的`Internet`上某一台计算机或计算机组的名称，用于在数据传输时对计算机的定位标识。
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-11-37-05.png" alt="js2022-04-07-11-37-05" width="" height="" />
+
+### 二、域名
+
+域名是一个具有层次的结构，从上到下依次为根域名、顶级域名、二级域名、三级域名...
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-11-38-39.png" alt="js2022-04-07-11-38-39" width="" height="" />
+
+例如`www.xxx.com`，`www`为三级域名，`xxx`为二级域名，`com`为顶级域名，系统为用户做了兼融，域名末尾的根域名`.`一般不需要输入。
+
+在域名的每一层都会有一个域名服务器，如下图：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-11-40-19.png" alt="js2022-04-07-11-40-19" width="" height="" />
+
+除此之外，还有电脑默认的本地域名服务器
+
+### 三、查询方式
+
+DNS查询的方式有两种：
+
+* 递进查询：如果`A`请求`B`，那么`B`作为请求的接收者一定要给`A`想要的答案。
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-11-41-59.png" alt="js2022-04-07-11-41-59" width="" height="" />
+
+* 迭代查询：如果接收者`B`没有请求者`A`所需要的准确内容，接收者`B`将告诉请求者`A`，如何去获得这个内容，但是自己并不去发出请求。
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-11-43-12.png" alt="js2022-04-07-11-43-12" width="" height="" />
+
+### 四、域名缓存
+
+在域名服务器解析的时候，使用缓存保存域名和`IP`地址的映射。
+
+计算机中`DNS`的记录也分成了两种缓存方式：
+
+* 浏览器缓存：浏览器在获取网站域名的实际IP地址地址后会对其进行缓存，减少网络请求的损耗。
+* 操作系统缓存：操作系统的缓存其实是用户自己配置的`hosts`文件。
+
+### 五、查询过程
+
+解析域名的过程如下：
+
+1. 首先搜索浏览器的`DNS`缓存，缓存中维护一张域名和`IP`地址的对应表
+2. 若没有命中，则继续搜索操作系统的`DNS`缓存
+3. 若仍然没有命中，则操作系统将域名发送至本地域名服务器，本地域名服务器采用递归查询自己的`DNS`缓存，查找成功则返回结果
+4. 若本地域名服务器的`DNS`缓存没有命中，则本地域名服务器向上级域名服务器进行迭代查询
+  1. 首先本地域名服务器向根域名服务器发起请求，根域名服务器返回顶级域名服务器的地址给本地服务器
+  2. 本地域名服务器拿到这个顶级域名服务器的地址后，就向其发起请求，获取权限域名服务器的地址
+  3. 本地域名服务器根据域名服务器的地址向其发起请求，最终得到该域名对应的`IP`地址
+5. 本地域名服务器将得到的`IP`地址返回给操作系统，同时自己将`IP`地址缓存起来
+6. 操作系统将`IP`地址返回给浏览器，同时自己也将`IP`地址缓存起来
+7. 至此，浏览器就得到了域名对应的`IP`地址，并将`IP`地址缓存起来
+
+流程如下图所示：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-12-15-36.png" alt="js2022-04-07-12-15-36" width="" height="" />
+
+## 25、从输入URL到页面渲染都发生了什么
+
+### 1、简单分析
+
+从输入URL到回撤后发生的行为如下：
+
+1. URL解析
+2. DNS查询
+3. TCP连接
+4. HTTP请求
+5. 响应请求
+6. 页面渲染
+
+### 2、详情分析
+
+#### 1、URL解析
+
+首先判断你输入的是一个合法的`URL`还是一个待搜索的关键词，并且根据你输入的内容进行对应操作
+
+`URL`的解析是过程中的第一步，一个`URL`的结构解析如下：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-11-23-02.png" alt="js2022-04-07-11-23-02" width="" height="" />
+
+#### 2、DNS查询
+
+参考[DNS协议是什么？说说DNS完整的查询过程？](./js.md#_23、DNS协议是什么？说说DNS完整的查询过程？)
+
+整个查询过程如下图所示：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-12-24-35.png" alt="js2022-04-07-12-24-35" width="" height="" />
+
+最终，获取到域名对应的目标服务器`IP`地址
+
+#### 3、TCP连接
+
+在确定目标服务器的`IP`地址后，则经理三次握手简历`TCP`连接，流程如下：
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-14-25-55.png" alt="js2022-04-07-14-25-55" width="" height="" />
+
+#### 4、HTTP请求
+
+当建立`TCP`连接之后，就可以在这基础上进行通信，浏览器发送`HTTP`请求到目标服务器
+
+请求的内容包括：
+
+* 请求行
+* 请求头
+* 请求主体
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-14-27-47.png" alt="js2022-04-07-14-27-47" width="" height="" />
+
+#### 5、响应请求
+
+当服务器接收到浏览器的请求之后，就会进行逻辑操作，处理完成之后返回一个`HTTP`响应消息，包括：
+
+* 状态行
+* 响应头
+* 响应正文
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-14-28-54.png" alt="js2022-04-07-14-28-54" width="" height="" />
+
+在服务器响应之后，由于现在`HTTP`默认开始长连接`keep-alive`，当页面关闭之后，`TCP`连接则会经过四次挥手完成断开
+
+#### 6、页面渲染
+
+当浏览器接收到服务器响应的资源后，首先会对资源进行解析：
+
+* 查看响应头的信息，根据不同的指示做对应处理，比如重定向，存储cookie，解压gzip，缓存资源等等。
+* 查看响应头`Content-Type`的值，根据不同的资源类型采用不同的解析方式。
+
+关于页面的渲染过程如下：
+
+* 解析HTML，构建DOM树
+* 解析CSS，生成CSS规则树
+* 合并DOM树和CSS规则树，生成render树
+* 布局render树（Layout/reflowL：重排），负责各元素尺寸、位置的计算
+* 绘制render树（paint：重绘），绘制页面像素信息
+* 浏览器会将各层信息发送给GPU，GPU会将各层合成（composite），显示在屏幕上
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/js2022-04-07-14-33-54.png" alt="js2022-04-07-14-33-54" width="" height="" />
+
+## 26、H5如何唤起App
+
+* IOS、Android：直接window.location.href跳转
+* 微信环境引导用户跳转到Safari浏览器
+
+
+## 32、在工作中有用到什么设计模式么
+
+## 33、异或、进位、位运算
 
 ## 20、对线上各类异常如何处理，对线上的静态资源加载失败如何捕获
 
-## 21、jsBridge原理有了解么
+## DOMContentLoaded与load的区别
 
-## 23、数据类型常用的判断方式都有哪些
-
-## 24、异步加载js的方式都有哪些
-
-## 25、加载css和js时会阻塞dom渲染么
-
-## 26、get和post有什么区别
-
-## 27、如果页面中有大量的DOM更新，导致页面变卡，有哪些方案可以优化
-
-## 28、对闭包的理解，闭包的适用场景和缺点
- 
-## 29、从输入URL到页面渲染都发生了什么
-
-## 30、做过唤起app么，有遇到过什么问题吗，如何判断唤起是否成功
-
-## 31、小程序和H5都有哪些区别，有看过小程序底层如何实现的么
-
-## 32、在工作中有用到什么设计模式么
+## application/x-www-form-urlencoded和json
