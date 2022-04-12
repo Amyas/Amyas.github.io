@@ -2,9 +2,7 @@
 title: 13、HTTP
 ---
 
-## TCP三次握手
 
-## HTTP1.0\1.1\2区别
 
 ## 介绍 https cors 介绍一下
 

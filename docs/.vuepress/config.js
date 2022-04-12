@@ -1,9 +1,16 @@
+const path = require('path')
+const fs = require('fs')
+
+function getChildrens(basePath, subModule){
+  const mdModule = path.join(__dirname, '../', basePath, subModule)
+  const moduleDirs = fs.readdirSync(mdModule)
+  return moduleDirs.map(dirName=>`/${basePath}/${subModule}/${dirName}`)
+}
+
+
 module.exports = {
   title: "Amyas ' Blog",
   description: "技术沉淀",
-  theme: "reco",
-  // https://vuepress-theme-reco.recoluan.com/views/1.x/configJs.html#%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BC%98%E5%8C%96
-  // 在移动端，搜索框在获得焦点时会放大，并且在失去焦点后可以左右滚动，这可以通过设置元来优化。
   head: [
     [
       "meta",
@@ -14,11 +21,6 @@ module.exports = {
     ],
   ],
   themeConfig: {
-    type: "blog",
-    author: "Amyas",
-    subSidebar: "auto",
-    lastUpdated: "Last Updated",
-    noFoundPageByTencent: false,
     nav: [
       { text: "首页", link: "/" },
       {
@@ -34,52 +36,72 @@ module.exports = {
         link: "/data-structure-and-algorithm/",
       },
     ],
-    sidebar: {
-      "/interview-questions/": [
-        {
-          title: "总结",
-          collapsable: false,
-          path: "/interview-questions/html/",
-          children: [
-            "htmlcss",
-            "js",
-            "async",
-            "seecodesaywhy",
-            "writecode",
-            "mobile",
-            "vue",
-            "engineering",
-            "git",
-            "algorithm",
-            "typescript",
-            "react",
-            "http",
-          ],
-        },
-      ],
-      "/data-structure-and-algorithm/": [
-        {
-          title: "数据结构与算法",
-          collapsable: false,
-          path: "/data-structure-and-algorithm/stack/",
-          children: [
-            "stack",
-            "queue",
-            "priority-queue",
-            "linked-list",
-            "doubly-linked-list",
-            "binary-tree",
-          ],
-        },
-      ],
-      "/frontend-engineering/": [
-        {
-          title: "前端工程化",
-          collapsable: false,
-          path: "/frontend-engineering/git/",
-          children: ["git"],
-        },
-      ],
-    },
+    sidebar: [
+      {
+        title: '一、HTML/CSS',
+        children: getChildrens('interview-questions', 'htmlcss')
+      },
+      {
+        title: '二、HTTP',
+        children: getChildrens('interview-questions', 'http')
+      },
+      {
+        title: '三、JavaScript',
+        children: getChildrens('interview-questions', 'js')
+      },
+      {
+        title: '四、ES6',
+        children: getChildrens('interview-questions', 'es6')
+      }
+    ]
+    // sidebar: {
+    //   "/interview-questions/": [
+    //     {
+    //       title: "总结",
+    //       collapsable: false,
+    //       sidebarDepth: 1,
+    //       children: [
+    //         "/interview-questions/htmlcss/1"
+    //       ]
+    //       // path: "/interview-questions/html/",
+    //       // children: [
+    //       //   "htmlcss",
+    //       //   "js",
+    //       //   "async",
+    //       //   "seecodesaywhy",
+    //       //   "writecode",
+    //       //   "mobile",
+    //       //   "vue",
+    //       //   "engineering",
+    //       //   "git",
+    //       //   "algorithm",
+    //       //   "typescript",
+    //       //   "react",
+    //       //   "http",
+    //       // ],
+    //     },
+    //   ],
+    //   "/data-structure-and-algorithm/": [
+    //     {
+    //       title: "数据结构与算法",
+    //       path: "/data-structure-and-algorithm/stack/",
+    //       children: [
+    //         "stack",
+    //         "queue",
+    //         "priority-queue",
+    //         "linked-list",
+    //         "doubly-linked-list",
+    //         "binary-tree",
+    //       ],
+    //     },
+    //   ],
+    //   "/frontend-engineering/": [
+    //     {
+    //       title: "前端工程化",
+    //       path: "/frontend-engineering/git/",
+    //       children: ["git"],
+    //     },
+    //   ],
+    // },
   },
 };
