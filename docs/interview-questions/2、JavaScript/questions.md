@@ -183,3 +183,8 @@ import()
 
 * IOS、Android：直接window.location.href跳转
 * 微信环境引导用户跳转到Safari浏览器
+
+
+
+
+## 11、DOMContentLoaded与load的区别
