@@ -188,3 +188,16 @@ import()
 
 
 ## 11、DOMContentLoaded与load的区别
+
+**DOM 文档的加载步骤**
+* 解析HTML结构
+* 加载外部脚本和样式表文件
+* 解析并执行脚本
+* 构建 HTML DOM模型 // DOMContentLoaded
+* 加载外部资源文件（image等）
+* 页面渲染完成 // load
+
+
+DOMContentLoaded， DOM已经构建好，可以对DOM节点进行操作
+
+load，所有资源加载完毕，可以对资源进行一系列操作，比如获取图片宽高等~

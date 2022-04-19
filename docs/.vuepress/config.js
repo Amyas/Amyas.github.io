@@ -51,7 +51,13 @@ function generateSidebarItem(dirName) {
 
 function generateSidebarChildren(basePath, subModule) {
   const mdModule = path.join(__dirname, "../", basePath, subModule);
-  const moduleDirs = fs.readdirSync(mdModule);
+  const moduleDirs = fs.readdirSync(mdModule).sort((a,b)=>{
+    const splitDot = (v) => Number(v.split(".md")[0]);
+    const numberA = splitDot(a);
+    const numberB = splitDot(b);
+
+    return numberA - numberB;
+  });
   return moduleDirs.map((dirName) => `/${basePath}/${subModule}/${dirName}`);
 }
 
