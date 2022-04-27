@@ -3,14 +3,12 @@ const fs = require("fs");
 
 const docsPath = path.join(__dirname, "..");
 
-function findDirDirectory(dirPath, filterDirs = []) {
+function findDirDirectory(dirPath, filters = []) {
   return fs
     .readdirSync(dirPath, {
       withFileTypes: true,
     })
-    .filter((v) => {
-      return v.isDirectory() && filterDirs.every((dir) => dir !== v.name);
-    })
+    .filter((v) => v.isDirectory() && filters.every((dir) => dir !== v.name))
     .map((v) => v.name);
 }
 
@@ -51,13 +49,19 @@ function generateSidebarItem(dirName) {
 
 function generateSidebarChildren(basePath, subModule) {
   const mdModule = path.join(__dirname, "../", basePath, subModule);
-  const moduleDirs = fs.readdirSync(mdModule).sort((a,b)=>{
-    const splitDot = (v) => Number(v.split(".md")[0]);
-    const numberA = splitDot(a);
-    const numberB = splitDot(b);
+  const moduleDirs = fs
+    .readdirSync(mdModule, {
+      withFileTypes: true,
+    })
+    .filter((v) => !v.isDirectory() && v.name.includes(".md"))
+    .map((v) => v.name)
+    .sort((a, b) => {
+      const splitDot = (v) => Number(v.split(".md")[0]);
+      const numberA = splitDot(a);
+      const numberB = splitDot(b);
 
-    return numberA - numberB;
-  });
+      return numberA - numberB;
+    });
   return moduleDirs.map((dirName) => `/${basePath}/${subModule}/${dirName}`);
 }
 
