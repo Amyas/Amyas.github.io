@@ -94,7 +94,23 @@
   function initData(vm) {
     var data = vm.$options.data;
     data = vm._data = isFunction(data) ? data.call(vm) : data;
+
+    for (var key in data) {
+      proxy(vm, '_data', key);
+    }
+
     observe(data);
+  }
+
+  function proxy(vm, source, key) {
+    Object.defineProperty(vm, key, {
+      get: function get() {
+        return vm[source][key];
+      },
+      set: function set(newValue) {
+        vm[source][key] = newValue;
+      }
+    });
   }
 
   function initMixin(Vue) {
