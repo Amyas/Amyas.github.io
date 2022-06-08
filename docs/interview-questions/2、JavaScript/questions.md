@@ -201,3 +201,7 @@ import()
 DOMContentLoaded， DOM已经构建好，可以对DOM节点进行操作
 
 load，所有资源加载完毕，可以对资源进行一系列操作，比如获取图片宽高等~
+
+## 12、new Function 和 eval区别
+
+## 13、with 关键字

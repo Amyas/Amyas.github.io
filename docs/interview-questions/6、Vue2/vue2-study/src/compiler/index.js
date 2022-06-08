@@ -5,5 +5,8 @@ export function compileToFunction(template) {
   let root = parseHTML(template)
 
   let code = generate(root)
-  console.log(code)
+
+  let render = new Function(`with(this){return ${code}}`)
+
+  return render
 }
