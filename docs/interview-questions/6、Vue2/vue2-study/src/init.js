@@ -1,3 +1,4 @@
+import { compileToFunction } from './compiler/index'
 import {initState} from './state'
 
 export function initMixin(Vue) {
@@ -7,7 +8,7 @@ export function initMixin(Vue) {
 
     initState(vm)
 
-    if(vm.$Options.el) {
+    if(vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
     
