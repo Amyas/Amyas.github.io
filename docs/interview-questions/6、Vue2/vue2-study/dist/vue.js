@@ -381,9 +381,43 @@
     });
   }
 
+  function patch(oldVnode, vnode) {
+    if (oldVnode.nodeType === 1) {
+      // 真是元素，第一次更新
+      // 用vnode来生成真实dom替换原来的dom元素
+      var parentEl = oldVnode.parentNode;
+      var elm = createElm(vnode); // 根据虚拟节点创建元素
+
+      parentEl.insertBefore(elm, oldVnode.nextSibling);
+      parentEl.removeChild(oldVnode);
+    }
+  }
+
+  function createElm(vnode) {
+    var tag = vnode.tag;
+        vnode.data;
+        var children = vnode.children,
+        text = vnode.text;
+        vnode.vm;
+
+    if (typeof tag === 'string') {
+      // 元素
+      vnode.el = document.createElement(tag);
+      children.forEach(function (child) {
+        vnode.el.appendChild(createElm(child));
+      });
+    } else {
+      vnode.el = document.createTextNode(text);
+    }
+
+    return vnode.el;
+  }
+
   function lifecycleMixin(Vue) {
     Vue.prototype._update = function (vnode) {
-      console.log(vnode);
+      // 既有初始化又有更新
+      var vm = this;
+      patch(vm.$el, vnode);
     };
   }
   function mountComponent(vm, el) {
@@ -413,6 +447,7 @@
       var vm = this;
       var options = vm.$options;
       el = document.querySelector(el);
+      vm.$el = el;
 
       if (!options.render) {
         var template = options.template;
