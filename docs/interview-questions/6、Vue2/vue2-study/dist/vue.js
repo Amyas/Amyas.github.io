@@ -296,6 +296,47 @@
     };
   });
 
+  var id$1 = 0;
+
+  var Dep = /*#__PURE__*/function () {
+    function Dep() {
+      _classCallCheck(this, Dep);
+
+      this.id = id$1++;
+      this.subs = []; // 用来存放watcher
+    }
+
+    _createClass(Dep, [{
+      key: "depend",
+      value: function depend() {
+        if (Dep.target) {
+          Dep.target.addDep(this);
+        }
+      }
+    }, {
+      key: "addSub",
+      value: function addSub(watcher) {
+        this.subs.push(watcher);
+      }
+    }, {
+      key: "notify",
+      value: function notify() {
+        this.subs.forEach(function (watcher) {
+          return watcher.update();
+        });
+      }
+    }]);
+
+    return Dep;
+  }();
+  Dep.target = null;
+  function pushTarget(watcher) {
+    Dep.target = watcher;
+  }
+  function popTarget() {
+    Dep.target = null;
+  }
+
   function observe(data) {
     if (!isObject(data)) return;
     if (data.__ob__) return;
@@ -340,13 +381,21 @@
 
   function defineProperty(data, key, value) {
     observe(value);
+    var dep = new Dep();
     Object.defineProperty(data, key, {
       get: function get() {
+        if (Dep.target) {
+          dep.depend();
+        }
+
         return value;
       },
       set: function set(newValue) {
-        observe(newValue);
-        value = newValue;
+        if (newValue !== value) {
+          observe(newValue);
+          value = newValue;
+          dep.notify();
+        }
       }
     });
   }
@@ -381,6 +430,51 @@
     });
   }
 
+  var id = 0;
+
+  var Watcher = /*#__PURE__*/function () {
+    function Watcher(vm, exprOrFn, callback, options) {
+      _classCallCheck(this, Watcher);
+
+      this.vm = vm;
+      this.exprOrFn = exprOrFn;
+      this.callback = callback;
+      this.options = options;
+      this.id = id++;
+      this.getter = exprOrFn;
+      this.deps = [];
+      this.depsId = new Set();
+      this.get(); // 默认初始化取值
+    }
+
+    _createClass(Watcher, [{
+      key: "get",
+      value: function get() {
+        pushTarget(this);
+        this.getter();
+        popTarget();
+      }
+    }, {
+      key: "update",
+      value: function update() {
+        this.get();
+      }
+    }, {
+      key: "addDep",
+      value: function addDep(dep) {
+        var id = dep.id;
+
+        if (!this.depsId.has(id)) {
+          this.depsId.add(id);
+          this.deps.push(dep);
+          dep.addSub(this);
+        }
+      }
+    }]);
+
+    return Watcher;
+  }();
+
   function patch(oldVnode, vnode) {
     if (oldVnode.nodeType === 1) {
       // 真是元素，第一次更新
@@ -390,6 +484,7 @@
 
       parentEl.insertBefore(elm, oldVnode.nextSibling);
       parentEl.removeChild(oldVnode);
+      return elm;
     }
   }
 
@@ -417,7 +512,7 @@
     Vue.prototype._update = function (vnode) {
       // 既有初始化又有更新
       var vm = this;
-      patch(vm.$el, vnode);
+      vm.$el = patch(vm.$el, vnode);
     };
   }
   function mountComponent(vm, el) {
@@ -429,7 +524,9 @@
 
     };
 
-    updateComponent();
+    new Watcher(vm, updateComponent, function () {
+      console.log('更新视图了');
+    }, true); // 是一个渲染watcher
   }
 
   function initMixin(Vue) {

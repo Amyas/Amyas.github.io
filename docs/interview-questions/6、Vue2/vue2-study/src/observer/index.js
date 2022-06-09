@@ -1,5 +1,6 @@
 import {isObject} from '../utils'
 import {arrayMethods} from './array'
+import Dep from './dep'
 
 export function observe(data) {
   if(!isObject(data)) return
@@ -34,13 +35,20 @@ class Observer {
 
 function defineProperty(data,key,value) {
   observe(value)
+  let dep = new Dep()
   Object.defineProperty(data,key,{
     get(){
+      if(Dep.target) {
+        dep.depend()
+      }
       return value
     },
     set(newValue) {
-      observe(newValue)
-      value = newValue
+      if(newValue !== value) {
+        observe(newValue)
+        value = newValue
+        dep.notify()
+      }
     }
   })
 }

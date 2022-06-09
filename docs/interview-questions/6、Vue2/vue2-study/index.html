@@ -19,11 +19,13 @@
         data(){
           return {
             name: 'amyas',
-            arr:[1,2,3]
           }
         }
       })
-      vm.arr.push(1)
+      setTimeout(() => {
+        vm.name = 123
+        // vm._update(vm._render())
+      }, 1000);
       // console.log(vm)
     </script>
   </body>

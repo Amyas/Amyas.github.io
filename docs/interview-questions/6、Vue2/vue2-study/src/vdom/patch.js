@@ -9,6 +9,7 @@ export function patch(oldVnode, vnode){
 
     parentEl.removeChild(oldVnode)
 
+    return elm
   }
 }
 
