@@ -341,6 +341,8 @@
       if (inserted) {
         ob.observeArray(inserted);
       }
+
+      ob.dep.notify();
     };
   });
 
@@ -387,7 +389,7 @@
 
   function observe(data) {
     if (!isObject(data)) return;
-    if (data.__ob__) return;
+    if (data.__ob__) return data.__ob__;
     return new Observer(data);
   }
 
@@ -395,6 +397,7 @@
     function Observer(data) {
       _classCallCheck(this, Observer);
 
+      this.dep = new Dep();
       Object.defineProperty(data, '__ob__', {
         value: this,
         enumerable: false
@@ -427,13 +430,32 @@
     return Observer;
   }();
 
+  function dependArray(value) {
+    for (var i = 0; i < value.length; i++) {
+      var current = value[i];
+      current.__ob__ && current.__ob__.dep.depend();
+
+      if (Array.isArray(current)) {
+        dependArray(current);
+      }
+    }
+  }
+
   function defineProperty(data, key, value) {
-    observe(value);
+    var childOb = observe(value);
     var dep = new Dep();
     Object.defineProperty(data, key, {
       get: function get() {
         if (Dep.target) {
           dep.depend();
+
+          if (childOb) {
+            childOb.dep.depend();
+
+            if (Array.isArray(value)) {
+              dependArray(value);
+            }
+          }
         }
 
         return value;
