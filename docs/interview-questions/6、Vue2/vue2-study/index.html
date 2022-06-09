@@ -23,7 +23,12 @@
         }
       })
       setTimeout(() => {
-        vm.name = 123
+        vm.name = 1
+        vm.name = 2
+        vm.name = 3
+        vm.$nextTick(()=>{
+          console.log(vm.$el)
+        })
         // vm._update(vm._render())
       }, 1000);
       // console.log(vm)

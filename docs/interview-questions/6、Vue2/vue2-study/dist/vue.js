@@ -262,6 +262,54 @@
   function isObject(value) {
     return _typeof(value) === 'object' && typeof value !== null;
   }
+  var callbacks = [];
+
+  function fluashCallbacks() {
+    callbacks.forEach(function (cb) {
+      return cb();
+    });
+    waiting = false;
+  }
+
+  function timer(fluashCallbacks) {
+    var timerFn = function timerFn() {};
+
+    if (Promise) {
+      timerFn = function timerFn() {
+        return Promise.resolve().then(fluashCallbacks);
+      };
+    } else if (MutationObserver) {
+      var textNode = document.createTextNode(1);
+      var observe = new MutationObserver(fluashCallbacks);
+      observe.observe(textNode, {
+        characterData: true
+      });
+
+      timerFn = function timerFn() {
+        textNode.textContent = 3;
+      };
+    } else if (setImmediate) {
+      timerFn = function timerFn() {
+        setImmediate(fluashCallbacks);
+      };
+    } else {
+      timerFn = function timerFn() {
+        setTimeout(fluashCallbacks);
+      };
+    }
+
+    timerFn();
+  }
+
+  var waiting = false;
+  function nextTick(callback) {
+    callbacks.push(callback);
+
+    if (!waiting) {
+      timer(fluashCallbacks);
+      waiting = true;
+    }
+  }
 
   var oldArrayMethods = Array.prototype;
   var arrayMethods = Object.create(Array.prototype);
@@ -430,6 +478,34 @@
     });
   }
 
+  var queue = [];
+  var has = {};
+  var pending = false;
+
+  function fluashSchedulerQueue() {
+    for (var i = 0; i < queue.length; i++) {
+      queue[i].run();
+    }
+
+    queue = [];
+    has = {};
+    pending = false;
+  }
+
+  function queueWatcher(watcher) {
+    var id = watcher.id;
+
+    if (has[id] === null || has[id] === undefined) {
+      queue.push(watcher);
+      has[id] = true;
+
+      if (!pending) {
+        nextTick(fluashSchedulerQueue);
+        pending = true;
+      }
+    }
+  }
+
   var id = 0;
 
   var Watcher = /*#__PURE__*/function () {
@@ -457,6 +533,11 @@
     }, {
       key: "update",
       value: function update() {
+        queueWatcher(this); // 多次调用update，先缓存watcher，一会一起更新
+      }
+    }, {
+      key: "run",
+      value: function run() {
         this.get();
       }
     }, {
@@ -514,6 +595,8 @@
       var vm = this;
       vm.$el = patch(vm.$el, vnode);
     };
+
+    Vue.prototype.$nextTick = nextTick;
   }
   function mountComponent(vm, el) {
     // 更新函数，数据变化后，再次调用此函数
