@@ -7,22 +7,38 @@ export default class Watcher {
   constructor(vm, exprOrFn, callback, options) {
     this.vm = vm
     this.exprOrFn = exprOrFn
+    this.user = !!options.user // 是不是用户watcher
     this.callback = callback
     this.options = options
     this.id = id++
 
-    this.getter = exprOrFn
+    
+    if(typeof exprOrFn === 'string') {
+      this.getter = function(){
+        let path = exprOrFn.split('.')
+        let obj = vm
+        for(let i = 0;i < path.length; i++) {
+          obj = obj[path[i]]
+        }
+
+        return obj
+      }
+    } else {
+      this.getter = exprOrFn
+    }
 
     this.deps = []
     this.depsId = new Set()
 
-    this.get() // 默认初始化取值
+    this.value = this.get() // 默认初始化取值
   }
 
   get(){
     pushTarget(this)
-    this.getter()
+    const value = this.getter()
     popTarget()
+
+    return value
   }
 
   update(){
@@ -30,7 +46,14 @@ export default class Watcher {
   }
 
   run(){
-    this.get()
+    let newValue = this.get()
+    let oldValue = this.value
+
+    this.value = newValue
+
+    if(this.user) {
+      this.callback.call(this.vm, newValue, oldValue)
+    }
   }
 
   addDep(dep) {

@@ -470,36 +470,6 @@
     });
   }
 
-  function initState(vm) {
-    var opts = vm.$options;
-
-    if (opts.data) {
-      initData(vm);
-    }
-  }
-
-  function initData(vm) {
-    var data = vm.$options.data;
-    data = vm._data = isFunction(data) ? data.call(vm) : data;
-
-    for (var key in data) {
-      proxy(vm, '_data', key);
-    }
-
-    observe(data);
-  }
-
-  function proxy(vm, source, key) {
-    Object.defineProperty(vm, key, {
-      get: function get() {
-        return vm[source][key];
-      },
-      set: function set(newValue) {
-        vm[source][key] = newValue;
-      }
-    });
-  }
-
   var queue = [];
   var has = {};
   var pending = false;
@@ -536,21 +506,39 @@
 
       this.vm = vm;
       this.exprOrFn = exprOrFn;
+      this.user = !!options.user; // 是不是用户watcher
+
       this.callback = callback;
       this.options = options;
       this.id = id++;
-      this.getter = exprOrFn;
+
+      if (typeof exprOrFn === 'string') {
+        this.getter = function () {
+          var path = exprOrFn.split('.');
+          var obj = vm;
+
+          for (var i = 0; i < path.length; i++) {
+            obj = obj[path[i]];
+          }
+
+          return obj;
+        };
+      } else {
+        this.getter = exprOrFn;
+      }
+
       this.deps = [];
       this.depsId = new Set();
-      this.get(); // 默认初始化取值
+      this.value = this.get(); // 默认初始化取值
     }
 
     _createClass(Watcher, [{
       key: "get",
       value: function get() {
         pushTarget(this);
-        this.getter();
+        var value = this.getter();
         popTarget();
+        return value;
       }
     }, {
       key: "update",
@@ -560,7 +548,13 @@
     }, {
       key: "run",
       value: function run() {
-        this.get();
+        var newValue = this.get();
+        var oldValue = this.value;
+        this.value = newValue;
+
+        if (this.user) {
+          this.callback.call(this.vm, newValue, oldValue);
+        }
       }
     }, {
       key: "addDep",
@@ -577,6 +571,68 @@
 
     return Watcher;
   }();
+
+  function stateMixin(Vue) {
+    Vue.prototype.$watch = function (key, handler) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      options.user = true; // 用户自己写的watcher
+
+      new Watcher(this, key, handler, options);
+    };
+  }
+  function initState(vm) {
+    var opts = vm.$options;
+
+    if (opts.data) {
+      initData(vm);
+    }
+
+    if (opts.watch) {
+      initWatch(vm, opts.watch);
+    }
+  }
+
+  function initWatch(vm, watch) {
+    for (var key in watch) {
+      var handler = watch[key];
+
+      if (Array.isArray(handler)) {
+        // 多个函数
+        for (var i = 0; i < handler.length; i++) {
+          createWatcher(vm, key, handler[i]);
+        }
+      } else {
+        // 单个函数
+        createWatcher(vm, key, handler);
+      }
+    }
+  }
+
+  function createWatcher(vm, key, handler) {
+    return vm.$watch(key, handler);
+  }
+
+  function initData(vm) {
+    var data = vm.$options.data;
+    data = vm._data = isFunction(data) ? data.call(vm) : data;
+
+    for (var key in data) {
+      proxy(vm, '_data', key);
+    }
+
+    observe(data);
+  }
+
+  function proxy(vm, source, key) {
+    Object.defineProperty(vm, key, {
+      get: function get() {
+        return vm[source][key];
+      },
+      set: function set(newValue) {
+        vm[source][key] = newValue;
+      }
+    });
+  }
 
   function patch(oldVnode, vnode) {
     if (oldVnode.nodeType === 1) {
@@ -726,6 +782,8 @@
   renderMixin(Vue); // _render
 
   lifecycleMixin(Vue); // _update
+
+  stateMixin(Vue); // watcher
 
   return Vue;
 
