@@ -1,6 +1,7 @@
 import {isFunction} from './utils'
 import {observe} from './observer/index'
 import Watcher from './observer/watcher'
+import Dep from './observer/dep'
 
 export function stateMixin(Vue) {
   Vue.prototype.$watch = function(key, handler, options = {}) {
@@ -14,9 +15,55 @@ export function initState(vm) {
   if(opts.data) {
     initData(vm)
   }
+  if(opts.computed) {
+    initComputed(vm, opts.computed)
+  }
   if(opts.watch) {
     initWatch(vm, opts.watch)
   }
+}
+
+function initComputed(vm, computed){
+  const watchers = vm._computedWatchers = {}
+  for(let key in computed) {
+    const userDef = computed[key]
+    let getter = typeof userDef === 'function' ? userDef : userDef.get
+
+    watchers[key] = new Watcher(vm, getter, ()=>{},{lazy: true}) // 默认不执行
+
+    // 将key定义到vm上
+    defineComputed(vm, key, userDef)
+  }
+}
+
+function createComputedGetter(key) {
+  return function computedGetter(){
+    // 包含所有计算属性，通过keyu拿到对应watcher
+    let watcher = this._computedWatchers[key]
+
+    // 脏就是要调用用户的getter，不脏就走缓存
+    if(watcher.dirty) {
+      watcher.evalute()
+    }
+
+    // 如果去完值后Dep.target还有值，继续向上收集（渲染watcher）
+    if(Dep.target) {
+      watcher.depend()
+    }
+
+    return watcher.value
+  }
+}
+
+let shareProperty = {}
+function defineComputed(vm, key, userDef) {
+  if(typeof userDef === 'function') {
+    shareProperty.get = createComputedGetter(key)
+  } else {
+    shareProperty.get = createComputedGetter(key)
+    shareProperty.set = userDef.set
+  }
+  Object.defineProperty(vm, key, shareProperty)
 }
 
 function initWatch(vm, watch) {

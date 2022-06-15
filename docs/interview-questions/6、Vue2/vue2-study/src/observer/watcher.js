@@ -10,6 +10,8 @@ export default class Watcher {
     this.user = !!options.user // 是不是用户watcher
     this.callback = callback
     this.options = options
+    this.lazy = !!options.lazy // 是否非立即执行
+    this.dirty = options.lazy // 如果是计算属性默认为脏属性 lazy = true
     this.id = id++
 
     
@@ -30,19 +32,23 @@ export default class Watcher {
     this.deps = []
     this.depsId = new Set()
 
-    this.value = this.get() // 默认初始化取值
+    this.value =  this.lazy ? undefined : this.get() // 默认初始化取值
   }
 
   get(){
     pushTarget(this)
-    const value = this.getter()
+    const value = this.getter.call(this.vm)
     popTarget()
 
     return value
   }
 
   update(){
-    queueWatcher(this) // 多次调用update，先缓存watcher，一会一起更新
+    if(this.lazy) {
+      this.dirty = true
+    } else {
+      queueWatcher(this) // 多次调用update，先缓存watcher，一会一起更新
+    }
   }
 
   run(){
@@ -62,6 +68,18 @@ export default class Watcher {
       this.depsId.add(id)
       this.deps.push(dep)
       dep.addSub(this)
+    }
+  }
+
+  evalute(){
+    this.dirty = false // 表示取过值了
+    this.value = this.get() // 用户getter实行
+  }
+
+  depend(){
+    let i = this.deps.length
+    while(i--) {
+      this.deps[i].depend() // 计算属性内的data 属性 收集渲染watcher
     }
   }
 }

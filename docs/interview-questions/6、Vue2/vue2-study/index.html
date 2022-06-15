@@ -8,9 +8,14 @@
   </head>
   <body>
     <div id="app">
-      <span>
-        hello {{name}} {{obj.a}} world
-      </span>
+      <ul>
+        <li>
+          <h1>data:{{age}}</h1>
+        </li>
+        <li>
+          <h1>computed: {{fullName}}</h1>
+        </li>
+      </ul>
     </div>
     <script src="dist/vue.js"></script>
     <script>
@@ -18,33 +23,40 @@
         el: "#app",
         data(){
           return {
+            age: 10,
             name: 'amyas',
-            obj:{
-              a: 1
-            }
           }
         },
-        watch:{
-          name(newValue, oldValue) {
-            console.log(newValue, oldValue, 'watch name')
-          },
-          'obj.a'(newValue, oldValue) {
-            console.log(newValue, oldValue, 'watch obj.a')
+        computed : {
+          fullName () {
+            console.log('computed fullname')
+            return "fullname- " + this.name
           }
-        }
+        },
+        // watch:{
+        //   name(newValue, oldValue) {
+        //     console.log(newValue, oldValue, 'watch name')
+        //   }
+        // }
       })
+      vm.fullName
+      vm.fullName
+      vm.fullName
       setTimeout(() => {
-        vm.name = 1
-        vm.obj.a = 2
+        vm.name = "update amyas"
+        vm.fullName
+        vm.fullName
+        vm.fullName
+        // vm.name = "class"
         // vm.$nextTick(()=>{
         //   console.log(vm.$el)
         // })
         // vm._update(vm._render())
       }, 1000);
 
-      vm.$watch('name', function(newValue, oldValue) {
-        console.log(newValue, oldValue, 'watch name1')
-      })
+      // vm.$watch('name', function(newValue, oldValue) {
+      //   console.log(newValue, oldValue, 'watch name1')
+      // })
       // console.log(vm)
     </script>
   </body>

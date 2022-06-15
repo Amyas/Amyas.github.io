@@ -15,7 +15,7 @@
   var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
   var startTagClose = /^\s*(\/?)>/;
   var root = null;
-  var stack = [];
+  var stack$1 = [];
 
   function createAstElement(tagName, attrs) {
     return {
@@ -29,7 +29,7 @@
   }
 
   function start(tagName, attributes) {
-    var parent = stack[stack.length - 1];
+    var parent = stack$1[stack$1.length - 1];
     var element = createAstElement(tagName, attributes);
 
     if (!root) {
@@ -41,11 +41,11 @@
       parent.children.push(element);
     }
 
-    stack.push(element);
+    stack$1.push(element);
   }
 
   function end(tagName) {
-    var last = stack.pop();
+    var last = stack$1.pop();
 
     if (last.tag !== tagName) {
       throw new Error("标签闭合错误");
@@ -54,7 +54,7 @@
 
   function chars(text) {
     text = text.replace(/\s/g, "");
-    var parent = stack[stack.length - 1];
+    var parent = stack$1[stack$1.length - 1];
 
     if (text) {
       parent.children.push({
@@ -380,11 +380,14 @@
     return Dep;
   }();
   Dep.target = null;
+  var stack = [];
   function pushTarget(watcher) {
     Dep.target = watcher;
+    stack.push(watcher);
   }
   function popTarget() {
-    Dep.target = null;
+    stack.pop();
+    Dep.target = stack[stack.length - 1];
   }
 
   function observe(data) {
@@ -510,6 +513,10 @@
 
       this.callback = callback;
       this.options = options;
+      this.lazy = !!options.lazy; // 是否非立即执行
+
+      this.dirty = options.lazy; // 如果是计算属性默认为脏属性 lazy = true
+
       this.id = id++;
 
       if (typeof exprOrFn === 'string') {
@@ -529,21 +536,25 @@
 
       this.deps = [];
       this.depsId = new Set();
-      this.value = this.get(); // 默认初始化取值
+      this.value = this.lazy ? undefined : this.get(); // 默认初始化取值
     }
 
     _createClass(Watcher, [{
       key: "get",
       value: function get() {
         pushTarget(this);
-        var value = this.getter();
+        var value = this.getter.call(this.vm);
         popTarget();
         return value;
       }
     }, {
       key: "update",
       value: function update() {
-        queueWatcher(this); // 多次调用update，先缓存watcher，一会一起更新
+        if (this.lazy) {
+          this.dirty = true;
+        } else {
+          queueWatcher(this); // 多次调用update，先缓存watcher，一会一起更新
+        }
       }
     }, {
       key: "run",
@@ -567,6 +578,22 @@
           dep.addSub(this);
         }
       }
+    }, {
+      key: "evalute",
+      value: function evalute() {
+        this.dirty = false; // 表示取过值了
+
+        this.value = this.get(); // 用户getter实行
+      }
+    }, {
+      key: "depend",
+      value: function depend() {
+        var i = this.deps.length;
+
+        while (i--) {
+          this.deps[i].depend(); // 计算属性内的data 属性 收集渲染watcher
+        }
+      }
     }]);
 
     return Watcher;
@@ -587,9 +614,59 @@
       initData(vm);
     }
 
+    if (opts.computed) {
+      initComputed(vm, opts.computed);
+    }
+
     if (opts.watch) {
       initWatch(vm, opts.watch);
     }
+  }
+
+  function initComputed(vm, computed) {
+    var watchers = vm._computedWatchers = {};
+
+    for (var key in computed) {
+      var userDef = computed[key];
+      var getter = typeof userDef === 'function' ? userDef : userDef.get;
+      watchers[key] = new Watcher(vm, getter, function () {}, {
+        lazy: true
+      }); // 默认不执行
+      // 将key定义到vm上
+
+      defineComputed(vm, key, userDef);
+    }
+  }
+
+  function createComputedGetter(key) {
+    return function computedGetter() {
+      // 包含所有计算属性，通过keyu拿到对应watcher
+      var watcher = this._computedWatchers[key]; // 脏就是要调用用户的getter，不脏就走缓存
+
+      if (watcher.dirty) {
+        watcher.evalute();
+      } // 如果去完值后Dep.target还有值，继续向上收集（渲染watcher）
+
+
+      if (Dep.target) {
+        watcher.depend();
+      }
+
+      return watcher.value;
+    };
+  }
+
+  var shareProperty = {};
+
+  function defineComputed(vm, key, userDef) {
+    if (typeof userDef === 'function') {
+      shareProperty.get = createComputedGetter(key);
+    } else {
+      shareProperty.get = createComputedGetter(key);
+      shareProperty.set = userDef.set;
+    }
+
+    Object.defineProperty(vm, key, shareProperty);
   }
 
   function initWatch(vm, watch) {
