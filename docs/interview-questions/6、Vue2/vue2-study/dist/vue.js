@@ -4,6 +4,196 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Vue = factory());
 })(this, (function () { 'use strict';
 
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      enumerableOnly && (symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      })), keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = null != arguments[i] ? arguments[i] : {};
+      i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+
+    return target;
+  }
+
+  function _typeof(obj) {
+    "@babel/helpers - typeof";
+
+    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
+      return typeof obj;
+    } : function (obj) {
+      return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    }, _typeof(obj);
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    Object.defineProperty(Constructor, "prototype", {
+      writable: false
+    });
+    return Constructor;
+  }
+
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function isFunction(value) {
+    return typeof value === 'function';
+  }
+  function isObject(value) {
+    return _typeof(value) === 'object' && typeof value !== null;
+  }
+  var callbacks = [];
+
+  function fluashCallbacks() {
+    callbacks.forEach(function (cb) {
+      return cb();
+    });
+    waiting = false;
+  }
+
+  function timer(fluashCallbacks) {
+    var timerFn = function timerFn() {};
+
+    if (Promise) {
+      timerFn = function timerFn() {
+        return Promise.resolve().then(fluashCallbacks);
+      };
+    } else if (MutationObserver) {
+      var textNode = document.createTextNode(1);
+      var observe = new MutationObserver(fluashCallbacks);
+      observe.observe(textNode, {
+        characterData: true
+      });
+
+      timerFn = function timerFn() {
+        textNode.textContent = 3;
+      };
+    } else if (setImmediate) {
+      timerFn = function timerFn() {
+        setImmediate(fluashCallbacks);
+      };
+    } else {
+      timerFn = function timerFn() {
+        setTimeout(fluashCallbacks);
+      };
+    }
+
+    timerFn();
+  }
+
+  var waiting = false;
+  function nextTick(callback) {
+    callbacks.push(callback);
+
+    if (!waiting) {
+      timer(fluashCallbacks);
+      waiting = true;
+    }
+  }
+  var lifecycleHooks = ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeDestroy', 'destroyed'];
+  var strats = {}; // 存放各种合并策略
+
+  function mergeHook(parentVal, childVal) {
+    if (childVal) {
+      if (parentVal) {
+        return parentVal.concat(childVal);
+      } else {
+        return [childVal];
+      }
+    } else {
+      return parentVal;
+    }
+  }
+
+  lifecycleHooks.forEach(function (hook) {
+    strats[hook] = mergeHook;
+  });
+  function mergeOptions(parent, child) {
+    var options = {}; // 合并后的结果
+
+    for (var key in parent) {
+      mergeFiled(key);
+    }
+
+    for (var _key in child) {
+      if (parent.hasOwnProperty(_key)) {
+        continue;
+      }
+
+      mergeFiled(_key);
+    }
+
+    function mergeFiled(key) {
+      var parentVal = parent[key];
+      var childVal = child[key]; // 策略模式
+
+      if (strats[key]) {
+        options[key] = strats[key](parentVal, childVal);
+      } else {
+        if (isObject(parentVal) && isObject(childVal)) {
+          options[key] = _objectSpread2(_objectSpread2({}, parentVal), childVal);
+        } else {
+          options[key] = childVal;
+        }
+      }
+    }
+
+    return options;
+  }
+
+  function initGlobalApi(Vue) {
+    Vue.options = {}; // 用来存放全局配置 // Vue.component Vue.filter Vue.directive 每个组件初始化时都会和options选项进行合并
+
+    Vue.mixin = function (options) {
+      this.options = mergeOptions(this.options, options);
+      return this;
+    };
+  }
+
   var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*"; // 标签名
 
   var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")"); // 用来获取的标签名
@@ -219,96 +409,6 @@
     var code = generate(root);
     var render = new Function("with(this){return ".concat(code, "}"));
     return render;
-  }
-
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
-      return typeof obj;
-    } : function (obj) {
-      return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    }, _typeof(obj);
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    Object.defineProperty(Constructor, "prototype", {
-      writable: false
-    });
-    return Constructor;
-  }
-
-  function isFunction(value) {
-    return typeof value === 'function';
-  }
-  function isObject(value) {
-    return _typeof(value) === 'object' && typeof value !== null;
-  }
-  var callbacks = [];
-
-  function fluashCallbacks() {
-    callbacks.forEach(function (cb) {
-      return cb();
-    });
-    waiting = false;
-  }
-
-  function timer(fluashCallbacks) {
-    var timerFn = function timerFn() {};
-
-    if (Promise) {
-      timerFn = function timerFn() {
-        return Promise.resolve().then(fluashCallbacks);
-      };
-    } else if (MutationObserver) {
-      var textNode = document.createTextNode(1);
-      var observe = new MutationObserver(fluashCallbacks);
-      observe.observe(textNode, {
-        characterData: true
-      });
-
-      timerFn = function timerFn() {
-        textNode.textContent = 3;
-      };
-    } else if (setImmediate) {
-      timerFn = function timerFn() {
-        setImmediate(fluashCallbacks);
-      };
-    } else {
-      timerFn = function timerFn() {
-        setTimeout(fluashCallbacks);
-      };
-    }
-
-    timerFn();
-  }
-
-  var waiting = false;
-  function nextTick(callback) {
-    callbacks.push(callback);
-
-    if (!waiting) {
-      timer(fluashCallbacks);
-      waiting = true;
-    }
   }
 
   var oldArrayMethods = Array.prototype;
@@ -861,6 +961,8 @@
   lifecycleMixin(Vue); // _update
 
   stateMixin(Vue); // watcher
+
+  initGlobalApi(Vue);
 
   return Vue;
 
