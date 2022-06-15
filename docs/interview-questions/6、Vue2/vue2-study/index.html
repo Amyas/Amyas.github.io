@@ -16,15 +16,8 @@
     </div>
     <script src="dist/vue.js"></script>
     <script>
-      Vue.mixin({
-        beforeCreate(){
-          console.log('before create - mixin1', this.name)
-        },
-      })
-      Vue.mixin({
-        beforeCreate(){
-          console.log('before create - mixin2', this.name)
-        }
+      Vue.component('my-button',{
+        template: '<button>global-button</button>'
       })
       let vm = new Vue({
         el: "#app",
@@ -33,9 +26,11 @@
             name: 'amyas',
           }
         },
-        beforeCreate(){
-          console.log('before create', this.name)
-        },
+        components: {
+          'my-button': {
+            template: '<button>my-button</button>'
+          }
+        }
       })
     </script>
   </body>
