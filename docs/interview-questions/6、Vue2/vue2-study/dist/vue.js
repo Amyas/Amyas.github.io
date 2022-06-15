@@ -862,6 +862,7 @@
 
     };
 
+    callHook(vm, 'beforeMount');
     new Watcher(vm, updateComponent, function () {
       console.log('更新视图了');
     }, true); // 是一个渲染watcher
@@ -870,8 +871,10 @@
   function initMixin(Vue) {
     Vue.prototype._init = function (options) {
       var vm = this;
-      vm.$options = options;
+      vm.$options = mergeOptions(vm.constructor.options, options);
+      callHook(vm, 'beforeCreate');
       initState(vm);
+      callHook(vm, 'created');
 
       if (vm.$options.el) {
         vm.$mount(vm.$options.el);
@@ -896,6 +899,15 @@
 
       mountComponent(vm); // 组建挂在
     };
+  }
+  function callHook(vm, hook) {
+    var handlers = vm.$options[hook];
+
+    if (handlers) {
+      for (var i = 0; i < handlers.length; i++) {
+        handlers[i].call(vm);
+      }
+    }
   }
 
   function createElement(vm, tag) {

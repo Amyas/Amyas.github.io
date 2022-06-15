@@ -18,12 +18,12 @@
     <script>
       Vue.mixin({
         beforeCreate(){
-          console.log('before create - mixin1')
-        }
+          console.log('before create - mixin1', this.name)
+        },
       })
       Vue.mixin({
         beforeCreate(){
-          console.log('before create - mixin2')
+          console.log('before create - mixin2', this.name)
         }
       })
       let vm = new Vue({
@@ -34,7 +34,7 @@
           }
         },
         beforeCreate(){
-          console.log('before create')
+          console.log('before create', this.name)
         },
       })
     </script>

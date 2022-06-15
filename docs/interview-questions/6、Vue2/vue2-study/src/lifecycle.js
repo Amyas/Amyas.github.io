@@ -1,3 +1,4 @@
+import { callHook } from './init'
 import Watcher from './observer/watcher'
 import { nextTick } from './utils'
 import {patch} from './vdom/patch'
@@ -20,6 +21,7 @@ export function mountComponent(vm, el) {
     // 用虚拟dom生成真是dom
   }
 
+  callHook(vm, 'beforeMount')
   new Watcher(vm, updateComponent, ()=>{
     console.log('更新视图了')
   }, true) // 是一个渲染watcher
