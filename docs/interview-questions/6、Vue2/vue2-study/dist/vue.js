@@ -190,12 +190,16 @@
         if (isObject(parentVal) && isObject(childVal)) {
           options[key] = _objectSpread2(_objectSpread2({}, parentVal), childVal);
         } else {
-          options[key] = childVal;
+          options[key] = childVal || parentVal;
         }
       }
     }
 
     return options;
+  }
+  function isReservedTag(str) {
+    var reservedTag = "a,div,span,p,img,button,ul,li,h1";
+    return reservedTag.includes(str);
   }
 
   function initGlobalApi(Vue) {
@@ -221,8 +225,8 @@
       // 拥有父类所有功能
       var Super = this;
 
-      var Sub = function VueComponent() {
-        this._init();
+      var Sub = function VueComponent(options) {
+        this._init(options);
       }; // 原型继承
 
 
@@ -296,6 +300,9 @@
   }
 
   function parseHTML(html) {
+    root = null;
+    stack$1 = [];
+
     function advance(len) {
       html = html.substring(len);
     }
@@ -852,6 +859,10 @@
   }
 
   function patch(oldVnode, vnode) {
+    if (!oldVnode) {
+      return createElm(vnode); // 如果没有el，就是组件，直接根据虚拟节点返回真实节点
+    }
+
     if (oldVnode.nodeType === 1) {
       // 真是元素，第一次更新
       // 用vnode来生成真实dom替换原来的dom元素
@@ -864,6 +875,20 @@
     }
   }
 
+  function createComponent$1(vnode) {
+    var i = vnode.data; // i = vnode.data.hook -> i = vnode.data.hook.init
+    // 判断+复值
+
+    if ((i = i.hook) && (i = i.init)) {
+      i(vnode); // 调用组件的init方法
+    }
+
+    if (vnode.componentInstance) {
+      // 说明子组件new 完成了，并且创建了真实dom
+      return true;
+    }
+  }
+
   function createElm(vnode) {
     var tag = vnode.tag;
         vnode.data;
@@ -873,6 +898,11 @@
 
     if (typeof tag === 'string') {
       // 元素
+      if (createComponent$1(vnode)) {
+        // 返回组件对应的真实节点
+        return vnode.componentInstance.$el;
+      }
+
       vnode.el = document.createElement(tag);
       children.forEach(function (child) {
         vnode.el.appendChild(createElm(child));
@@ -906,6 +936,8 @@
     new Watcher(vm, updateComponent, function () {
       console.log('更新视图了');
     }, true); // 是一个渲染watcher
+
+    callHook(vm, 'mounted');
   }
 
   function initMixin(Vue) {
@@ -932,9 +964,10 @@
 
         if (!template && el) {
           template = el.outerHTML;
-          var render = compileToFunction(template);
-          options.render = render;
         }
+
+        var render = compileToFunction(template);
+        options.render = render;
       }
 
       mountComponent(vm); // 组建挂在
@@ -957,20 +990,49 @@
       children[_key - 3] = arguments[_key];
     }
 
-    return vnode(vm, tag, data, data.key, children, undefined);
+    // 如果tag是一个组件，应该渲染一个组件的vnode
+    if (isReservedTag(tag)) {
+      return vnode(vm, tag, data, data.key, children, undefined);
+    } else {
+      var Ctor = vm.$options.components[tag];
+      return createComponent(vm, tag, data, data.key, children, Ctor);
+    }
+  } // 创建组件的虚拟节点
+
+  function createComponent(vm, tag, data, key, children, Ctor) {
+    if (isObject(Ctor)) {
+      Ctor = vm.$options._base.extend(Ctor);
+    }
+
+    data.hook = {
+      // 渲染组件时，需要调用此初始化方法
+      init: function init(vnode) {
+        var vm = vnode.componentInstance = new Ctor({
+          _isComponent: true
+        }); // new Sub() Vue.extend实现
+
+        vm.$mount();
+      }
+    };
+    return vnode(vm, "vue-component-".concat(tag), data, key, undefined, undefined, {
+      Ctor: Ctor,
+      children: children
+    });
   }
+
   function createTextElement(vm, text) {
     return vnode(vm, undefined, undefined, undefined, undefined, text);
   }
 
-  function vnode(vm, tag, data, key, children, text) {
+  function vnode(vm, tag, data, key, children, text, componentOptions) {
     return {
       vm: vm,
       tag: tag,
       data: data,
       key: key,
       children: children,
-      text: text
+      text: text,
+      componentOptions: componentOptions
     };
   }
 

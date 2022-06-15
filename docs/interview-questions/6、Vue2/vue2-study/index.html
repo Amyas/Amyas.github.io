@@ -11,6 +11,7 @@
       <ul>
         <li>
           <h1>data:{{name}}</h1>
+          <my-button></my-button>
         </li>
       </ul>
     </div>
@@ -28,7 +29,12 @@
         },
         components: {
           'my-button': {
-            template: '<button>my-button</button>'
+            data(){
+              return {
+                name :'!!! component'
+              }
+            },
+            template: '<button>my-button{{name}}</button>',
           }
         }
       })

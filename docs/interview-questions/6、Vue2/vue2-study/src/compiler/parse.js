@@ -48,6 +48,9 @@ function chars(text) {
 }
 
 export function parseHTML(html){
+  root = null
+  stack = []
+
   function advance(len) {
     html = html.substring(len)
   }

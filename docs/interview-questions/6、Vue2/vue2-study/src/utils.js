@@ -112,10 +112,15 @@ export function mergeOptions(parent, child) {
       if(isObject(parentVal) && isObject(childVal)) {
         options[key] = {...parentVal,...childVal}
       } else {
-        options[key] = childVal
+        options[key] = childVal || parentVal
       }
     }
   }
 
   return options
+}
+
+export function isReservedTag (str){
+  let reservedTag = `a,div,span,p,img,button,ul,li,h1`
+  return reservedTag.includes(str)
 }
