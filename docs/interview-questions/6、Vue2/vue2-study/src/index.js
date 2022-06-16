@@ -14,4 +14,28 @@ lifecycleMixin(Vue) // _update
 stateMixin(Vue) // watcher
 initGlobalApi(Vue)
 
+import {compileToFunction} from './compiler/index'
+import {createElm, patch} from './vdom/patch'
+
+let oldTemplate = `<div style="color: red;" a="1">{{message}}</div>`
+let vm1 = new Vue({data:{message:'hello world'}})
+const render1 = compileToFunction(oldTemplate)
+const oldVnode = render1.call(vm1)
+document.body.appendChild(createElm(oldVnode))
+
+let newTemplate = `<div b="2"></div>`
+let vm2 = new Vue({data:{message:'zf'}})
+const render2 = compileToFunction(newTemplate)
+const newVnode = render2.call(vm2)
+
+
+setTimeout(() => {
+  
+// 根据信的虚拟节点更新老的节点
+patch(oldVnode, newVnode)
+}, 1000);
+
+
+
+
 export default Vue

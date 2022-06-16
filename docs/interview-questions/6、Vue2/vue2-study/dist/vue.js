@@ -872,6 +872,76 @@
       parentEl.insertBefore(elm, oldVnode.nextSibling);
       parentEl.removeChild(oldVnode);
       return elm;
+    } else {
+      // 如果标签名称不一样，直接删除老的换成新的即可
+      if (oldVnode.tag !== vnode.tag) {
+        // 可以通过vnode.el获取真实dom
+        return oldVnode.el.parentNode.replaceChild(createElm(vnode), oldVnode.el);
+      } // 如果标签一样，比较属性，传入新的虚拟节点和老的属性，用新的属性更新老的
+      // 标签相同，直接复用之前的node节点，不需要重新创建 
+
+
+      var el = vnode.el = oldVnode.el; // 根据新传入的props，进行props修改
+
+      patchProps(vnode, oldVnode.data); // 如果两个虚拟节点是文本节点，比较文本内容
+
+      if (vnode.tag === undefined) {
+        // 新老都是文本
+        if (oldVnode.text !== vnode.text) {
+          el.textContent = vnode.text;
+        } // 都是文本，就不需要对下面的内容了
+
+
+        return;
+      }
+
+      var oldChildren = oldVnode.children || [];
+      var newChildren = vnode.children || [];
+
+      if (oldChildren.length > 0 && newChildren.length > 0) ; else if (newChildren.length > 0) {
+        // 只有新节点有儿子
+        for (var i = 0; i < newChildren.length; i++) {
+          // 创建出儿子的真实节点，然后拆入进去
+          var child = createElm(newChildren[i]);
+          el.appendChild(child);
+        }
+      } else if (oldChildren.length > 0) {
+        // 只有老节点有儿子
+        // 新节点没儿子，直接清空
+        el.innerHTML = '';
+      }
+    }
+  } // 初次渲染时可以调用此方法，后续更新也可以调用此方法
+
+  function patchProps(vnode) {
+    var oldProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var newProps = vnode.data || {};
+    var el = vnode.el; // 如果老的属性有，新的没有直接删除
+
+    var newStyle = newProps.style || {};
+    var oldStyle = oldProps.style || {};
+
+    for (var key in oldStyle) {
+      if (!newStyle[key]) {
+        // 新的元素内不存在
+        el.style[key] = '';
+      }
+    }
+
+    for (var _key in oldProps) {
+      if (!newProps[_key]) {
+        el.removeAttribute(_key);
+      }
+    }
+
+    for (var _key2 in newProps) {
+      if (_key2 === 'style') {
+        for (var styleName in newProps.style) {
+          el.style[styleName] = newProps.style[styleName];
+        }
+      } else {
+        vnode.el.setAttribute(_key2, newProps[_key2]);
+      }
     }
   }
 
@@ -904,6 +974,7 @@
       }
 
       vnode.el = document.createElement(tag);
+      patchProps(vnode);
       children.forEach(function (child) {
         vnode.el.appendChild(createElm(child));
       });
@@ -1077,6 +1148,27 @@
   stateMixin(Vue); // watcher
 
   initGlobalApi(Vue);
+  var oldTemplate = "<div style=\"color: red;\" a=\"1\">{{message}}</div>";
+  var vm1 = new Vue({
+    data: {
+      message: 'hello world'
+    }
+  });
+  var render1 = compileToFunction(oldTemplate);
+  var oldVnode = render1.call(vm1);
+  document.body.appendChild(createElm(oldVnode));
+  var newTemplate = "<div b=\"2\"></div>";
+  var vm2 = new Vue({
+    data: {
+      message: 'zf'
+    }
+  });
+  var render2 = compileToFunction(newTemplate);
+  var newVnode = render2.call(vm2);
+  setTimeout(function () {
+    // 根据信的虚拟节点更新老的节点
+    patch(oldVnode, newVnode);
+  }, 1000);
 
   return Vue;
 
