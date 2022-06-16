@@ -17,13 +17,23 @@ initGlobalApi(Vue)
 import {compileToFunction} from './compiler/index'
 import {createElm, patch} from './vdom/patch'
 
-let oldTemplate = `<div style="color: red;" a="1">{{message}}</div>`
+let oldTemplate = `<div>
+  <li key="a">A</li>
+  <li key="b">B</li>
+  <li key="c">C</li>
+  <li key="d">D</li>
+</div>`
 let vm1 = new Vue({data:{message:'hello world'}})
 const render1 = compileToFunction(oldTemplate)
 const oldVnode = render1.call(vm1)
 document.body.appendChild(createElm(oldVnode))
 
-let newTemplate = `<div b="2"></div>`
+let newTemplate = `<div>
+  <li key="d">D</li>
+  <li key="a">A</li>
+  <li key="b">B</li>
+  <li key="c">C</li>
+</div>`
 let vm2 = new Vue({data:{message:'zf'}})
 const render2 = compileToFunction(newTemplate)
 const newVnode = render2.call(vm2)

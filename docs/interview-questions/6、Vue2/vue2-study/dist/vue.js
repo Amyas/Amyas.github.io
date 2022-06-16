@@ -898,7 +898,11 @@
       var oldChildren = oldVnode.children || [];
       var newChildren = vnode.children || [];
 
-      if (oldChildren.length > 0 && newChildren.length > 0) ; else if (newChildren.length > 0) {
+      if (oldChildren.length > 0 && newChildren.length > 0) {
+        // 双方都有儿子
+        // vue使用双指针处理
+        patchChildren(el, oldChildren, newChildren);
+      } else if (newChildren.length > 0) {
         // 只有新节点有儿子
         for (var i = 0; i < newChildren.length; i++) {
           // 创建出儿子的真实节点，然后拆入进去
@@ -911,7 +915,68 @@
         el.innerHTML = '';
       }
     }
+  } // 是否为同一个元素
+
+  function isSameVnode(oldVnode, newVnode) {
+    return oldVnode.tag === newVnode.tag && oldVnode.key === newVnode.key;
+  }
+
+  function patchChildren(el, oldChildren, newChildren) {
+    var oldStartIndex = 0;
+    var oldStartVnode = oldChildren[0];
+    var oldEndIndex = oldChildren.length - 1;
+    var oldEndVnode = oldChildren[oldChildren.length - 1];
+    var newStartIndex = 0;
+    var newStartVnode = newChildren[0];
+    var newEndIndex = newChildren.length - 1;
+    var newEndVnode = newChildren[newChildren.length - 1]; // 只比对同等数量的节点
+
+    while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+      // 同时循环新的节点和老的节点
+      if (isSameVnode(oldStartVnode, newStartVnode)) {
+        // 头部开始比较
+        patch(oldStartVnode, newStartVnode);
+        oldStartVnode = oldChildren[++oldStartIndex];
+        newStartVnode = newChildren[++newStartIndex];
+      } else if (isSameVnode(oldEndVnode, newEndVnode)) {
+        // 尾部开始比较
+        patch(oldEndVnode, newEndVnode);
+        oldEndVnode = oldChildren[--oldEndIndex];
+        newEndVnode = newChildren[--newEndIndex];
+      } else if (isSameVnode(oldStartVnode, newEndVnode)) {
+        // 头尾比较
+        patch(oldStartVnode, newEndVnode);
+        el.insertBefore(oldStartVnode.el, oldEndVnode.el.nextSibling);
+        oldStartVnode = oldChildren[++oldStartIndex];
+        newEndVnode = newChildren[--newEndIndex];
+      } else if (isSameVnode(oldEndVnode, newStartVnode)) {
+        // 尾头比较
+        patch(oldEndVnode, newStartVnode);
+        el.insertBefore(oldEndVnode.el, oldStartVnode.el);
+        oldEndVnode = oldChildren[--oldEndIndex];
+        newStartVnode = newChildren[++newStartIndex];
+      }
+    } // 如果用户追加了n个节点
+
+
+    if (newStartIndex <= newEndIndex) {
+      for (var i = newStartIndex; i <= newEndIndex; i++) {
+        // el.appendChild(createElm(newChildren[i]))
+        // insertBefore 可以直线appendChild功能
+        // 看一下尾指针的下一个元素是否存在
+        var anchor = newChildren[newEndIndex + 1] == null ? null : newChildren[newEndIndex + 1].el;
+        el.insertBefore(createElm(newChildren[i]), anchor);
+      }
+    } // 用户减少了n个节点
+
+
+    if (oldStartIndex <= oldEndIndex) {
+      for (var _i = oldStartIndex; _i <= oldEndIndex; _i++) {
+        el.removeChild(oldChildren[_i].el);
+      }
+    }
   } // 初次渲染时可以调用此方法，后续更新也可以调用此方法
+
 
   function patchProps(vnode) {
     var oldProps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -1148,7 +1213,7 @@
   stateMixin(Vue); // watcher
 
   initGlobalApi(Vue);
-  var oldTemplate = "<div style=\"color: red;\" a=\"1\">{{message}}</div>";
+  var oldTemplate = "<div>\n  <li key=\"a\">A</li>\n  <li key=\"b\">B</li>\n  <li key=\"c\">C</li>\n  <li key=\"d\">D</li>\n</div>";
   var vm1 = new Vue({
     data: {
       message: 'hello world'
@@ -1157,7 +1222,7 @@
   var render1 = compileToFunction(oldTemplate);
   var oldVnode = render1.call(vm1);
   document.body.appendChild(createElm(oldVnode));
-  var newTemplate = "<div b=\"2\"></div>";
+  var newTemplate = "<div>\n  <li key=\"d\">D</li>\n  <li key=\"a\">A</li>\n  <li key=\"b\">B</li>\n  <li key=\"c\">C</li>\n</div>";
   var vm2 = new Vue({
     data: {
       message: 'zf'

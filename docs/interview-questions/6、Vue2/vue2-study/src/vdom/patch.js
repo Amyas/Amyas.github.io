@@ -41,6 +41,8 @@ export function patch(oldVnode, vnode){
     
     if(oldChildren.length > 0 && newChildren.length > 0) {
       // 双方都有儿子
+      // vue使用双指针处理
+      patchChildren(el, oldChildren, newChildren)
     } else if (newChildren.length > 0) { // 只有新节点有儿子
       for(let i = 0; i < newChildren.length; i++) {
         // 创建出儿子的真实节点，然后拆入进去
@@ -52,6 +54,67 @@ export function patch(oldVnode, vnode){
       el.innerHTML = ''
     }
   }
+}
+
+// 是否为同一个元素
+function isSameVnode(oldVnode, newVnode) {
+  return (oldVnode.tag === newVnode.tag) && (oldVnode.key === newVnode.key)
+}
+
+function patchChildren(el, oldChildren, newChildren) {
+  let oldStartIndex = 0
+  let oldStartVnode = oldChildren[0]
+  let oldEndIndex = oldChildren.length - 1
+  let oldEndVnode = oldChildren[oldChildren.length - 1]
+
+  let newStartIndex = 0
+  let newStartVnode = newChildren[0]
+  let newEndIndex = newChildren.length - 1
+  let newEndVnode = newChildren[newChildren.length - 1]
+
+  // 只比对同等数量的节点
+  while(oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+    // 同时循环新的节点和老的节点
+    if(isSameVnode(oldStartVnode, newStartVnode)) { // 头部开始比较
+      patch(oldStartVnode, newStartVnode)
+      oldStartVnode = oldChildren[++oldStartIndex]
+      newStartVnode = newChildren[++newStartIndex]
+    } else if(isSameVnode(oldEndVnode, newEndVnode)) { // 尾部开始比较
+      patch(oldEndVnode, newEndVnode)
+      oldEndVnode = oldChildren[--oldEndIndex]
+      newEndVnode = newChildren[--newEndIndex]
+    } else if (isSameVnode(oldStartVnode, newEndVnode)) { // 头尾比较
+      patch(oldStartVnode, newEndVnode)
+      el.insertBefore(oldStartVnode.el, oldEndVnode.el.nextSibling)
+      oldStartVnode = oldChildren[++oldStartIndex]
+      newEndVnode = newChildren[--newEndIndex]
+    } else if(isSameVnode(oldEndVnode, newStartVnode)) { // 尾头比较
+      patch(oldEndVnode, newStartVnode)
+      el.insertBefore(oldEndVnode.el, oldStartVnode.el)
+      oldEndVnode = oldChildren[--oldEndIndex]
+      newStartVnode = newChildren[++newStartIndex]
+    }
+  }
+
+  // 如果用户追加了n个节点
+  if(newStartIndex <= newEndIndex) {
+    for(let i = newStartIndex; i <= newEndIndex; i++) {
+      // el.appendChild(createElm(newChildren[i]))
+      // insertBefore 可以直线appendChild功能
+      
+      // 看一下尾指针的下一个元素是否存在
+      let anchor = newChildren[newEndIndex + 1] == null ? null : newChildren[newEndIndex + 1].el
+      el.insertBefore(createElm(newChildren[i]), anchor)
+    }
+  }
+
+  // 用户减少了n个节点
+  if(oldStartIndex <= oldEndIndex) {
+    for(let i = oldStartIndex; i <= oldEndIndex; i++) {
+      el.removeChild(oldChildren[i].el)
+    }
+  }
+  
 }
 
 // 初次渲染时可以调用此方法，后续更新也可以调用此方法
