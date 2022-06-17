@@ -3,9 +3,11 @@ const GenerateSidebar = require("./generate-sidebar");
 
 const docsPath = path.join(__dirname, "..");
 
-const sidebarInstance = new GenerateSidebar(docsPath, [".vuepress","vue2-study"])
-
-const sidebar = require('../test.json')
+const sidebarInstance = new GenerateSidebar(docsPath, [
+  ".vuepress",
+  "vue2-study",
+  "vue2-router-study"
+])
 
 module.exports = {
   title: "Amyas ' Blog",

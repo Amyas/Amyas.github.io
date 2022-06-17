@@ -11,4 +11,4 @@ const sidebarInstance = new GenerateSidebar(docsPath, [
   "vue2-study"
 ])
 
-console.log(sidebarInstance.getSidebar())
+console.log(JSON.stringify(sidebarInstance.getSidebar()))
