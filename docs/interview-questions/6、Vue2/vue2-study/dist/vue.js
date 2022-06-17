@@ -914,6 +914,8 @@
         // 新节点没儿子，直接清空
         el.innerHTML = '';
       }
+
+      return el;
     }
   } // 是否为同一个元素
 
@@ -1092,7 +1094,16 @@
     Vue.prototype._update = function (vnode) {
       // 既有初始化又有更新
       var vm = this;
-      vm.$el = patch(vm.$el, vnode);
+      var prevVnode = vm._vnode; // 保存当前的虚拟节点
+
+      if (!prevVnode) {
+        // 初次渲染
+        vm.$el = patch(vm.$el, vnode);
+      } else {
+        vm.$el = patch(prevVnode, vnode);
+      }
+
+      vm._vnode = vnode;
     };
 
     Vue.prototype.$nextTick = nextTick;
@@ -1251,27 +1262,6 @@
   stateMixin(Vue); // watcher
 
   initGlobalApi(Vue);
-  var oldTemplate = "<div>\n  <li key=\"c\">C</li>\n  <li key=\"a\">A</li>\n  <li key=\"b\">B</li>\n  <li key=\"d\">D</li>\n</div>";
-  var vm1 = new Vue({
-    data: {
-      message: 'hello world'
-    }
-  });
-  var render1 = compileToFunction(oldTemplate);
-  var oldVnode = render1.call(vm1);
-  document.body.appendChild(createElm(oldVnode));
-  var newTemplate = "<div>\n  <li key=\"b\">B</li>\n  <li key=\"c\">C</li>\n  <li key=\"D\">D</li>\n  <li key=\"a\">A</li>\n</div>";
-  var vm2 = new Vue({
-    data: {
-      message: 'zf'
-    }
-  });
-  var render2 = compileToFunction(newTemplate);
-  var newVnode = render2.call(vm2);
-  setTimeout(function () {
-    // 根据信的虚拟节点更新老的节点
-    patch(oldVnode, newVnode);
-  }, 1000);
 
   return Vue;
 

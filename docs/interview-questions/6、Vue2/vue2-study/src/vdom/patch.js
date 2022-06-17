@@ -53,6 +53,8 @@ export function patch(oldVnode, vnode){
       // 新节点没儿子，直接清空
       el.innerHTML = ''
     }
+
+    return el
   }
 }
 

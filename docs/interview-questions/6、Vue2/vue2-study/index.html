@@ -8,36 +8,23 @@
   </head>
   <body>
     <div id="app">
-      <ul>
-        <li>
-          <h1>data:{{name}}</h1>
-          <my-button></my-button>
-        </li>
-      </ul>
+      <li>
+        <h1>{{name}}</h1>
+      </li>
     </div>
     <script src="dist/vue.js"></script>
     <script>
-      Vue.component('my-button',{
-        template: '<button>global-button</button>'
-      })
       let vm = new Vue({
         el: "#app",
         data(){
           return {
             name: 'amyas',
           }
-        },
-        components: {
-          'my-button': {
-            data(){
-              return {
-                name :'!!! component'
-              }
-            },
-            template: '<button>my-button{{name}}</button>',
-          }
         }
       })
+      setTimeout(() => {
+        vm.name = 'update'
+      }, 1000);
     </script>
   </body>
 </html>

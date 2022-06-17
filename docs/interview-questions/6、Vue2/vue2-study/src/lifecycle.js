@@ -4,10 +4,16 @@ import { nextTick } from './utils'
 import {patch} from './vdom/patch'
 
 export function lifecycleMixin(Vue) {
-  Vue.prototype._update = function(vnode) {
+  Vue.prototype._update = function(vnode) { 
     // 既有初始化又有更新
     const vm = this
-    vm.$el = patch(vm.$el, vnode)
+    const prevVnode =  vm._vnode  // 保存当前的虚拟节点
+    if(!prevVnode) { // 初次渲染
+      vm.$el = patch(vm.$el, vnode)
+    } else {
+      vm.$el = patch(prevVnode, vnode)
+    }
+    vm._vnode = vnode
   }
   Vue.prototype.$nextTick = nextTick
 }
