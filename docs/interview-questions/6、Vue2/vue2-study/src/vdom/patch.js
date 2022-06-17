@@ -23,9 +23,6 @@ export function patch(oldVnode, vnode){
     // 如果标签一样，比较属性，传入新的虚拟节点和老的属性，用新的属性更新老的
     // 标签相同，直接复用之前的node节点，不需要重新创建 
     let el = vnode.el = oldVnode.el
-    
-    // 根据新传入的props，进行props修改
-    patchProps(vnode, oldVnode.data)
 
     // 如果两个虚拟节点是文本节点，比较文本内容
     if(vnode.tag === undefined) { // 新老都是文本
@@ -35,6 +32,9 @@ export function patch(oldVnode, vnode){
       // 都是文本，就不需要对下面的内容了
       return
     }
+
+    // 根据新传入的props，进行props修改
+    patchProps(vnode, oldVnode.data)
 
     let oldChildren = oldVnode.children || []
     let newChildren = vnode.children || []
@@ -72,8 +72,24 @@ function patchChildren(el, oldChildren, newChildren) {
   let newEndIndex = newChildren.length - 1
   let newEndVnode = newChildren[newChildren.length - 1]
 
+  const makeIndexByKey = (children)=>{
+    return children.reduce((total, current, index)=>{
+      if(current.key) {
+        total[current.key] = index
+      }
+      return total
+    },{})
+  }
+  const keysMap = makeIndexByKey(oldChildren)
+
   // 只比对同等数量的节点
   while(oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+    if(!oldStartVnode) {
+      oldStartVnode = oldChildren[++oldStartIndex]
+    } else if (!oldEndVnode) {
+      oldEndVnode = oldChildren[--oldEndIndex]
+    }
+
     // 同时循环新的节点和老的节点
     if(isSameVnode(oldStartVnode, newStartVnode)) { // 头部开始比较
       patch(oldStartVnode, newStartVnode)
@@ -93,6 +109,19 @@ function patchChildren(el, oldChildren, newChildren) {
       el.insertBefore(oldEndVnode.el, oldStartVnode.el)
       oldEndVnode = oldChildren[--oldEndIndex]
       newStartVnode = newChildren[++newStartIndex]
+    }  else { // 乱序比较 核心diff
+      // 1.需要根据key和对应的索引将老的内容生成映射表
+      let moveIndex = keysMap[newStartVnode.key] // 那新的去老的中查找
+      if(moveIndex == undefined) {// 如果不能复用直接创建新的插入到老的节点开头处
+        el.insertBefore(createElm(newStartVnode), oldStartVnode.el)
+      } else {
+        let moveNode = oldChildren[moveIndex]
+        oldChildren[moveIndex] = null // 此节点已经被移动走了 
+        el.insertBefore(moveNode.el, oldStartVnode.el)
+        patch(moveNode, newStartVnode)
+      }
+      newStartVnode = newChildren[++newStartIndex]
+
     }
   }
 
@@ -111,7 +140,10 @@ function patchChildren(el, oldChildren, newChildren) {
   // 用户减少了n个节点
   if(oldStartIndex <= oldEndIndex) {
     for(let i = oldStartIndex; i <= oldEndIndex; i++) {
-      el.removeChild(oldChildren[i].el)
+      // 如果老的多，将老的节点删除，但是可能存在null的情况
+      if(oldChildren[i] !== null) {
+        el.removeChild(oldChildren[i].el)
+      }
     }
   }
   

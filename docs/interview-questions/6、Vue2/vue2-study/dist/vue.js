@@ -881,9 +881,7 @@
       // 标签相同，直接复用之前的node节点，不需要重新创建 
 
 
-      var el = vnode.el = oldVnode.el; // 根据新传入的props，进行props修改
-
-      patchProps(vnode, oldVnode.data); // 如果两个虚拟节点是文本节点，比较文本内容
+      var el = vnode.el = oldVnode.el; // 如果两个虚拟节点是文本节点，比较文本内容
 
       if (vnode.tag === undefined) {
         // 新老都是文本
@@ -893,8 +891,10 @@
 
 
         return;
-      }
+      } // 根据新传入的props，进行props修改
 
+
+      patchProps(vnode, oldVnode.data);
       var oldChildren = oldVnode.children || [];
       var newChildren = vnode.children || [];
 
@@ -929,10 +929,28 @@
     var newStartIndex = 0;
     var newStartVnode = newChildren[0];
     var newEndIndex = newChildren.length - 1;
-    var newEndVnode = newChildren[newChildren.length - 1]; // 只比对同等数量的节点
+    var newEndVnode = newChildren[newChildren.length - 1];
+
+    var makeIndexByKey = function makeIndexByKey(children) {
+      return children.reduce(function (total, current, index) {
+        if (current.key) {
+          total[current.key] = index;
+        }
+
+        return total;
+      }, {});
+    };
+
+    var keysMap = makeIndexByKey(oldChildren); // 只比对同等数量的节点
 
     while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
-      // 同时循环新的节点和老的节点
+      if (!oldStartVnode) {
+        oldStartVnode = oldChildren[++oldStartIndex];
+      } else if (!oldEndVnode) {
+        oldEndVnode = oldChildren[--oldEndIndex];
+      } // 同时循环新的节点和老的节点
+
+
       if (isSameVnode(oldStartVnode, newStartVnode)) {
         // 头部开始比较
         patch(oldStartVnode, newStartVnode);
@@ -955,6 +973,23 @@
         el.insertBefore(oldEndVnode.el, oldStartVnode.el);
         oldEndVnode = oldChildren[--oldEndIndex];
         newStartVnode = newChildren[++newStartIndex];
+      } else {
+        // 乱序比较 核心diff
+        // 1.需要根据key和对应的索引将老的内容生成映射表
+        var moveIndex = keysMap[newStartVnode.key]; // 那新的去老的中查找
+
+        if (moveIndex == undefined) {
+          // 如果不能复用直接创建新的插入到老的节点开头处
+          el.insertBefore(createElm(newStartVnode), oldStartVnode.el);
+        } else {
+          var moveNode = oldChildren[moveIndex];
+          oldChildren[moveIndex] = null; // 此节点已经被移动走了 
+
+          el.insertBefore(moveNode.el, oldStartVnode.el);
+          patch(moveNode, newStartVnode);
+        }
+
+        newStartVnode = newChildren[++newStartIndex];
       }
     } // 如果用户追加了n个节点
 
@@ -972,7 +1007,10 @@
 
     if (oldStartIndex <= oldEndIndex) {
       for (var _i = oldStartIndex; _i <= oldEndIndex; _i++) {
-        el.removeChild(oldChildren[_i].el);
+        // 如果老的多，将老的节点删除，但是可能存在null的情况
+        if (oldChildren[_i] !== null) {
+          el.removeChild(oldChildren[_i].el);
+        }
       }
     }
   } // 初次渲染时可以调用此方法，后续更新也可以调用此方法
@@ -1213,7 +1251,7 @@
   stateMixin(Vue); // watcher
 
   initGlobalApi(Vue);
-  var oldTemplate = "<div>\n  <li key=\"a\">A</li>\n  <li key=\"b\">B</li>\n  <li key=\"c\">C</li>\n  <li key=\"d\">D</li>\n</div>";
+  var oldTemplate = "<div>\n  <li key=\"c\">C</li>\n  <li key=\"a\">A</li>\n  <li key=\"b\">B</li>\n  <li key=\"d\">D</li>\n</div>";
   var vm1 = new Vue({
     data: {
       message: 'hello world'
@@ -1222,7 +1260,7 @@
   var render1 = compileToFunction(oldTemplate);
   var oldVnode = render1.call(vm1);
   document.body.appendChild(createElm(oldVnode));
-  var newTemplate = "<div>\n  <li key=\"d\">D</li>\n  <li key=\"a\">A</li>\n  <li key=\"b\">B</li>\n  <li key=\"c\">C</li>\n</div>";
+  var newTemplate = "<div>\n  <li key=\"b\">B</li>\n  <li key=\"c\">C</li>\n  <li key=\"D\">D</li>\n  <li key=\"a\">A</li>\n</div>";
   var vm2 = new Vue({
     data: {
       message: 'zf'

@@ -18,9 +18,9 @@ import {compileToFunction} from './compiler/index'
 import {createElm, patch} from './vdom/patch'
 
 let oldTemplate = `<div>
+  <li key="c">C</li>
   <li key="a">A</li>
   <li key="b">B</li>
-  <li key="c">C</li>
   <li key="d">D</li>
 </div>`
 let vm1 = new Vue({data:{message:'hello world'}})
@@ -29,10 +29,10 @@ const oldVnode = render1.call(vm1)
 document.body.appendChild(createElm(oldVnode))
 
 let newTemplate = `<div>
-  <li key="d">D</li>
-  <li key="a">A</li>
   <li key="b">B</li>
   <li key="c">C</li>
+  <li key="D">D</li>
+  <li key="a">A</li>
 </div>`
 let vm2 = new Vue({data:{message:'zf'}})
 const render2 = compileToFunction(newTemplate)
