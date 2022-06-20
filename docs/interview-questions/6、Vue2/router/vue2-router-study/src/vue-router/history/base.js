@@ -24,15 +24,25 @@ export default class History {
     })
   }
 
+  listen(cb) {
+    this.cb = cb
+  }
+
   transtionTo(path, cb) {
     let record = this.router.match(path)
-    this.current = createRoute(record, {
+    let route = createRoute(record, {
       path
     })
+    
+    if(
+      (path === this.current.path) && 
+      (route.matched.length === this.current.matched.length)
+    ) {
+      return
+    }
 
-    // 路径变化，渲染组件，响应式原理
-    // 我们需要将current属性变成响应式，这样更改current就可以渲染了
-    // Vue.util.defineReactive() === defineReactive
+    this.current = route
+    this.cb && this.cb(route) // 改变current 通知外部改变了
 
     cb && cb()
   }

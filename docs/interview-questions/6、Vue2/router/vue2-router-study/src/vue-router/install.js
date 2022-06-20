@@ -15,6 +15,8 @@ export default function install(_Vue){
         this._routerRoot = this
         
         this._router.init(this)
+
+        Vue.util.defineReactive(this, '_route', this._router.history.current)
       } else {
         // 子孙组件
         this._routerRoot = this.$parent && this.$parent._routerRoot
@@ -22,14 +24,14 @@ export default function install(_Vue){
     }
   })
 
-  Object.defineProperty(Vue.prototype, '$router', {
+  Object.defineProperty(Vue.prototype, '$router', { // 方法
     get(){
-
+      return this._routerRoot._router
     }
   })
-  Object.defineProperty(Vue.prototype, '$route', {
+  Object.defineProperty(Vue.prototype, '$route', { // 属性
     get(){
-
+      return this._routerRoot._route
     }
   })
 

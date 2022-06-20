@@ -34,9 +34,18 @@ class VueRouter {
       history.getCurrentLocation(),
       setUpListener
     )
+    history.listen((route)=>{
+      // 监听如果curretn变化了，重新给_route赋值
+      app._route = route
+    })
   }
   match(location){
     return this.matcher.match(location)
+  }
+  push(location) {
+    return this.history.transtionTo(location, ()=>{
+      window.location.hash = location // 更改hash值
+    })
   }
 }
 
