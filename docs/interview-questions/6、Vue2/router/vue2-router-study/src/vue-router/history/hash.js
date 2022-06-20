@@ -28,4 +28,8 @@ export default class HashHistory extends History {
       this.transtionTo(getHash())
     })
   }
+
+  pushState(location){
+    window.location.hash = location // 更改hash值
+  }
 }

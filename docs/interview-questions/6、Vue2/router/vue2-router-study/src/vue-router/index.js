@@ -16,7 +16,8 @@ class VueRouter {
         this.history = new HashHistory(this)
         break;
       case 'history':
-        this.HISTORY = new HTML5History(this)
+        this.history = new HTML5History(this)
+        break
     }
 
     this.beforeEachHooks = []
@@ -47,7 +48,7 @@ class VueRouter {
   }
   push(location) {
     return this.history.transtionTo(location, ()=>{
-      window.location.hash = location // 更改hash值
+      this.history.pushState(location)
     })
   }
   beforeEach(fn) {
