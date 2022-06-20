@@ -18,6 +18,8 @@ class VueRouter {
       case 'history':
         this.HISTORY = new HTML5History(this)
     }
+
+    this.beforeEachHooks = []
   }
   init(app) {
     const history = this.history // 当前管理路由
@@ -38,6 +40,7 @@ class VueRouter {
       // 监听如果curretn变化了，重新给_route赋值
       app._route = route
     })
+
   }
   match(location){
     return this.matcher.match(location)
@@ -46,6 +49,9 @@ class VueRouter {
     return this.history.transtionTo(location, ()=>{
       window.location.hash = location // 更改hash值
     })
+  }
+  beforeEach(fn) {
+    this.beforeEachHooks.push(fn)
   }
 }
 
