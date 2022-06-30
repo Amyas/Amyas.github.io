@@ -1,37 +1,10 @@
-# 6.生成模版编译函数
-
-``` js
-// vue.js
-function Vue(options) {
-  ...
-  if(this.$options.el) {
-    this.$mount(this.$options.el)
-  }
-}
-
-Vue.prototype.$mount = function(el) {
-  const vm = this
-  const options = vm.$options
-
-  el = document.querySelector(el)
-
-  let template = options.template
-  if(!template && el) {
-    template = el.outerHTML
-  }
-  let render = compileToFunction(template)
-  options.render = render
-}
-```
-
-``` js
-// compile.js
-const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z]*`
+const ncname = '[a-zA-Z_][\\-\\.0-9_a-zA-Z]*'
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`
 const startTagOpen = new RegExp(`^<${qnameCapture}`)
-const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`)
-const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/
 const startTagClose = /^\s*(\/?)>/
+const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^'])'+|([^\s"'=<>`]+)))?/
+const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`)
+
 
 function start(tagName, attrs) {
   console.log('start:', tagName, attrs)
@@ -45,13 +18,17 @@ function chars(text) {
   console.log('chars:', text)
 }
 
+function compileToFunction(html) {
+  parseHTML(html)
+}
+
 function parseHTML(html) {
   function advance(len) {
     html = html.substring(len)
   }
   function parseStartTag(){
     const start = html.match(startTagOpen)
-    if(match) {
+    if(start) {
       const match = {
         tagName: start[1],
         attrs: []
@@ -74,6 +51,7 @@ function parseHTML(html) {
       if(end) {
         advance(end[0].length)
       }
+
       return match
     }
     return false
@@ -85,14 +63,14 @@ function parseHTML(html) {
       const startTagMatch = parseStartTag()
       if(startTagMatch) {
         start(startTagMatch.tagName, startTagMatch.attrs)
-        continue;
+        continue
       }
 
       const endTagMatch = html.match(endTag)
       if(endTagMatch) {
         end(endTagMatch[1])
         advance(endTagMatch[0].length)
-        continue;
+        continue
       }
     }
 
@@ -107,9 +85,3 @@ function parseHTML(html) {
     }
   }
 }
-
-function compileToFunction(template) {
-  parseHTML(template)
-}
-
-```

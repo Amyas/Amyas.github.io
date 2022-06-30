@@ -1,6 +1,8 @@
 function observe(data) {
   if (!isObject(data)) return;
 
+  if(data.__ob__) return data.__ob__
+
   return new Observer(data);
 }
 
