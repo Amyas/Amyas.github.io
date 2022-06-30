@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      function Vue(options) {
+        this.$options = options;
+        initData(this);
+      }
+
+      function initData(vm) {
+        let data = vm.$options.data;
+
+        observe(data);
+      }
+
+      function isObject(val) {
+        return typeof val === "object" && val !== null;
+      }
+
+      function observe(data) {
+        if (!isObject(data)) return;
+
+        return new Observer(data);
+      }
+
+      class Observer {
+        constructor(data) {
+          this.walk(data);
+        }
+        walk(data) {
+          Object.keys(data).forEach((key) => {
+            defineReactive(data, key, data[key]);
+          });
+        }
+      }
+
+      function defineReactive(data, key, value) {
+        observe(value);
+        Object.defineProperty(data, key, {
+          get() {
+            return value;
+          },
+          set(newValue) {
+            if (value !== newValue) return;
+            observe(newValue);
+            value = newValue;
+          },
+        });
+      }
+    </script>
+    <script>
+      let vm = new Vue({
+        data: {
+          name: "amyas",
+          obj: {
+            val: {
+              a: 1,
+            },
+          },
+        },
+      });
+      console.log(vm);
+    </script>
+  </body>
+</html>
