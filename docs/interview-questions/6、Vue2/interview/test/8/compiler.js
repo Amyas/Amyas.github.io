@@ -1,26 +1,3 @@
-# 8.codegen 生成对应代码
-
-```js
-// vue.js
-function Vue(){
-  ...
-}
-Vue.prototype.$mount = function(el) {
-  const vm = this
-  const options = vm.$options
-
-  el = document.querySelector(el)
-
-  let template = options.template
-  if(!template && el) {
-    template = el.outerHTML
-  }
-  options.render = compileToFunction(template)
-}
-```
-
-```js
-// compiler.js
 function parseHTML(html) {
   const startTagClose = /^\s*(\/?)>/;
   const ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*";
@@ -199,4 +176,3 @@ function compileToFunction(html) {
 
   console.log(code);
 }
-```
