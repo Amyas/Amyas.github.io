@@ -1,29 +1,3 @@
-# 9.生成虚拟 DOM
-
-```js
-// vdom.js
-function vnode(vm, tag, data, key, children, text) {
-  return {
-    vm,
-    tag,
-    data,
-    key,
-    children,
-    text,
-  };
-}
-
-function createElement(vm, tag, data = {}, ...children) {
-  return vnode(vm, tag, data, data.key, children, undefined);
-}
-
-function createTextElement(vm, text) {
-  return vnode(vm, undefined, undefined, undefined, undefined, text);
-}
-```
-
-```js
-// vue.js
 function Vue(options) {
   const vm = this;
   vm.$options = options;
@@ -112,4 +86,3 @@ function proxy(vm, source, key) {
 function isFunction(val) {
   return typeof val === "function";
 }
-```
