@@ -36,7 +36,7 @@ function gen(el) {
       }
 
       if (lastIndex < text.length) {
-        tokens.push(JSON.str(text.slice(lastIndex)));
+        tokens.push(JSON.stringify(text.slice(lastIndex)));
       }
 
       return `_v(${tokens.join("+")})`;
