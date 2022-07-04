@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="./dep.js"></script>
+    <script src="./watcher.js"></script>
+    <script src="./compiler.js"></script>
+    <script src="./vdom.js"></script>
+    <script src="./observe.js"></script>
+    <script src="./vue.js"></script>
+    <script>
+      const oldTemplate = `<div a="1">{{message}}</div>`;
+      const vm1 = new Vue({ data: { message: "hello world" } });
+      const render1 = compileToFunction(oldTemplate);
+      const vnode1 = render1.call(vm1);
+      document.body.appendChild(createElm(vnode1));
+
+      const newTemplate = `<div b="2"></div>`;
+      const vm2 = new Vue({ data: { message: "zf" } });
+      const render2 = compileToFunction(newTemplate);
+      const vnode2 = render2.call(vm2);
+
+      setTimeout(() => {
+        patch(vnode1, vnode2);
+      }, 2000);
+    </script>
+  </body>
+</html>

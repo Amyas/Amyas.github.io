@@ -1,25 +1,21 @@
-# 11.diff 算法基础
+function vnode(vm, tag, data, key, children, text) {
+  return {
+    vm,
+    tag,
+    data,
+    key,
+    children,
+    text,
+  };
+}
 
-```js
-// index.html
-const oldTemplate = `<div a="1">{{message}}</div>`;
-const vm1 = new Vue({ data: { message: "hello world" } });
-const render1 = compileToFunction(oldTemplate);
-const vnode1 = render1.call(vm1);
-document.body.appendChild(createElm(vnode1));
+function createElement(vm, tag, data = {}, ...children) {
+  return vnode(vm, tag, data, data.key, children);
+}
 
-const newTemplate = `<div b="2"></div>`;
-const vm2 = new Vue({ data: { message: "zf" } });
-const render2 = compileToFunction(newTemplate);
-const vnode2 = render2.call(vm2);
-
-setTimeout(() => {
-  patch(vnode1, vnode2);
-}, 2000);
-```
-
-```js
-// vdom.js
+function createTextElement(vm, text) {
+  return vnode(vm, undefined, undefined, undefined, undefined, text);
+}
 
 function patch(oldVnode, vnode) {
   if (oldVnode.nodeType === 1) {
@@ -80,4 +76,3 @@ function createElm(vnode) {
   }
   return vnode.el;
 }
-```
