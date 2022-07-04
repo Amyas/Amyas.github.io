@@ -1,7 +1,21 @@
-# 12.diff 算法优化
+function vnode(vm, tag, data, key, children, text) {
+  return {
+    vm,
+    tag,
+    data,
+    key,
+    children,
+    text,
+  };
+}
 
-```js
-// vdom.js
+function createElement(vm, tag, data = {}, ...children) {
+  return vnode(vm, tag, data, data.key, children);
+}
+
+function createTextElement(vm, text) {
+  return vnode(vm, undefined, undefined, undefined, undefined, text);
+}
 
 function patch(oldVnode, vnode) {
   if (oldVnode.nodeType === 1) {
@@ -106,4 +120,19 @@ function patchProps(vnode, oldProps = {}) {
     el.setAttribute(key, newProps[key]);
   }
 }
-```
+
+function createElm(vnode) {
+  let { tag, children, text } = vnode;
+  if (typeof tag === "string") {
+    vnode.el = document.createElement(tag);
+    patchProps(vnode);
+    if (children) {
+      children.forEach((child) => {
+        vnode.el.appendChild(createElm(child));
+      });
+    }
+  } else {
+    vnode.el = document.createTextNode(text);
+  }
+  return vnode.el;
+}
