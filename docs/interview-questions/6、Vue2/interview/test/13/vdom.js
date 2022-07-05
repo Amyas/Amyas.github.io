@@ -106,7 +106,7 @@ function patchChildren(el, oldChildren, newChildren) {
       newEndVnode = newChildren[--newEndIndex];
     } else if (isSameVnode(oldEndVnode, newStartVnode)) {
       patch(oldEndVnode, newStartVnode);
-      el.insertBefore(oldEndVnode, oldStartVnode.el);
+      el.insertBefore(oldEndVnode.el, oldStartVnode.el);
       oldEndVnode = oldChildren[--oldEndIndex];
       newStartVnode = newChildren[++newStartIndex];
     } else {
@@ -126,7 +126,7 @@ function patchChildren(el, oldChildren, newChildren) {
   if (newStartIndex <= newEndIndex) {
     for (let i = newStartIndex; i <= newEndIndex; i++) {
       const anchor =
-        newChildren[newEndIndex + 1] == null
+        newChildren[newEndIndex + 1] === null
           ? null
           : newChildren[newEndIndex + 1].el;
       el.insertBefore(createElm(newChildren[i]), anchor);
