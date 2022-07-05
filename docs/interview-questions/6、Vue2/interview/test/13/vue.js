@@ -20,7 +20,7 @@ Vue.prototype.$mount = function (el) {
   if (!template && el) {
     template = el.outerHTML;
   }
-  options.render = template;
+  options.render = compileToFunction(template);
 
   mountComponent(vm);
 };
@@ -45,7 +45,13 @@ Vue.prototype._render = function () {
 Vue.prototype._update = function (vnode) {
   const vm = this;
 
-  vm.$el = patch(vm.$el, vnode);
+  const prevNode = vm._vnode;
+  if (!prevNode) {
+    vm.$el = patch(vm.$el, vnode);
+  } else {
+    vm.$el = patch(prevNode, vnode);
+  }
+  vm._vnode = vnode;
 };
 
 Vue.prototype._c = function () {

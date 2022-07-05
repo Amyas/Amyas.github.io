@@ -55,6 +55,8 @@ function patch(oldVnode, vnode) {
     } else if (oldChildren.length > 0) {
       el.innerHTML = "";
     }
+
+    return el
   }
 }
 

@@ -7,12 +7,41 @@
     <title>Document</title>
   </head>
   <body>
+    <div id="app">{{name}}{{arr}}</div>
     <script src="./dep.js"></script>
     <script src="./watcher.js"></script>
     <script src="./compiler.js"></script>
     <script src="./vdom.js"></script>
     <script src="./observe.js"></script>
     <script src="./vue.js"></script>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data() {
+          return {
+            name: "amyas",
+            arr: [
+              {
+                a: 1,
+              },
+              2,
+            ],
+          };
+        },
+      });
+
+      setTimeout(() => {
+        vm.name = "@@@update  amyas";
+      }, 1000);
+
+      setTimeout(() => {
+        vm.arr.push(2);
+      }, 2000);
+
+      setTimeout(() => {
+        vm.arr[0].a = "@@@update arr[0].a";
+      }, 3000);
+    </script>
     <script>
       // 头头对比
       // const oldTemplate = `<div>
@@ -45,17 +74,17 @@
       //   <li key="d">d</li>
       // </div>`;
       // 头头 -> 头头 -> 头头 -> 头头 -> 新增新元素
-      const oldTemplate = `<div>
-        <li key="a">a</li>  
-        <li key="b">b</li>  
-        <li key="c">c</li>  
-        <li key="d">d</li>  
-      </div>`;
+      // const oldTemplate = `<div>
+      //   <li key="a">a</li>
+      //   <li key="b">b</li>
+      //   <li key="c">c</li>
+      //   <li key="d">d</li>
+      // </div>`;
 
-      const vm1 = new Vue({ data: { message: "hello world" } });
-      const render1 = compileToFunction(oldTemplate);
-      const vnode1 = render1.call(vm1);
-      document.body.appendChild(createElm(vnode1));
+      // const vm1 = new Vue({ data: { message: "hello world" } });
+      // const render1 = compileToFunction(oldTemplate);
+      // const vnode1 = render1.call(vm1);
+      // document.body.appendChild(createElm(vnode1));
 
       // 头头对比
       // const newTemplate = `<div>
@@ -88,20 +117,20 @@
       //   <li key="c">C</li>
       // </div>`;
       // 头头 -> 头头 -> 头头 -> 头头 -> 新增新元素
-      const newTemplate = `<div>
-        <li key="a">A</li>  
-        <li key="b">B</li>  
-        <li key="e">E</li>  
-        <li key="c">C</li>  
-        <li key="d">D</li>  
-      </div>`;
-      const vm2 = new Vue({ data: { message: "zf" } });
-      const render2 = compileToFunction(newTemplate);
-      const vnode2 = render2.call(vm2);
+      // const newTemplate = `<div>
+      //   <li key="a">A</li>
+      //   <li key="b">B</li>
+      //   <li key="e">E</li>
+      //   <li key="c">C</li>
+      //   <li key="d">D</li>
+      // </div>`;
+      // const vm2 = new Vue({ data: { message: "zf" } });
+      // const render2 = compileToFunction(newTemplate);
+      // const vnode2 = render2.call(vm2);
 
-      setTimeout(() => {
-        patch(vnode1, vnode2);
-      }, 1000);
+      // setTimeout(() => {
+      //   patch(vnode1, vnode2);
+      // }, 1000);
     </script>
   </body>
 </html>

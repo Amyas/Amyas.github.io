@@ -27,7 +27,7 @@ methods.forEach((method) => {
     oldArrayprototype[method].call(this, ...args);
 
     let inserted;
-    const ob = this.__ob;
+    const ob = this.__ob__;
 
     switch (method) {
       case "push":
@@ -97,6 +97,7 @@ function defineReactive(data, key, val) {
           }
         }
       }
+      return val;
     },
     set(newVal) {
       if (newVal === val) return;
