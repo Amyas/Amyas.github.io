@@ -18,8 +18,10 @@
       //   <li>1</li>  
       // </div>`;
       const oldTemplate = `<div>
-        <li key="1">1</li>  
-        <li key="2">2</li>  
+        <li key="c">c</li>  
+        <li key="a">a</li>  
+        <li key="b">b</li>  
+        <li key="d">d</li>  
       </div>`;
       const vm1 = new Vue({ data: { message: "hello world" } });
       const render1 = compileToFunction(oldTemplate);
@@ -30,7 +32,10 @@
       //   <li>2</li>  
       // </div>`;
       const newTemplate = `<div>
-        <li key="1">1</li>  
+        <li key="b">b</li>  
+        <li key="c">c</li>  
+        <li key="d">d</li>  
+        <li key="a">a</li>  
       </div>`;
       const vm2 = new Vue({ data: { message: "zf" } });
       const render2 = compileToFunction(newTemplate);
@@ -38,7 +43,160 @@
 
       setTimeout(() => {
         patch(vnode1, vnode2);
-      }, 100);
+      }, 2000);
+
+//       dom: [c,a,b,d]
+
+// oldChildren: [(c),a,b,[d]]
+// newChildren: [(b),c,d,[a]]
+
+// oldStartIndex = 0
+// oldStartVnode = c
+// oldEndIndex = 3
+// oldEndVnode = d
+
+// newStartIndex = 0
+// newStartVnode = b
+// newEndIndex = 3
+// newEndVnode = a
+
+// keysMap = {
+//   c: 0,
+//   a: 1,
+//   b: 2,
+//   d: 3
+// }
+
+// // oldStartIndex <= oldEndIndex
+// // newSaartIndex <= newEndIndex
+// while(0 <= 3 && 0 <= 3) {
+//   // const moveIndex = keysMap[newStartVnode.key]
+//   moveIndex = 2
+
+//   // const moveNode = oldChildren[moveIndex]
+//   moveNode = b
+
+//   // oldChildren[moveIndex] = null
+//   oldChildren =  [(c),a,null,[d]]
+  
+//   // el.insertBefore(moveNode, oldStartVnode)
+//   dom: [b,c,a,d]
+  
+//   // ++newStartIndex
+//   newStartIndex = 1
+
+//   // newStartVnode = newChildren[newStartIndex]
+//   newStartVnode = c
+
+//   newChildren = [b,(c),d,[a]]
+// }
+
+// dom: [b,c,a,d]
+
+// oldChildren: [(c),a,null,[d]]
+// newChildren: [b,(c),d,[a]]
+
+// oldStartIndex = 0
+// oldStartVnode = c
+// oldEndIndex = 3
+// oldEndVnode = d
+
+// newStartIndex = 1
+// newStartVnode = c
+// newEndIndex = 3
+// newEndVnode = a
+
+
+// // oldStartIndex <= oldEndIndex
+// // newStartIndex <= newEndIndex
+// while(0 <= 3 && 1 <= 3) {
+//   // ++oldStartIndex
+//   oldStartIndex = 1
+
+//   // oldStartVnode = oldChildren[oldStartIndex]
+//   oldStartVnode = a
+
+//   oldChildren = [c,(a),null,[d]]
+
+//   // ++newStartIndex
+//   newStartIndex = 2
+  
+//   // newStartVnode = newChildren[newStartIndex]
+//   newStartVnode = d
+
+//   newChildren = [b,c,(d),[a]]
+// }
+
+// dom: [b,c,a,d]
+
+// oldChildren: [c,(a),null,[d]]
+// newChildren: [b,c,(d),[a]]
+
+// oldStartIndex = 1
+// oldStartVnode = a
+// oldEndIndex = 3
+// oldEndVnode = d
+
+// newStartIndex = 2
+// newStartVnode = d
+// newEndIndex = 3
+// newEndVnode = a
+
+
+// // oldStartIndex <= oldEndIndex
+// // newStartIndex <= newEndIndex
+// while(1 <= 3 && 2 <= 3) {
+//   // el.insertBefore(oldStartVnode, oldEndVnode.nextSibling)
+//   dom = [b,c,d,a]
+
+//   // ++oldStartIndex
+//   oldStartIndex = 2
+
+//   // oldStartVnode = oldChildren[oldStartIndex]
+//   oldStartVnode = null
+
+//   oldChildren = [c,a,(null),[d]]
+
+//   // --newEndIndex
+//   newEndIndex = 2
+
+//   // newEndVnode = newChildren[newEndIndex]
+//   newEndVnode = d
+
+//   newChildren = [b,c,([d]),a]
+// }
+
+
+// dom: [b,c,d,a]
+
+// oldChildren: [c,a,(null),[d]]
+// newChildren: [b,c,([d]),a]
+
+// oldStartIndex = 2
+// oldStartVnode = null
+// oldEndIndex = 3
+// oldEndVnode = d
+
+// newStartIndex = 2
+// newStartVnode = d
+// newEndIndex = 2
+// newEndVnode = d
+
+// // oldStartIndex <= oldEndIndex
+// // newStartIndex <= newEndIndex
+// while(2 <= 3 && 2 <= 2) {
+//   if(!oldStartVnode) {
+//     // ++oldStartIndex
+//     oldStartIndex = 3
+
+//     // oldStartVnode = oldChildren[oldStartIndex]
+//     oldStartVnode = d
+
+//     oldChildren = [c,a,null,([d])]
+//   }
+// }
+
+
     </script>
   </body>
 </html>

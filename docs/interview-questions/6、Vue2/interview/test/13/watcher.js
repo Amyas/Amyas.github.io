@@ -4,11 +4,13 @@ class Watcher {
     this.id = watcherId++;
     this.vm = vm;
     this.getter = expOrFn;
+
     this.depIds = new Set();
     this.deps = [];
 
     this.get();
   }
+
   get() {
     pushTarget(this);
     this.getter();
@@ -20,7 +22,7 @@ class Watcher {
   }
 
   addDep(dep) {
-    let id = dep.id;
+    const id = dep.id;
     if (!this.depIds.has(id)) {
       this.depIds.add(id);
       this.deps.push(dep);

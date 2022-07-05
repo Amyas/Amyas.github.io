@@ -20,37 +20,9 @@ Vue.prototype.$mount = function (el) {
   if (!template && el) {
     template = el.outerHTML;
   }
-  options.render = compileToFunction(template);
+  options.render = template;
 
   mountComponent(vm);
-};
-
-Vue.prototype._update = function (vnode) {
-  const vm = this;
-
-  vm.$el = patch(vm.$el, vnode);
-};
-
-Vue.prototype._render = function () {
-  const vm = this;
-  const options = vm.$options;
-
-  const render = options.render.call(vm);
-
-  return render;
-};
-
-Vue.prototype._c = function () {
-  return createElement(this, ...arguments);
-};
-Vue.prototype._v = function (text) {
-  return createTextElement(this, text);
-};
-Vue.prototype._s = function (val) {
-  if (typeof val === "object") {
-    return JSON.stringify(val);
-  }
-  return val;
 };
 
 function mountComponent(vm) {
@@ -60,6 +32,36 @@ function mountComponent(vm) {
 
   new Watcher(vm, updateComponent);
 }
+
+Vue.prototype._render = function () {
+  const vm = this;
+  const options = vm.$options;
+
+  const vnode = options.render.call(vm);
+
+  return vnode;
+};
+
+Vue.prototype._update = function (vnode) {
+  const vm = this;
+
+  vm.$el = patch(vm.$el, vnode);
+};
+
+Vue.prototype._c = function () {
+  return createElement(this, ...arguments);
+};
+
+Vue.prototype._v = function (text) {
+  return createTextElement(this, text);
+};
+
+Vue.prototype._s = function (val) {
+  if (typeof val === "object") {
+    return JSON.stringify(val);
+  }
+  return val;
+};
 
 function initData(vm) {
   let data = vm.$options.data;

@@ -9,18 +9,18 @@ class Dep {
       Dep.target.addDep(this);
     }
   }
-  addSub(w) {
-    this.subs.push(w)
+  addSub(watcher) {
+    this.subs.push(watcher);
   }
   notify() {
-    this.subs.forEach((v) => v.update());
+    this.subs.forEach((watcher) => watcher.update());
   }
 }
 
 Dep.target = null;
 
-function pushTarget(w) {
-  Dep.target = w;
+function pushTarget(watcher) {
+  Dep.target = watcher;
 }
 
 function popTarget() {

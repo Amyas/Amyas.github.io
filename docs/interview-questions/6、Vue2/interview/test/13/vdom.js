@@ -19,19 +19,20 @@ function createTextElement(vm, text) {
 
 function patch(oldVnode, vnode) {
   if (oldVnode.nodeType === 1) {
-    let parentEl = oldVnode.parentNode;
-    let elm = createElm(vnode);
+    const parentEl = oldVnode.parentNode;
+
+    const elm = createElm(vnode);
+
     parentEl.insertBefore(elm, oldVnode.nextSibling);
     parentEl.removeChild(oldVnode);
+
     return elm;
   } else {
     if (oldVnode.tag !== vnode.tag) {
-      return oldVnode.el.replaceChildren(createElm(vnode), oldVnode.el);
+      return oldVnode.el.parentNode.replaceChild(createElm(vnode), oldVnode.el);
     }
 
     const el = (vnode.el = oldVnode.el);
-
-    patchProps(vnode, oldVnode.data);
 
     if (vnode.tag === undefined) {
       if (oldVnode.text !== vnode.text) {
@@ -40,8 +41,11 @@ function patch(oldVnode, vnode) {
       return;
     }
 
+    patchProps(vnode, oldVnode.data);
+
     const oldChildren = oldVnode.children || [];
     const newChildren = vnode.children || [];
+
     if (oldChildren.length > 0 && newChildren.length > 0) {
       patchChildren(el, oldChildren, newChildren);
     } else if (newChildren.length > 0) {
@@ -69,7 +73,24 @@ function patchChildren(el, oldChildren, newChildren) {
   let newEndIndex = newChildren.length - 1;
   let newEndVnode = newChildren[newChildren.length - 1];
 
+  function makeIndexByKey(children) {
+    return children.reduce((total, current, index) => {
+      if (current.key) {
+        total[current.key] = index;
+      }
+      return total;
+    }, {});
+  }
+
+  const keysMap = makeIndexByKey(oldChildren);
+
   while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
+    if (!oldStartVnode) {
+      oldStartVnode = oldChildren[++oldStartIndex];
+    } else if (!oldEndVnode) {
+      oldEndVnode = oldChildren[--oldEndIndex];
+    }
+
     if (isSameVnode(oldStartVnode, newStartVnode)) {
       patch(oldStartVnode, newStartVnode);
       oldStartVnode = oldChildren[++oldStartIndex];
@@ -85,23 +106,38 @@ function patchChildren(el, oldChildren, newChildren) {
       newEndVnode = newChildren[--newEndIndex];
     } else if (isSameVnode(oldEndVnode, newStartVnode)) {
       patch(oldEndVnode, newStartVnode);
-      el.insertBefore(oldEndVnode.el, oldStartVnode);
+      el.insertBefore(oldEndVnode, oldStartVnode.el);
       oldEndVnode = oldChildren[--oldEndIndex];
+      newStartVnode = newChildren[++newStartIndex];
+    } else {
+      const moveIndex = keysMap[newStartVnode.key];
+      if (!moveIndex) {
+        el.insertBefore(createElm(newStartVnode), oldStartVnode.el);
+      } else {
+        const moveNode = oldChildren[moveIndex];
+        oldChildren[moveIndex] = null;
+        el.insertBefore(moveNode.el, oldStartVnode.el);
+        patch(moveNode, newStartVnode);
+      }
       newStartVnode = newChildren[++newStartIndex];
     }
   }
 
   if (newStartIndex <= newEndIndex) {
     for (let i = newStartIndex; i <= newEndIndex; i++) {
-      let anchor = newChildren[newEndIndex + 1]
-        ? newChildren[newEndIndex + 1].el
-        : null;
+      const anchor =
+        newChildren[newEndIndex + 1] == null
+          ? null
+          : newChildren[newEndIndex + 1].el;
       el.insertBefore(createElm(newChildren[i]), anchor);
     }
   }
+
   if (oldStartIndex <= oldEndIndex) {
     for (let i = oldStartIndex; i <= oldEndIndex; i++) {
-      el.removeChild(oldChildren[i].el);
+      if (oldChildren[i] !== null) {
+        el.removeChild(oldChildren[i].el);
+      }
     }
   }
 }
@@ -122,7 +158,7 @@ function patchProps(vnode, oldProps = {}) {
 }
 
 function createElm(vnode) {
-  let { tag, children, text } = vnode;
+  const { tag, children, text } = vnode;
   if (typeof tag === "string") {
     vnode.el = document.createElement(tag);
     patchProps(vnode);

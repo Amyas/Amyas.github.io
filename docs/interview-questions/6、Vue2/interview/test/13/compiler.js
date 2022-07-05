@@ -6,8 +6,8 @@ function compileToFunction(html) {
 }
 
 function generate(el) {
-  let children = genChildren(el);
-  let code = `_c("${el.tag}",${
+  const children = genChildren(el);
+  const code = `_c("${el.tag}",${
     el.attrs.length ? genProps(el.attrs) : "undefined"
   }${children ? `,${children}` : ""})`;
   return code;
@@ -21,33 +21,32 @@ function gen(el) {
     const text = el.text;
     if (!defaultTagRE.test(text)) {
       return `_v("${text}")`;
-    } else {
-      const tokens = [];
-      let match;
-      let lastIndex = (defaultTagRE.lastIndex = 0);
-
-      while ((match = defaultTagRE.exec(text))) {
-        let index = match.index;
-        if (index > lastIndex) {
-          tokens.push(JSON.stringify(text.slice(lastIndex, index)));
-        }
-        tokens.push(`_s(${match[1].trim()})`);
-        lastIndex = index + match[0].length;
-      }
-
-      if (lastIndex < text.length) {
-        tokens.push(JSON.stringify(text.slice(lastIndex)));
-      }
-
-      return `_v(${tokens.join("+")})`;
     }
+    const tokens = [];
+    let match;
+    let lastIndex = (defaultTagRE.lastIndex = 0);
+
+    while ((match = defaultTagRE.exec(text))) {
+      const index = match.index;
+      if (index > lastIndex) {
+        tokens.push(JSON.stringify(text.slice(lastIndex, index)));
+      }
+      tokens.push(`_s(${match[1].trim()})`);
+      lastIndex = index + match[0].length;
+    }
+
+    if (lastIndex < text.length) {
+      tokens.push(JSON.stringify(text.slice(lastIndex)));
+    }
+
+    return `_v(${tokens.join("+")})`;
   }
 }
 
 function genChildren(el) {
-  let children = el.children;
+  const children = el.children;
   if (children) {
-    return children.map((v) => gen(v)).join(",");
+    return children.map((child) => gen(child)).join(",");
   }
   return false;
 }
@@ -64,7 +63,8 @@ function genProps(attrs) {
 
 function parseHTML(html) {
   let root = null;
-  let stack = [];
+  const stack = [];
+
   const ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*";
   const qnameCapture = `((?:${ncname}\\:)?${ncname})`;
   const startTagOpen = new RegExp(`^<${qnameCapture}`);
@@ -75,16 +75,17 @@ function parseHTML(html) {
 
   function createAstElement(tag, attrs) {
     return {
-      type: 1,
       tag,
       attrs,
+      type: 1,
       parent: null,
       children: [],
     };
   }
+
   function start(tag, attrs) {
-    let parent = stack[stack.length - 1];
-    let element = createAstElement(tag, attrs);
+    const parent = stack[stack.length - 1];
+    const element = createAstElement(tag, attrs);
     if (!root) {
       root = element;
     }
@@ -94,15 +95,17 @@ function parseHTML(html) {
     }
     stack.push(element);
   }
+
   function end(tag) {
-    let last = stack.pop();
+    const last = stack.pop();
     if (last.tag !== tag) {
       throw new Error("标签闭合错误");
     }
   }
+
   function chars(text) {
     text = text.replace(/\s*/g, "");
-    let parent = stack[stack.length - 1];
+    const parent = stack[stack.length - 1];
     if (text) {
       parent.children.push({
         type: 3,
@@ -110,6 +113,7 @@ function parseHTML(html) {
       });
     }
   }
+
   function advance(len) {
     html = html.substring(len);
   }
@@ -145,15 +149,15 @@ function parseHTML(html) {
   }
 
   while (html) {
-    let textEnd = html.indexOf("<");
+    const textEnd = html.indexOf("<");
     if (textEnd === 0) {
-      let startTagMatch = parseStartTag();
+      const startTagMatch = parseStartTag();
       if (startTagMatch) {
         start(startTagMatch.tag, startTagMatch.attrs);
         continue;
       }
 
-      let endTagMatch = html.match(endTag);
+      const endTagMatch = html.match(endTag);
       if (endTagMatch) {
         end(endTagMatch[1]);
         advance(endTagMatch[0].length);
