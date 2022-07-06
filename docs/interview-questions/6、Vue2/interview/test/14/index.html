@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">{{name}}{{arr}}</div>
+    <script src="./utils.js"></script>
+    <script src="./dep.js"></script>
+    <script src="./watcher.js"></script>
+    <script src="./compiler.js"></script>
+    <script src="./vdom.js"></script>
+    <script src="./observe.js"></script>
+    <script src="./vue.js"></script>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data() {
+          return {
+            name: "amyas",
+            arr: [
+              {
+                a: 1,
+              },
+              2,
+            ],
+          };
+        },
+      });
+
+      function update() {
+        vm.name = "@@@update  amyas";
+        vm.arr.push(2);
+      }
+
+      setTimeout(() => {
+        update();
+
+        vm.$nextTick(() => {
+          console.log(vm.$el);
+        });
+      }, 1000);
+
+      setTimeout(() => {
+        vm.name = "@@@";
+
+        vm.$nextTick(() => {
+          console.log(vm.$el);
+        });
+      }, 2000);
+    </script>
+  </body>
+</html>

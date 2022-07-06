@@ -1,22 +1,3 @@
-# 13.diff 乱序对比
-
-```js
-// vue.js
-Vue.prototype._update = function (vnode) {
-  const vm = this;
-
-  const prevNode = vm._vnode;
-  if (!prevNode) {
-    vm.$el = patch(vm.$el, vnode);
-  } else {
-    vm.$el = patch(prevNode, vnode);
-  }
-  vm._vnode = vnode;
-};
-```
-
-```js
-// vdom.js
 function vnode(vm, tag, data, key, children, text) {
   return {
     vm,
@@ -189,4 +170,3 @@ function createElm(vnode) {
   }
   return vnode.el;
 }
-```
