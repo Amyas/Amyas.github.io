@@ -7,7 +7,10 @@
     <title>Document</title>
   </head>
   <body>
-    <div id="app">{{name}}{{obj}}</div>
+    <div id="app">
+      <h1>真实姓名：{{name}}</h1>
+      <h1>全名：{{fullName}}</h1>
+    </div>
     <script src="./utils.js"></script>
     <script src="./dep.js"></script>
     <script src="./watcher.js"></script>
@@ -30,35 +33,16 @@
             },
           };
         },
-        watch: {
-          name(newVal, oldVal) {
-            console.log(newVal, oldVal, "watch name");
-          },
-          name: [
-            (newVal, oldVal) => {
-              console.log(newVal, oldVal, "watch name arr[0]");
-            },
-            (newVal, oldVal) => {
-              console.log(newVal, oldVal, "watch name arr[1]");
-            },
-          ],
-          "obj.a.b.c"(newVal, oldVal) {
-            console.log(newVal, oldVal, "watch obj.a.b.c");
+        computed: {
+          fullName() {
+            return "尼古拉斯" + this.name;
           },
         },
       });
 
       setTimeout(() => {
-        vm.name = "@@@update name";
-        vm.obj.a.b.c = 2;
-      });
-
-      vm.$watch("name", (newVal, oldVal) => {
-        console.log(newVal, oldVal, "watch name vm.$watch");
-      });
-      vm.$watch("obj.a.b.c", (newVal, oldVal) => {
-        console.log(newVal, oldVal, "watch obj.a.b.c vm.$watch");
-      });
+        vm.name = "update amyas";
+      }, 1000);
     </script>
   </body>
 </html>

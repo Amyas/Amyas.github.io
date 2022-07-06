@@ -1,4 +1,5 @@
 let depId = 0;
+let stack = [];
 class Dep {
   constructor() {
     this.id = depId++;
@@ -21,8 +22,10 @@ Dep.target = null;
 
 function pushTarget(watcher) {
   Dep.target = watcher;
+  stack.push(watcher);
 }
 
 function popTarget() {
-  Dep.target = null;
+  stack.pop();
+  Dep.target = stack[stack.length - 1];
 }

@@ -34,6 +34,8 @@ class Watcher {
     this.options = options;
     this.id = watcherId++;
     this.user = !!options.user;
+    this.lazy = !!options.lazy;
+    this.dirty = options.lazy;
 
     this.depIds = new Set();
     this.deps = [];
@@ -51,17 +53,31 @@ class Watcher {
       this.getter = expOrFn;
     }
 
-    this.value = this.get();
+    this.value = this.lazy ? undefined : this.get();
   }
   get() {
     pushTarget(this);
-    const value = this.getter();
+    const value = this.getter.call(this.vm);
     popTarget();
 
     return value;
   }
   update() {
-    queueWatcher(this);
+    if (this.lazy) {
+      this.dirty = true;
+    } else {
+      queueWatcher(this);
+    }
+  }
+  evalute() {
+    this.dirty = false;
+    this.value = this.get();
+  }
+  depend() {
+    let i = this.deps.length;
+    while (i--) {
+      this.deps[i].depend();
+    }
   }
   run() {
     const newValue = this.get();

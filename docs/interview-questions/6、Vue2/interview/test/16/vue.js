@@ -8,9 +8,50 @@ function Vue(options) {
     initWatch(vm, vm.$options.watch);
   }
 
+  if (vm.$options.computed) {
+    initComputed(vm, vm.$options.computed);
+  }
+
   if (vm.$options.el) {
     vm.$mount(vm.$options.el);
   }
+}
+
+function initComputed(vm, computed) {
+  const watchers = (vm._computedWatchers = {});
+  for (let key in computed) {
+    const userDef = computed[key];
+    let getter = typeof userDef === "function" ? userDef : userDef.get;
+    watchers[key] = new Watcher(vm, getter, () => {}, { lazy: true });
+    defineComputed(vm, key, userDef);
+  }
+}
+
+let shareProperty = {};
+function defineComputed(vm, key, userDef) {
+  if (typeof userDef === "function") {
+    shareProperty.get = createComputedGetter(key);
+  } else {
+    shareProperty.get = createComputedGetter(key);
+    shareProperty.set = userDef.set;
+  }
+  Object.defineProperty(vm, key, shareProperty);
+}
+
+function createComputedGetter(key) {
+  return function computedGetter() {
+    let watcher = this._computedWatchers[key];
+
+    if (watcher.dirty) {
+      watcher.evalute();
+    }
+
+    if (Dep.target) {
+      watcher.depend();
+    }
+
+    return watcher.value;
+  };
 }
 
 function initWatch(vm, watch) {
