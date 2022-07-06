@@ -10,7 +10,7 @@ function isObject(val) {
   return typeof val === "object" && val !== null;
 }
 
-const oldArrayprototype = Array.prototype;
+const oldArrayPrototype = Array.prototype;
 const arrayMethods = Object.create(Array.prototype);
 const methods = [
   "push",
@@ -21,10 +21,9 @@ const methods = [
   "splice",
   "sort",
 ];
-
 methods.forEach((method) => {
   arrayMethods[method] = function (...args) {
-    oldArrayprototype[method].call(this, ...args);
+    oldArrayPrototype[method].call(this, ...args);
 
     let inserted;
     const ob = this.__ob__;
@@ -85,7 +84,6 @@ function dependArray(val) {
 function defineReactive(data, key, val) {
   const childOb = observe(val);
   const dep = new Dep();
-
   Object.defineProperty(data, key, {
     get() {
       if (Dep.target) {
@@ -101,7 +99,6 @@ function defineReactive(data, key, val) {
     },
     set(newVal) {
       if (newVal === val) return;
-
       observe(newVal);
       val = newVal;
       dep.notify();

@@ -10,17 +10,14 @@ class Watcher {
 
     this.get();
   }
-
   get() {
     pushTarget(this);
     this.getter();
     popTarget();
   }
-
   update() {
     this.get();
   }
-
   addDep(dep) {
     const id = dep.id;
     if (!this.depIds.has(id)) {

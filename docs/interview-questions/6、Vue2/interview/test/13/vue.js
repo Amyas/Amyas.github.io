@@ -42,18 +42,6 @@ Vue.prototype._render = function () {
   return vnode;
 };
 
-Vue.prototype._update = function (vnode) {
-  const vm = this;
-
-  const prevNode = vm._vnode;
-  if (!prevNode) {
-    vm.$el = patch(vm.$el, vnode);
-  } else {
-    vm.$el = patch(prevNode, vnode);
-  }
-  vm._vnode = vnode;
-};
-
 Vue.prototype._c = function () {
   return createElement(this, ...arguments);
 };
@@ -67,6 +55,19 @@ Vue.prototype._s = function (val) {
     return JSON.stringify(val);
   }
   return val;
+};
+
+Vue.prototype._update = function (vnode) {
+  const vm = this;
+
+  const prevVnode = vm._vnode;
+  if (!prevVnode) {
+    vm.$el = patch(vm.$el, vnode);
+  } else {
+    vm.$el = patch(prevVnode, vnode);
+  }
+
+  vm._vnode = vnode;
 };
 
 function initData(vm) {

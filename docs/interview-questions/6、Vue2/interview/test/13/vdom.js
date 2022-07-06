@@ -20,12 +20,9 @@ function createTextElement(vm, text) {
 function patch(oldVnode, vnode) {
   if (oldVnode.nodeType === 1) {
     const parentEl = oldVnode.parentNode;
-
     const elm = createElm(vnode);
-
     parentEl.insertBefore(elm, oldVnode.nextSibling);
     parentEl.removeChild(oldVnode);
-
     return elm;
   } else {
     if (oldVnode.tag !== vnode.tag) {
@@ -56,7 +53,7 @@ function patch(oldVnode, vnode) {
       el.innerHTML = "";
     }
 
-    return el
+    return el;
   }
 }
 
@@ -127,10 +124,9 @@ function patchChildren(el, oldChildren, newChildren) {
 
   if (newStartIndex <= newEndIndex) {
     for (let i = newStartIndex; i <= newEndIndex; i++) {
-      const anchor =
-        newChildren[newEndIndex + 1] === null
-          ? null
-          : newChildren[newEndIndex + 1].el;
+      const anchor = !newChildren[newEndIndex + 1]
+        ? null
+        : newChildren[newEndIndex + 1].el;
       el.insertBefore(createElm(newChildren[i]), anchor);
     }
   }
