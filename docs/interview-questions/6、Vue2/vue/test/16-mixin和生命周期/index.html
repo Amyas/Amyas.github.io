@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <h1>真实姓名：{{name}}</h1>
+      <h1>全名：{{fullName}}</h1>
+      <h1>{{obj}}</h1>
+    </div>
+    <script src="./utils.js"></script>
+    <script src="./dep.js"></script>
+    <script src="./watcher.js"></script>
+    <script src="./compiler.js"></script>
+    <script src="./vdom.js"></script>
+    <script src="./observe.js"></script>
+    <script src="./vue.js"></script>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data() {
+          return {
+            name: "amyas",
+            obj: {
+              a: {
+                b: {
+                  c: 1,
+                },
+              },
+            },
+          };
+        },
+        computed: {
+          fullName() {
+            return "尼古拉斯" + this.name;
+          },
+        },
+        watch: {
+          name(newVal, oldVal) {
+            console.log(newVal, oldVal, "watch name");
+          },
+          // name: [
+          //   function (newVal, oldVal) {
+          //     console.log(newVal, oldVal, "watch name arr[0]");
+          //   },
+          //   function (newVal, oldVal) {
+          //     console.log(newVal, oldVal, "watch name arr[1]");
+          //   },
+          // ],
+          fullName(newVal, oldVal) {
+            console.log(newVal, oldVal, "watch fullName");
+          },
+          "obj.a.b.c"(newVal, oldVal) {
+            console.log(newVal, oldVal, "wtch obj.a.b.c");
+          },
+        },
+      });
+
+      vm.$watch("name", (newVal, oldVal) => {
+        console.log(newVal, oldVal, "$watch name");
+      });
+
+      vm.$watch("obj.a.b.c", (newVal, oldVal) => {
+        console.log(newVal, oldVal, "$watch obj.a.b.c");
+      });
+
+      setTimeout(() => {
+        vm.name = "@@@update";
+        vm.obj.a.b.c = 3;
+        console.log(vm.$el.innerHTML);
+        vm.$nextTick(()=>{
+          console.log(vm.$el.innerHTML);
+        })
+      }, 100);
+    </script>
+  </body>
+</html>
