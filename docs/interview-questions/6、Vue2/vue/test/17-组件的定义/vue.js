@@ -1,8 +1,10 @@
 function Vue(options) {
+  this._init(options);
+}
+
+Vue.prototype._init = function (options) {
   const vm = this;
-  console.log(vm.constructor.options)
   vm.$options = mergeOptions(vm.constructor.options, options);
-  console.log(vm.$options)
 
   callHook(vm, "beforeCreate");
   if (options.data) {
@@ -21,7 +23,7 @@ function Vue(options) {
   if (options.el) {
     vm.$mount(options.el);
   }
-}
+};
 
 function callHook(vm, hook) {
   const handlers = vm.$options[hook];

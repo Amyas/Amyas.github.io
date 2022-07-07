@@ -50,6 +50,18 @@ const lifecycleHooks = [
 
 const strats = {};
 
+strats.components = function (parentVal, childVal) {
+  const options = Object.create(parentVal);
+
+  if (childVal) {
+    for (let key in childVal) {
+      options[key] = childVal[key];
+    }
+  }
+
+  return options;
+};
+
 lifecycleHooks.forEach((hook) => {
   strats[hook] = mergeHook;
 });
@@ -90,7 +102,7 @@ function mergeOptions(parent, child) {
       if (isObject(parentVal) && isObject(childVal)) {
         options[key] = { ...parentVal, ...childVal };
       } else {
-        options[key] = childVal;
+        options[key] = childVal || parentVal;
       }
     }
   }

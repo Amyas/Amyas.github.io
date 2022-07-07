@@ -1,4 +1,9 @@
-function vnode(vm, tag, data, key, children, text) {
+function isReservedTag(str) {
+  let reservedTag = `a,div,span,p,img,button,ul,lu,h1`;
+  return reservedTag.includes(str);
+}
+
+function vnode(vm, tag, data, key, children, text, componentOptions) {
   return {
     vm,
     tag,
@@ -6,18 +11,45 @@ function vnode(vm, tag, data, key, children, text) {
     key,
     children,
     text,
+    componentOptions,
   };
 }
 
 function createElement(vm, tag, data = {}, ...children) {
-  return vnode(vm, tag, data, data.key, children);
+  if (isReservedTag(tag)) {
+    return vnode(vm, tag, data, data.key, children);
+  } else {
+    const Ctor = vm.$options.components[tag];
+    return createComponentElement(vm, tag, data, data.key, children, Ctor);
+  }
 }
 
 function createTextElement(vm, text) {
   return vnode(vm, undefined, undefined, undefined, undefined, text);
 }
 
+function createComponentElement(vm, tag, data, key, children, Ctor) {
+  if (isObject(Ctor)) {
+    Ctor = vm.$options._base.extend(Ctor);
+  }
+  data.hook = {
+    init(vnode) {
+      let vm = (vnode.componentInstance = new Ctor({ _isComponent: true }));
+      vm.$mount();
+    },
+  };
+
+  return vnode(vm, `vue-component-${tag}`, data, key, undefined, undefined, {
+    Ctor,
+    children,
+  });
+}
+
 function patch(oldVnode, vnode) {
+  if (!oldVnode) {
+    return createElm(vnode);
+  }
+
   if (oldVnode.nodeType === 1) {
     const parentEl = oldVnode.parentNode;
     const elm = createElm(vnode);
@@ -154,9 +186,22 @@ function patchProps(vnode, oldProps = {}) {
   }
 }
 
+function createComponent(vnode) {
+  let i = vnode.data;
+  if ((i = i.hook) && (i = i.init)) {
+    i(vnode);
+  }
+  if (vnode.componentInstance) {
+    return true;
+  }
+}
+
 function createElm(vnode) {
   const { tag, children, text } = vnode;
   if (typeof tag === "string") {
+    if (createComponent(vnode)) {
+      return vnode.componentInstance.$el;
+    }
     vnode.el = document.createElement(tag);
     patchProps(vnode);
     if (children) {
