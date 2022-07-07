@@ -18,8 +18,37 @@
     <script src="./compiler.js"></script>
     <script src="./vdom.js"></script>
     <script src="./observe.js"></script>
+    <script src="./global-api.js"></script>
     <script src="./vue.js"></script>
     <script>
+      Vue.mixin({
+        beforeCreate() {
+          console.log("beforeCreate - mixin1", this.name);
+        },
+        created() {
+          console.log("created - mixin1", this.name);
+        },
+        beforeMount() {
+          console.log("beforeMount - mixin1", this.name);
+        },
+        mounted() {
+          console.log("mounted - mixin1", this.name);
+        },
+      });
+      Vue.mixin({
+        beforeCreate() {
+          console.log("beforeCreate - mixin2", this.name);
+        },
+        created() {
+          console.log("created - mixin2", this.name);
+        },
+        beforeMount() {
+          console.log("beforeMount - mixin2", this.name);
+        },
+        mounted() {
+          console.log("mounted - mixin2", this.name);
+        },
+      });
       const vm = new Vue({
         el: "#app",
         data() {
@@ -58,24 +87,34 @@
             console.log(newVal, oldVal, "wtch obj.a.b.c");
           },
         },
-      });
+        beforeCreate() {
+          console.log("beforeCreate", this.name);
+        },
+        created() {
+          console.log("created", this.name);
 
-      vm.$watch("name", (newVal, oldVal) => {
-        console.log(newVal, oldVal, "$watch name");
-      });
+          this.$watch("name", (newVal, oldVal) => {
+            console.log(newVal, oldVal, "$watch name");
+          });
 
-      vm.$watch("obj.a.b.c", (newVal, oldVal) => {
-        console.log(newVal, oldVal, "$watch obj.a.b.c");
-      });
+          this.$watch("obj.a.b.c", (newVal, oldVal) => {
+            console.log(newVal, oldVal, "$watch obj.a.b.c");
+          });
+        },
+        beforeMount() {
+          console.log("beforeMount", this.name);
 
-      setTimeout(() => {
-        vm.name = "@@@update";
-        vm.obj.a.b.c = 3;
-        console.log(vm.$el.innerHTML);
-        vm.$nextTick(()=>{
-          console.log(vm.$el.innerHTML);
-        })
-      }, 100);
+          this.name = "@@@update";
+          this.obj.a.b.c = 3;
+          console.log(this.$el.innerHTML);
+          this.$nextTick(() => {
+            console.log(this.$el.innerHTML);
+          });
+        },
+        mounted() {
+          console.log("mounted", this.name);
+        },
+      });
     </script>
   </body>
 </html>

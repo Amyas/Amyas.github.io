@@ -1,10 +1,14 @@
 function Vue(options) {
   const vm = this;
-  vm.$options = options;
+  console.log(vm.constructor.options)
+  vm.$options = mergeOptions(vm.constructor.options, options);
+  console.log(vm.$options)
 
+  callHook(vm, "beforeCreate");
   if (options.data) {
     initData(vm);
   }
+  callHook(vm, "created");
 
   if (options.watch) {
     initWatch(vm, options.watch);
@@ -18,6 +22,17 @@ function Vue(options) {
     vm.$mount(options.el);
   }
 }
+
+function callHook(vm, hook) {
+  const handlers = vm.$options[hook];
+  if (handlers) {
+    for (let i = 0; i < handlers.length; i++) {
+      handlers[i].call(vm);
+    }
+  }
+}
+
+initGlobalApi(Vue);
 
 function initComputed(vm, computed) {
   const watchers = (vm._computedWatchers = {});
@@ -101,7 +116,10 @@ function mountComponent(vm) {
     vm._update(vm._render());
   };
 
-  new Watcher(vm, updateComponent);
+  callHook(vm, "beforeMount");
+  new Watcher(vm, updateComponent, () => {
+    callHook(vm, "mounted");
+  });
 }
 
 Vue.prototype._render = function () {
