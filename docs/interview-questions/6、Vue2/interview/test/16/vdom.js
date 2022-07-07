@@ -115,8 +115,8 @@ function patchChildren(el, oldChildren, newChildren) {
       } else {
         const moveNode = oldChildren[moveIndex];
         oldChildren[moveIndex] = null;
-        el.insertBefore(moveNode.el, oldStartVnode.el);
         patch(moveNode, newStartVnode);
+        el.insertBefore(moveNode.el, oldStartVnode.el);
       }
       newStartVnode = newChildren[++newStartIndex];
     }
@@ -124,16 +124,16 @@ function patchChildren(el, oldChildren, newChildren) {
 
   if (newStartIndex <= newEndIndex) {
     for (let i = newStartIndex; i <= newEndIndex; i++) {
-      const anchor = !newChildren[newEndIndex + 1]
-        ? null
-        : newChildren[newEndIndex + 1].el;
+      const anchor = newChildren[newEndIndex + 1]
+        ? newChildren[newEndIndex + 1].el
+        : null;
       el.insertBefore(createElm(newChildren[i]), anchor);
     }
   }
 
   if (oldStartIndex <= oldEndIndex) {
-    for (let i = oldStartIndex; i <= oldEndIndex; i++) {
-      if (oldChildren[i] !== null) {
+    for (let i = oldStartIndex; i < oldEndIndex; i++) {
+      if (oldChildren[i]) {
         el.removeChild(oldChildren[i].el);
       }
     }

@@ -1,7 +1,6 @@
 let watcherId = 0;
-
-let has = {};
 let queue = [];
+let has = {};
 let pending = false;
 
 function fluashSchedulerQueue() {
@@ -33,8 +32,8 @@ class Watcher {
     this.callback = callback;
     this.options = options;
     this.id = watcherId++;
-    this.user = !!options.user;
-    this.lazy = !!options.lazy;
+    this.user = options.user;
+    this.lazy = options.lazy;
     this.dirty = options.lazy;
 
     this.depIds = new Set();
@@ -69,16 +68,6 @@ class Watcher {
       queueWatcher(this);
     }
   }
-  evalute() {
-    this.dirty = false;
-    this.value = this.get();
-  }
-  depend() {
-    let i = this.deps.length;
-    while (i--) {
-      this.deps[i].depend();
-    }
-  }
   run() {
     const newValue = this.get();
     const oldValue = this.value;
@@ -87,6 +76,16 @@ class Watcher {
 
     if (this.callback) {
       this.callback.call(this.vm, newValue, oldValue);
+    }
+  }
+  evalute() {
+    this.dirty = false;
+    this.value = this.get();
+  }
+  depend() {
+    let i = this.deps.length;
+    while (i--) {
+      this.deps[i].depend(0);
     }
   }
   addDep(dep) {

@@ -1,5 +1,5 @@
 let depId = 0;
-let stack = [];
+const stack = []
 class Dep {
   constructor() {
     this.id = depId++;

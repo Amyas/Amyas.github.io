@@ -2,18 +2,20 @@ function Vue(options) {
   const vm = this;
   vm.$options = options;
 
-  initData(vm);
-
-  if (vm.$options.watch) {
-    initWatch(vm, vm.$options.watch);
+  if (options.data) {
+    initData(vm);
   }
 
-  if (vm.$options.computed) {
-    initComputed(vm, vm.$options.computed);
+  if (options.watch) {
+    initWatch(vm, options.watch);
   }
 
-  if (vm.$options.el) {
-    vm.$mount(vm.$options.el);
+  if (options.computed) {
+    initComputed(vm, options.computed);
+  }
+
+  if (options.el) {
+    vm.$mount(options.el);
   }
 }
 
@@ -21,7 +23,7 @@ function initComputed(vm, computed) {
   const watchers = (vm._computedWatchers = {});
   for (let key in computed) {
     const userDef = computed[key];
-    let getter = typeof userDef === "function" ? userDef : userDef.get;
+    const getter = typeof userDef === "function" ? userDef : userDef.get;
     watchers[key] = new Watcher(vm, getter, () => {}, { lazy: true });
     defineComputed(vm, key, userDef);
   }
@@ -39,8 +41,8 @@ function defineComputed(vm, key, userDef) {
 }
 
 function createComputedGetter(key) {
-  return function computedGetter() {
-    let watcher = this._computedWatchers[key];
+  return function () {
+    const watcher = this._computedWatchers[key];
 
     if (watcher.dirty) {
       watcher.evalute();
@@ -73,7 +75,7 @@ function createWatcher(vm, key, handler) {
 
 Vue.prototype.$watch = function (key, handler, options = {}) {
   options.user = true;
-  return new Watcher(this, key, handler, options);
+  new Watcher(this, key, handler, options);
 };
 
 Vue.prototype.$nextTick = nextTick;
@@ -107,7 +109,6 @@ Vue.prototype._render = function () {
   const options = vm.$options;
 
   const vnode = options.render.call(vm);
-
   return vnode;
 };
 
@@ -128,8 +129,8 @@ Vue.prototype._s = function (val) {
 
 Vue.prototype._update = function (vnode) {
   const vm = this;
-
   const prevVnode = vm._vnode;
+
   if (!prevVnode) {
     vm.$el = patch(vm.$el, vnode);
   } else {

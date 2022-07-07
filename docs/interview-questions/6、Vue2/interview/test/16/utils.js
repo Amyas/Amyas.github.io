@@ -9,7 +9,6 @@ function fluashCallbacks() {
 
 function timer(fluashCallbacks) {
   let timerFn = () => {};
-
   if (Promise) {
     timerFn = () => Promise.resolve().then(fluashCallbacks);
   } else if (MutationObserver) {

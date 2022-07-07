@@ -61,7 +61,7 @@ function parseHTML(html) {
     html = html.substring(len);
   }
 
-  function parseStartTagOpen() {
+  function parseStartTag() {
     const start = html.match(startTagOpen);
     if (start) {
       const match = {
@@ -95,7 +95,7 @@ function parseHTML(html) {
   while (html) {
     const textEnd = html.indexOf("<");
     if (textEnd === 0) {
-      const startTagMatch = parseStartTagOpen();
+      const startTagMatch = parseStartTag();
       if (startTagMatch) {
         start(startTagMatch.tag, startTagMatch.attrs);
         continue;
@@ -131,6 +131,14 @@ function generate(el) {
   return code;
 }
 
+function genChildren(el) {
+  const children = el.children;
+  if (children) {
+    return children.map((child) => gen(child));
+  }
+  return false;
+}
+
 function gen(el) {
   if (el.type === 1) {
     return generate(el);
@@ -152,21 +160,12 @@ function gen(el) {
       tokens.push(`_s(${match[1].trim()})`);
       lastIndex = index + match[0].length;
     }
-
     if (lastIndex < text.length) {
       tokens.push(JSON.stringify(text.slice(lastIndex)));
     }
 
     return `_v(${tokens.join("+")})`;
   }
-}
-
-function genChildren(el) {
-  const children = el.children;
-  if (children) {
-    return children.map((child) => gen(child)).join(",");
-  }
-  return false;
 }
 
 function genProps(attrs) {
