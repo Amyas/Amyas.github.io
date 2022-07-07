@@ -1,6 +1,6 @@
-function isReservedTag(str) {
-  let reservedTag = `a,div,span,p,img,button,ul,lu,h1`;
-  return reservedTag.includes(str);
+function isReservedTag(tag) {
+  const reservedTag = `a,h1,span,div,li,ul,p,img,button`;
+  return reservedTag.includes(tag);
 }
 
 function vnode(vm, tag, data, key, children, text, componentOptions) {
@@ -34,7 +34,7 @@ function createComponentElement(vm, tag, data, key, children, Ctor) {
   }
   data.hook = {
     init(vnode) {
-      let vm = (vnode.componentInstance = new Ctor({ _isComponent: true }));
+      const vm = (vnode.componentInstance = new Ctor({ _isComponent: true }));
       vm.$mount();
     },
   };

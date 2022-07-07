@@ -9,7 +9,7 @@ function initGlobalApi(Vue) {
   Vue.extend = function (options) {
     const Super = this;
     const Sub = function VueComponent(options) {
-      this._init(options)
+      this._init(options);
     };
     Sub.prototype = Object.create(Super.prototype);
     Sub.prototype.constructor = Sub;
