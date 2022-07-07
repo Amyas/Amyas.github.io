@@ -125,7 +125,7 @@ function parseHTML(html) {
 
 function generate(el) {
   const children = genChildren(el);
-  const code = `_c("${el.tag}", ${
+  const code = `_c("${el.tag}",${
     el.attrs.length ? genProps(el.attrs) : "undefined"
   }${children ? `,${children}` : ""})`;
   return code;
@@ -134,7 +134,7 @@ function generate(el) {
 function genChildren(el) {
   const children = el.children;
   if (children) {
-    return children.map((child) => gen(child));
+    return children.map((child) => gen(child)).join(",");
   }
   return false;
 }

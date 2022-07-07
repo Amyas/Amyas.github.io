@@ -24,7 +24,6 @@ function queueWatcher(watcher) {
     }
   }
 }
-
 class Watcher {
   constructor(vm, expOrFn, callback, options = {}) {
     this.vm = vm;
@@ -69,13 +68,13 @@ class Watcher {
     }
   }
   run() {
-    const newValue = this.get();
-    const oldValue = this.value;
+    const newVal = this.get();
+    const oldVal = this.value;
 
-    this.value = newValue;
+    this.value = newVal;
 
     if (this.callback) {
-      this.callback.call(this.vm, newValue, oldValue);
+      this.callback.call(this.vm, newVal, oldVal);
     }
   }
   evalute() {
@@ -85,7 +84,7 @@ class Watcher {
   depend() {
     let i = this.deps.length;
     while (i--) {
-      this.deps[i].depend(0);
+      this.deps[i].depend();
     }
   }
   addDep(dep) {

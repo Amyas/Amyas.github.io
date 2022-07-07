@@ -89,7 +89,6 @@ function patchChildren(el, oldChildren, newChildren) {
     } else if (!oldEndVnode) {
       oldEndVnode = oldChildren[--oldEndIndex];
     }
-
     if (isSameVnode(oldStartVnode, newStartVnode)) {
       patch(oldStartVnode, newStartVnode);
       oldStartVnode = oldChildren[++oldStartIndex];
@@ -132,7 +131,7 @@ function patchChildren(el, oldChildren, newChildren) {
   }
 
   if (oldStartIndex <= oldEndIndex) {
-    for (let i = oldStartIndex; i < oldEndIndex; i++) {
+    for (let i = oldStartIndex; i <= oldEndIndex; i++) {
       if (oldChildren[i]) {
         el.removeChild(oldChildren[i].el);
       }

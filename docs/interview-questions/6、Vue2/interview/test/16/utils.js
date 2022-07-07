@@ -12,13 +12,13 @@ function timer(fluashCallbacks) {
   if (Promise) {
     timerFn = () => Promise.resolve().then(fluashCallbacks);
   } else if (MutationObserver) {
-    const textNode = document.createTextNode(3);
+    const textNode = document.createTextNode(1);
     const observer = new MutationObserver(fluashCallbacks);
     observer.observe(textNode, {
       characterData: true,
     });
     timerFn = () => {
-      textNode.textContent = 1;
+      textNode.textContent = 2;
     };
   } else if (setImmediate) {
     timerFn = () => setImmediate(fluashCallbacks);
