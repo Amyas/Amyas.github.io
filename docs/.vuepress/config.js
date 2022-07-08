@@ -7,6 +7,7 @@ const sidebarInstance = new GenerateSidebar(docsPath, [
   ".vuepress",
   "vue2-study",
   "vue2-router-study",
+  "vue3-study",
   "test"
 ])
 

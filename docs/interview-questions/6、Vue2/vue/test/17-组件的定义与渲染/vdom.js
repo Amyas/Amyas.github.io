@@ -151,21 +151,21 @@ function patchChildren(el, oldChildren, newChildren) {
       }
       newStartVnode = newChildren[++newStartIndex];
     }
-  }
 
-  if (newStartIndex <= newEndIndex) {
-    for (let i = newStartIndex; i <= newEndIndex; i++) {
-      const anchor = newChildren[newEndIndex + 1]
-        ? newChildren[newEndIndex + 1].el
-        : null;
-      el.insertBefore(createElm(newChildren[i]), anchor);
+    if (newStartIndex <= newEndIndex) {
+      for (let i = newStartIndex; i <= newEndIndex; i++) {
+        const anchor = newChildren[newEndIndex + 1]
+          ? newChildren[newEndIndex + 1].el
+          : null;
+        el.insertBefore(createElm(newChildren[i]), anchor);
+      }
     }
-  }
 
-  if (oldStartIndex <= oldEndIndex) {
-    for (let i = oldStartIndex; i <= oldEndIndex; i++) {
-      if (oldChildren[i]) {
-        el.removeChild(oldChildren[i].el);
+    if (oldStartIndex <= oldEndIndex) {
+      for (let i = oldStartIndex; i <= oldEndIndex; i++) {
+        if (oldChildren[i]) {
+          el.removeChild(oldChildren[i].el);
+        }
       }
     }
   }
