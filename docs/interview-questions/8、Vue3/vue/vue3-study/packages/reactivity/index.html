@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="./dist/reactivity.global.index.js"></script>
+    <script>
+      const { effect, reactive } = VueReactivity;
+
+      // reactive只能传入对象
+      // 因为proxy只支持对象格式
+      const state = reactive({
+        name: "amyas",
+        age: 10,
+        address: {
+          num: 13,
+        },
+      });
+
+      // effect函数默认会执行一次，后续数据变化后会重新执行effect函数
+      effect(() => {
+        app.innerHTML = `${state.name}今年${state.age}岁了，门牌号：${state.address.num}`;
+      });
+
+      setTimeout(() => {
+        state.age++;
+      }, 1000);
+    </script>
+  </body>
+</html>

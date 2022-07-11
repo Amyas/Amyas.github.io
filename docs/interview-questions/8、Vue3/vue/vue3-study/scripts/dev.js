@@ -20,7 +20,7 @@ const outputFormat = format.startsWith("global")
   : "esm";
 const outfile = path.resolve(
   __dirname,
-  `../packages/${target}/dist/${target}.${format}.index.js`
+  `../packages/${target}/dist/${target}.${format}.js`
 );
 
 const { build } = require("esbuild");
