@@ -1,9 +1,7 @@
 import { isObject } from "@vue/shared";
+import { baseHandler, ReactiveFlags } from "./baseHandler";
 
 const reactiveMap = new WeakMap(); // key必须是对象，弱引用
-const enum ReactiveFlags {
-  IS_REACTIVE = "__v_isReactive",
-}
 
 export function reactive(target) {
   if (!isObject(target)) {
@@ -21,17 +19,7 @@ export function reactive(target) {
 
   // es6中的proxy
   // proxy一般搭配reflect使用，保证this指向正确
-  const proxy = new Proxy(target, {
-    get(target, key, receiver) {
-      if (key === ReactiveFlags.IS_REACTIVE) {
-        return true;
-      }
-      return Reflect.get(target, key, receiver);
-    },
-    set(target, key, value, receiver) {
-      return Reflect.set(target, key, value, receiver);
-    },
-  });
+  const proxy = new Proxy(target, baseHandler);
 
   reactiveMap.set(target, proxy);
 
