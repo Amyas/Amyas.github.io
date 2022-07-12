@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- <script src="./reactivity.global.js"></script> -->
+    <script src="./dist/reactivity.global.js"></script>
+    <script>
+      const { effect, reactive } = VueReactivity;
+
+      // reactive只能传入对象
+      // 因为proxy只支持对象格式
+      const state = reactive({
+        flag: true,
+        name: "amyas",
+        age: 10,
+        n: { n: 100 },
+      });
+
+      let waiting = false;
+      const runner = effect(
+        () => {
+          console.log("runner");
+          app.innerHTML = state.n.n;
+        },
+        {
+          scheduler() {
+            if (!waiting) {
+              Promise.resolve().then(() => {
+                runner();
+                waiting = false;
+              });
+              waiting = true;
+            }
+          },
+        }
+      );
+      // runner.effect.stop()
+
+      setTimeout(() => {
+        state.n.n++;
+        state.n.n++;
+        state.n.n++;
+        // runner()
+      }, 1000);
+    </script>
+  </body>
+</html>
