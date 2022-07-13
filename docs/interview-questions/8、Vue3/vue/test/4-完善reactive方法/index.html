@@ -18,16 +18,30 @@
         age: 30,
       });
 
-      effect(() => {
-        console.log("render");
+      // effect(() => {
+      //   console.log("render");
+      //   app.innerHTML = state.flag ? state.name : state.age;
+      // });
+
+      // setTimeout(() => {
+      //   state.flag = false;
+      //   setTimeout(() => {
+      //     console.log("修改name，原则上不更新视图");
+      //     state.name = "update name";
+      //   }, 1000);
+      // }, 1000);
+
+      const runner = effect(() => {
+        console.log("runner");
         app.innerHTML = state.flag ? state.name : state.age;
       });
+      runner.effect.stop();
 
       setTimeout(() => {
         state.flag = false;
+        console.log("flag已经变更");
         setTimeout(() => {
-          console.log("修改name，原则上不更新视图");
-          state.name = "update name";
+          runner();
         }, 1000);
       }, 1000);
     </script>

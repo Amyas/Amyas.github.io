@@ -6,16 +6,27 @@ class ReactiveEffect {
     this.fn = fn;
     this.parent = null;
     this.deps = [];
+    this.active = true;
   }
   run() {
-    try {
-      this.parent = activeEffect;
-      activeEffect = this;
+    if (!this.active) {
+      return this.fn();
+    } else {
+      try {
+        this.parent = activeEffect;
+        activeEffect = this;
+        cleanEffect(this);
+        return this.fn();
+      } finally {
+        activeEffect = this.parent;
+        this.parent = null;
+      }
+    }
+  }
+  stop() {
+    if (this.active) {
+      this.active = false;
       cleanEffect(this);
-      this.fn();
-    } finally {
-      activeEffect = this.parent;
-      this.parent = null;
     }
   }
 }
@@ -64,5 +75,8 @@ function trigger(target, key) {
 
 function effect(fn) {
   const _effect = new ReactiveEffect(fn);
+  const runner = _effect.run.bind(_effect);
   _effect.run();
+  runner.effect = _effect;
+  return runner;
 }
