@@ -2,11 +2,12 @@ let activeEffect = undefined;
 const targetMap = new WeakMap();
 
 class ReactiveEffect {
-  constructor(fn) {
+  constructor(fn, scheduler) {
     this.fn = fn;
     this.parent = null;
     this.deps = [];
     this.active = true;
+    this.scheduler = scheduler;
   }
   run() {
     if (!this.active) {
@@ -67,14 +68,18 @@ function trigger(target, key) {
     effects = new Set(effects);
     effects.forEach((effect) => {
       if (effect !== activeEffect) {
-        effect.run();
+        if (effect.scheduler) {
+          effect.scheduler();
+        } else {
+          effect.run();
+        }
       }
     });
   }
 }
 
-function effect(fn) {
-  const _effect = new ReactiveEffect(fn);
+function effect(fn, options = {}) {
+  const _effect = new ReactiveEffect(fn, options.scheduler);
   const runner = _effect.run.bind(_effect);
   _effect.run();
   runner.effect = _effect;

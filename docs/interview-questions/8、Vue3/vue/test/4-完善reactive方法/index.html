@@ -16,7 +16,18 @@
         flag: true,
         name: "amyas",
         age: 30,
+        address: {
+          num: 10,
+        },
       });
+
+      effect(() => {
+        app.innerHTML = state.address.num;
+      });
+
+      setTimeout(() => {
+        state.address.num++;
+      }, 1000);
 
       // effect(() => {
       //   console.log("render");
@@ -31,19 +42,44 @@
       //   }, 1000);
       // }, 1000);
 
-      const runner = effect(() => {
-        console.log("runner");
-        app.innerHTML = state.flag ? state.name : state.age;
-      });
-      runner.effect.stop();
+      // const runner = effect(() => {
+      //   console.log("runner");
+      //   app.innerHTML = state.flag ? state.name : state.age;
+      // });
+      // runner.effect.stop();
 
-      setTimeout(() => {
-        state.flag = false;
-        console.log("flag已经变更");
-        setTimeout(() => {
-          runner();
-        }, 1000);
-      }, 1000);
+      // setTimeout(() => {
+      //   state.flag = false;
+      //   console.log("flag已经变更");
+      //   setTimeout(() => {
+      //     runner();
+      //   }, 1000);
+      // }, 1000);
+
+      // let waiting = false;
+      // const runner = effect(
+      //   () => {
+      //     console.log("runner");
+      //     app.innerHTML = state.age;
+      //   },
+      //   {
+      //     scheduler() {
+      //       if (!waiting) {
+      //         waiting = true;
+      //         Promise.resolve().then(() => {
+      //           runner();
+      //         });
+      //       }
+      //     },
+      //   }
+      // );
+
+      // setTimeout(() => {
+      //   state.age++;
+      //   state.age++;
+      //   state.age++;
+      //   state.age++;
+      // }, 1000);
     </script>
   </body>
 </html>
