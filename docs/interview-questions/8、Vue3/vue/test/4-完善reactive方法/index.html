@@ -13,37 +13,23 @@
     <script src="./reactive.js"></script>
     <script>
       const state = reactive({
+        flag: true,
         name: "amyas",
-        age: 18,
-        address: {
-          num: 20,
-        },
+        age: 30,
       });
-
-      // effect(() => {
-      //   app.innerHTML = `${state.name}今年${state.age}岁，住在${state.address.num}号`;
-      // });
-
-      // setTimeout(() => {
-      //   state.age++;
-      // }, 1000);
-
-      // effect(() => {
-      //   console.log(state.name, "@@@state.name");
-      //   effect(() => {
-      //     console.log(state.address, "@@@state.address");
-      //   });
-      //   console.log(state.age, "@@@state.age");
-      // });
-
-      // setTimeout(() => {
-      //   state.age++;
-      // }, 1000);
 
       effect(() => {
-        state.age++;
-        app.innerHTML = `${state.name}今年${state.age}岁，住在${state.address.num}号`;
+        console.log("render");
+        app.innerHTML = state.flag ? state.name : state.age;
       });
+
+      setTimeout(() => {
+        state.flag = false;
+        setTimeout(() => {
+          console.log("修改name，原则上不更新视图");
+          state.name = "update name";
+        }, 1000);
+      }, 1000);
     </script>
   </body>
 </html>
