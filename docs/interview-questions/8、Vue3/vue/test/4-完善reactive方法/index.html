@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./shared.js"></script>
+    <script src="./effect.js"></script>
+    <script src="./reactive.js"></script>
+    <script>
+      const state = reactive({
+        name: "amyas",
+        age: 18,
+        address: {
+          num: 20,
+        },
+      });
+
+      // effect(() => {
+      //   app.innerHTML = `${state.name}今年${state.age}岁，住在${state.address.num}号`;
+      // });
+
+      // setTimeout(() => {
+      //   state.age++;
+      // }, 1000);
+
+      // effect(() => {
+      //   console.log(state.name, "@@@state.name");
+      //   effect(() => {
+      //     console.log(state.address, "@@@state.address");
+      //   });
+      //   console.log(state.age, "@@@state.age");
+      // });
+
+      // setTimeout(() => {
+      //   state.age++;
+      // }, 1000);
+
+      effect(() => {
+        state.age++;
+        app.innerHTML = `${state.name}今年${state.age}岁，住在${state.address.num}号`;
+      });
+    </script>
+  </body>
+</html>
