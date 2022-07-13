@@ -52,7 +52,7 @@ function track(target, key) {
     depsMap.set(key, (deps = new Set()));
   }
 
-  let shouldTrack = !deps.has(activeEffect);
+  const shouldTrack = !deps.has(activeEffect);
   if (shouldTrack) {
     deps.add(activeEffect);
     activeEffect.deps.push(deps);

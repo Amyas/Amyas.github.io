@@ -23,7 +23,7 @@ function reactive(target) {
         return true;
       }
       track(target, key);
-      let res = Reflect.get(target, key, receiver);
+      const res = Reflect.get(target, key, receiver);
       if (isObject(res)) {
         return reactive(res);
       }
