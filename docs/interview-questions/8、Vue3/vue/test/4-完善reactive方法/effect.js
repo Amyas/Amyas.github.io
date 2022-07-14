@@ -42,6 +42,7 @@ function cleanEffect(effect) {
 
 function track(target, key) {
   if (!activeEffect) return;
+
   let depsMap = targetMap.get(target);
   if (!depsMap) {
     targetMap.set(target, (depsMap = new Map()));
@@ -81,7 +82,8 @@ function trigger(target, key) {
 function effect(fn, options = {}) {
   const _effect = new ReactiveEffect(fn, options.scheduler);
   const runner = _effect.run.bind(_effect);
-  _effect.run();
   runner.effect = _effect;
+  _effect.run();
+
   return runner;
 }

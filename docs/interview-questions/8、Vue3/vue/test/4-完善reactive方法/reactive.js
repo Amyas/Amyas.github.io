@@ -30,13 +30,11 @@ function reactive(target) {
       return res;
     },
     set(target, key, value, receiver) {
-      let oldValue = target[key];
+      const oldValue = target[key];
       if (oldValue === value) return;
-
-      const result = Reflect.set(target, key, value, receiver);
+      const res = Reflect.set(target, key, value, receiver);
       trigger(target, key);
-
-      return result;
+      return res;
     },
   });
 
