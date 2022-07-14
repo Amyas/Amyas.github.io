@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- <script src="./reactivity.global.js"></script> -->
+    <script src="./dist/reactivity.global.js"></script>
+    <script>
+      const { effect, reactive, computed } = VueReactivity;
+
+      const state = reactive({
+        firstName: "姜",
+        lastName: "文",
+      });
+
+      // 计算属性就是一个effect
+      // 当我去取值的时候
+      // 会访问firstName，lastName的值
+      // 会让firstName和lastName来收集当前的computedEffect
+
+      // const fullName = computed(() => {
+      //   console.log("runner");
+      //   return state.firstName + state.lastName;
+      // });
+
+      // @@@case1: 多次访问，数据没变，只执行一次，缓存
+      // console.log(fullName.value);
+      // console.log(fullName.value);
+      // console.log(fullName.value);
+      // console.log(fullName.value);
+
+      // ---------------------------
+
+      // @@@case2：计算属性也可以收集effect，原始数据变化，computed改变，触发更新effect
+      // const fullName = computed(() => {
+      //   console.log("runner");
+      //   return state.firstName + state.lastName;
+      // });
+
+      // effect(() => {
+      //   app.innerHTML = fullName.value;
+      // });
+
+      // setTimeout(() => {
+      //   state.firstName = "@update";
+      // }, 1000);
+
+      // @@@case3：get、set自定义
+      const fullName = computed({
+        get() {
+          return state.firstName + state.lastName;
+        },
+        set(value) {
+          state.lastName = value;
+        },
+      });
+      effect(() => {
+        app.innerHTML = fullName.value;
+      });
+      setTimeout(() => {
+        fullName.value = "@update";
+      }, 1000);
+    </script>
+  </body>
+</html>

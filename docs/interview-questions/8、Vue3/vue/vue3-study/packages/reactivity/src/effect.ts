@@ -17,7 +17,7 @@ export class ReactiveEffect {
   public active = true;
   public parent = null;
   public deps = []; // effect中用了哪些属性，后续清理的时候使用
-  constructor(public fn, public scheduler) {
+  constructor(public fn, public scheduler?) {
     // public fn === this.fn = fn
   }
   run() {
@@ -57,6 +57,10 @@ export function trigger(target, key, value) {
   }
 
   let effects = depsMap.get(key);
+  triggerEffects(effects);
+}
+
+export function triggerEffects(effects) {
   if (effects) {
     effects = new Set(effects);
     effects.forEach((effect) => {
@@ -88,11 +92,15 @@ export function track(target, key) {
       depsMap.set(key, (deps = new Set()));
     }
 
-    let shouldTrack = !deps.has(activeEffect);
-    if (shouldTrack) {
-      deps.add(activeEffect);
-      activeEffect.deps.push(deps);
-    }
+    trackEffects(deps);
+  }
+}
+
+export function trackEffects(deps) {
+  let shouldTrack = !deps.has(activeEffect);
+  if (shouldTrack) {
+    deps.add(activeEffect);
+    activeEffect.deps.push(deps);
   }
 }
 
