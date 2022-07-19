@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./dist/runtime-dom.global.js"></script>
+    <script>
+      // 提供给用户，让用户方便扩展渲染逻辑，其他平台自己实现
+      // const { createRenderer, h } = VueRuntimeDOM;
+      // const { render, createApp } = createRenderer({
+      //   createElement(element) {
+      //     return document.createElement(element);
+      //   },
+      //   setElementText(element, text) {
+      //     element.textContent = text;
+      //   },
+      //   insert(element, container) {
+      //     container.appendChild(element);
+      //   },
+      // });
+      // render(h("h1", "hello world"), app);
+
+      // vue实现好的render渲染逻辑，内置了节点操作，可以直接使用
+      const { render, h } = VueRuntimeDOM;
+      render(h("h1", "hello world"), app);
+    </script>
+  </body>
+</html>
