@@ -26,8 +26,21 @@
       // render(h("h1", "hello world"), app);
 
       // vue实现好的render渲染逻辑，内置了节点操作，可以直接使用
-      const { render, h } = VueRuntimeDOM;
-      render(h("h1", "hello world"), app);
+      const { render, h, createVNode } = VueRuntimeDOM;
+
+      // h具备重载，不同的参数决定了不同的功能
+      // // 元素 内容
+      // console.log(h("h1", "hello"));
+      // // 元素 属性 内容
+      // console.log(h("h1", { style: { color: "red" } }, "hello"));
+      // // 元素 属性 多个儿子
+      // console.log(h("h1", { style: { color: "red" } }, ["hello", "world"]));
+      // // 元素 嵌套 元素
+      // console.log(h("h1", h("span", "hello")));
+      // // 元素 空属性 多儿子
+      // console.log(h("h1", null, [h("span", "hello"), h("span", "world")]));
+
+      console.log(createVNode("h1", {}, ["hello", "world"]));
     </script>
   </body>
 </html>
