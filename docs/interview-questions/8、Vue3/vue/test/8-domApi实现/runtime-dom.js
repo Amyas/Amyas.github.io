@@ -1,6 +1,6 @@
 const nodeOps = {
-  createElement(target) {
-    return document.createElement(target);
+  createElement(tagName) {
+    return document.createElement(tagName);
   },
   createTextNode(text) {
     return document.createTextNode(text);
@@ -15,10 +15,13 @@ const nodeOps = {
     }
   },
   querySelector(selectors) {
-    return document.createElement(selectors);
+    return document.querySelector(selectors);
   },
   parentNode(child) {
     return child.parentNode;
+  },
+  nextSibling(child) {
+    return child.nextSibling;
   },
   setText(element, text) {
     element.nodeValue = text;
@@ -28,7 +31,7 @@ const nodeOps = {
   },
 };
 
-const patchProp = (el, key, preValue, nextValue) => {
+function patchProp(el, key, preValue, nextValue) {
   if (key === "class") {
     patchClass(el, nextValue);
   } else if (key === "style") {
@@ -36,7 +39,7 @@ const patchProp = (el, key, preValue, nextValue) => {
   } else if (/on[^a-z]/.test(key)) {
     patchEvent(el, key, nextValue);
   }
-};
+}
 
 function patchClass(el, nextValue) {
   if (nextValue === null) {
@@ -49,7 +52,7 @@ function patchClass(el, nextValue) {
 function patchStyle(el, preValue, nextValue) {
   const style = el.style;
   for (let key in nextValue) {
-    style[key] = nextValue;
+    style[key] = nextValue[key];
   }
 
   if (preValue) {
@@ -61,6 +64,14 @@ function patchStyle(el, preValue, nextValue) {
   }
 
   el.setAttribute("style", style);
+}
+
+function createInvoker(preValue) {
+  const invoker = (e) => {
+    invoker.value(e);
+  };
+  invoker.value = preValue;
+  return invoker;
 }
 
 function patchEvent(el, key, nextValue) {
