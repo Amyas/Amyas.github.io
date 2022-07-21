@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./dist/runtime-dom.global.js"></script>
+    <script>
+      const { createRenderer, h, render } = VueRuntimeDOM;
+
+      render(h("h1", ["hello", h("span", "world")]), app);
+      // render(h("h1", h("span", "hello world")), app);
+
+      // setTimeout(() => {
+      //   render(h("h1", h("span", "hello world 123")), app);
+      // }, 1000);
+      // setTimeout(() => {
+      //   render(h(null, app));
+      // }, 2000);
+    </script>
+  </body>
+</html>

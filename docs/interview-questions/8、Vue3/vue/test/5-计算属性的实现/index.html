@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./shared.js"></script>
+    <script src="./effect.js"></script>
+    <script src="./reactive.js"></script>
+    <script>
+      const state = reactive({
+        flag: true,
+        name: "amyas",
+        age: 30,
+        address: {
+          num: 10,
+        },
+      });
+
+      effect(() => {
+        app.innerHTML = state.address.num;
+      });
+
+      setTimeout(() => {
+        state.address.num++;
+      }, 1000);
+
+      // effect(() => {
+      //   console.log("render");
+      //   app.innerHTML = state.flag ? state.name : state.age;
+      // });
+
+      // setTimeout(() => {
+      //   state.flag = false;
+      //   setTimeout(() => {
+      //     console.log("修改name，原则上不更新视图");
+      //     state.name = "update name";
+      //   }, 1000);
+      // }, 1000);
+
+      // const runner = effect(() => {
+      //   console.log("runner");
+      //   app.innerHTML = state.flag ? state.name : state.age;
+      // });
+      // runner.effect.stop();
+
+      // setTimeout(() => {
+      //   state.flag = false;
+      //   console.log("flag已经变更");
+      //   setTimeout(() => {
+      //     runner();
+      //   }, 1000);
+      // }, 1000);
+
+      // let waiting = false;
+      // const runner = effect(
+      //   () => {
+      //     console.log("runner");
+      //     app.innerHTML = state.age;
+      //   },
+      //   {
+      //     scheduler() {
+      //       if (!waiting) {
+      //         waiting = true;
+      //         Promise.resolve().then(() => {
+      //           runner();
+      //         });
+      //       }
+      //     },
+      //   }
+      // );
+
+      // setTimeout(() => {
+      //   state.age++;
+      //   state.age++;
+      //   state.age++;
+      //   state.age++;
+      // }, 1000);
+    </script>
+  </body>
+</html>

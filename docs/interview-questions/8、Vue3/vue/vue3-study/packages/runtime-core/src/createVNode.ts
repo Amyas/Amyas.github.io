@@ -1,11 +1,17 @@
 import { isArray, isString } from "@vue/shared";
 
+export const Text = Symbol("text");
+export function isVNode(value) {
+  return !!value.__v_isVNode;
+}
+
 export function createVNode(type, props = null, children = null) {
   // 判断后有不同类型的虚拟节点
   let shapeFlags = isString(type) ? ShapeFlags.ELEMENT : 0; // 标记出来自己是什么类型
 
+  // vnode要对应实际的节点
   const vnode = {
-    // vnode要对应实际的节点
+    __v_isVNode: true,
     type,
     props,
     children,
