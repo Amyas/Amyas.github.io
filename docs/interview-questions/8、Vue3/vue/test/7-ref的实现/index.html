@@ -13,52 +13,73 @@
     <script src="./reactive.js"></script>
     <script src="./computed.js"></script>
     <script src="./watch.js"></script>
+    <script src="./ref.js"></script>
     <script>
+      // let flag = ref({ a: 1 });
+      // effect(() => {
+      //   app.innerHTML = flag.value.a; // 取value属性的时候可以收集effect
+      // });
+
+      // setTimeout(() => {
+      //   flag.value.a = 2; // 改value的时候可以触发effect
+      // }, 1000);
+
+      // let flag = ref(false);
+      // effect(() => {
+      //   app.innerHTML = flag.value; // 取value属性的时候可以收集effect
+      // });
+
+      // setTimeout(() => {
+      //   flag.value = true; // 改value的时候可以触发effect
+      // }, 1000);
+
       const state = reactive({
         name: "amyas",
         age: 13,
-        address: {
-          n: 100,
-        },
       });
 
-      // watch(state, (newVal, oldVal) => {
-      //   console.log(state, newVal, oldVal);
+      // let name = toRef(state, "name");
+      // let age = toRef(state, "age" );
+
+      // effect(() => {
+      //   app.innerHTML = name.value + state.age;
       // });
-      // watch(
-      //   () => state.age,
-      //   (newVal, oldVal) => {
-      //     console.log(state, newVal, oldVal);
-      //   }
-      // );
 
       // setTimeout(() => {
-      //   state.age++;
+      //   age.value = 100;
       // }, 1000);
 
-      let i = 2000;
-      function getData(timer) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(timer);
-          }, timer);
-        });
-      }
+      // -------------------
 
-      watch(
-        () => state.age,
-        async (newValue, oldValue, onCleanup) => {
-          let f = false;
-          onCleanup(() => {
-            f = true;
-          });
-          i -= 1000;
-          let r = await getData(i);
-          !f && (document.body.innerHTML = r);
-        }
-      );
-      state.age = 31;
-      state.age = 32;
+      // let { name, age } = toRefs(state);
+
+      // effect(() => {
+      //   app.innerHTML = name.value + state.age;
+      // });
+
+      // setTimeout(() => {
+      //   age.value = 100;
+      // }, 1000);
+
+      let { name, age } = toRefs(state);
+
+      let my = proxyRefs({
+        name,
+        age,
+      });
+
+      effect(() => {
+        app.innerHTML = my.name + my.age;
+      });
+
+      setTimeout(() => {
+        name.value = "@update";
+        my.age = '!!!'
+      }, 1000);
+
+      // reactive 适合对象类型，非对象不能使用，不是对象的不能被代理
+      // 非对象类型的用ref，把state解构用toRef、toRefs、
+      // ref不想使用.value，用proxyRefs代理
     </script>
   </body>
 </html>

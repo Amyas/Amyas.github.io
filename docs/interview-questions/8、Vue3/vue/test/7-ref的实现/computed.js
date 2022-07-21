@@ -23,6 +23,7 @@ class ComputedRefImpl {
     this._value = null;
     this._dirty = true;
     this.deps = null;
+    this.__v_isRef = true;
     this.effect = new ReactiveEffect(getter, () => {
       if (!this._dirty) {
         this._dirty = true;
