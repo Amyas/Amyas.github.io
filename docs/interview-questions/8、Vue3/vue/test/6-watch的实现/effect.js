@@ -68,7 +68,7 @@ function trigger(target, key) {
   const depsMap = targetMap.get(target);
   if (!depsMap) return;
 
-  let effects = depsMap.get(key);
+  const effects = depsMap.get(key);
   triggerEffects(effects);
 }
 

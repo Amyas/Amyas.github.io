@@ -3,6 +3,10 @@ const ReactiveFlags = {
   IS_REACTIVE: "__v_isReactive",
 };
 
+function isReactive(value) {
+  return value && value[ReactiveFlags.IS_REACTIVE];
+}
+
 function reactive(target) {
   if (!isObject(target)) {
     return target;
