@@ -23,18 +23,18 @@ function reactive(target) {
         return true;
       }
       track(target, key);
-      const res = Reflect.get(target, key, receiver);
-      if (isObject(res)) {
-        return reactive(res);
+      const result = Reflect.get(target, key, receiver);
+      if (isObject(result)) {
+        return reactive(result);
       }
-      return res;
+      return result;
     },
     set(target, key, value, receiver) {
       const oldValue = target[key];
       if (oldValue === value) return;
-      const res = Reflect.set(target, key, value, receiver);
+      const result = Reflect.set(target, key, value, receiver);
       trigger(target, key);
-      return res;
+      return result;
     },
   });
 

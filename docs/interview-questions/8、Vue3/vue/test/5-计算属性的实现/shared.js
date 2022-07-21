@@ -1,3 +1,3 @@
-function isObject(val) {
-  return typeof val === "object" && val !== null;
+function isObject(value) {
+  return typeof value === "object" && value !== null;
 }
