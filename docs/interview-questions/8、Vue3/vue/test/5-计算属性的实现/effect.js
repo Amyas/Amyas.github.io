@@ -53,6 +53,10 @@ function track(target, key) {
     depsMap.set(key, (deps = new Set()));
   }
 
+  trackEffects(deps);
+}
+
+function trackEffects(deps) {
   const shouldTrack = !deps.has(activeEffect);
   if (shouldTrack) {
     deps.add(activeEffect);
@@ -65,6 +69,10 @@ function trigger(target, key) {
   if (!depsMap) return;
 
   let effects = depsMap.get(key);
+  triggerEffects(effects);
+}
+
+function triggerEffects(effects) {
   if (effects) {
     effects = new Set(effects);
     effects.forEach((effect) => {

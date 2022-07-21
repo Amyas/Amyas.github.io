@@ -11,75 +11,52 @@
     <script src="./shared.js"></script>
     <script src="./effect.js"></script>
     <script src="./reactive.js"></script>
+    <script src="./computed.js"></script>
     <script>
       const state = reactive({
-        flag: true,
-        name: "amyas",
-        age: 30,
-        address: {
-          num: 10,
-        },
+        firstName: "姜",
+        lastName: "文",
       });
 
-      effect(() => {
-        app.innerHTML = state.address.num;
-      });
+      // const fullName = computed(() => {
+      //   console.log("runner");
+      //   return state.firstName + state.lastName;
+      // });
 
-      setTimeout(() => {
-        state.address.num++;
-      }, 1000);
+      // // @@@case1: 多次访问，数据没变，只执行一次，缓存
+      // console.log(fullName.value);
+      // console.log(fullName.value);
+      // console.log(fullName.value);
+      // console.log(fullName.value);
+
+      // @@@case2：计算属性也可以收集effect，原始数据变化，computed改变，触发更新effect
+      // const fullName = computed(() => {
+      //   console.log("runner");
+      //   return state.firstName + state.lastName;
+      // });
 
       // effect(() => {
-      //   console.log("render");
-      //   app.innerHTML = state.flag ? state.name : state.age;
+      //   app.innerHTML = fullName.value;
       // });
 
       // setTimeout(() => {
-      //   state.flag = false;
-      //   setTimeout(() => {
-      //     console.log("修改name，原则上不更新视图");
-      //     state.name = "update name";
-      //   }, 1000);
+      //   state.firstName = "@update";
       // }, 1000);
 
-      // const runner = effect(() => {
-      //   console.log("runner");
-      //   app.innerHTML = state.flag ? state.name : state.age;
-      // });
-      // runner.effect.stop();
-
-      // setTimeout(() => {
-      //   state.flag = false;
-      //   console.log("flag已经变更");
-      //   setTimeout(() => {
-      //     runner();
-      //   }, 1000);
-      // }, 1000);
-
-      // let waiting = false;
-      // const runner = effect(
-      //   () => {
-      //     console.log("runner");
-      //     app.innerHTML = state.age;
-      //   },
-      //   {
-      //     scheduler() {
-      //       if (!waiting) {
-      //         waiting = true;
-      //         Promise.resolve().then(() => {
-      //           runner();
-      //         });
-      //       }
-      //     },
-      //   }
-      // );
-
-      // setTimeout(() => {
-      //   state.age++;
-      //   state.age++;
-      //   state.age++;
-      //   state.age++;
-      // }, 1000);
+      const fullName = computed({
+        get() {
+          return state.firstName + state.lastName;
+        },
+        set(value) {
+          state.lastName = value;
+        },
+      });
+      effect(() => {
+        app.innerHTML = fullName.value;
+      });
+      setTimeout(() => {
+        fullName.value = "@update";
+      }, 1000);
     </script>
   </body>
 </html>
