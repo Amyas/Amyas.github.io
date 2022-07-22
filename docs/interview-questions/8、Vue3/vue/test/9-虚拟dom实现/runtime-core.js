@@ -143,7 +143,11 @@ function createRenderer(options) {
     } else {
       patch(container._vnode || null, vnode, container);
     }
+
     container._vnode = vnode;
   }
-  return { render };
+
+  return {
+    render,
+  };
 }
