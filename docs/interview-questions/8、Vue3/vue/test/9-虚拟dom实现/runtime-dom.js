@@ -92,3 +92,10 @@ function patchEvent(el, key, nextValue) {
     }
   }
 }
+
+const renderOptions = { patchProp, ...nodeOps };
+
+function render(vnode, container) {
+  const { render } = createRenderer(renderOptions);
+  return render(vnode, container);
+}
