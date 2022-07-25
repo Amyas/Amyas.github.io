@@ -75,18 +75,134 @@
       //   render(h("h1"), app);
       // }, 1000);
 
+      // render(
+      //   h("div", { style: { color: "red" } }, [
+      //     h("p", { key: "a1", style: { color: "red" } }, "hello"),
+      //     h("p", { key: "a2", style: { color: "yellow" } }, "world"),
+      //   ]),
+      //   app
+      // );
+      // setTimeout(() => {
+      //   render(
+      //     h("div", { style: { color: "red" } }, [
+      //       h("p", { key: "a1", style: { color: "pink" } }, "hello 1"),
+      //     ]),
+      //     app
+      //   );
+      // }, 1000);
+
+      //   while (i <= e1 && i <= e2) {
+      //   const n1 = c1[i];
+      //   const n2 = c2[i];
+      //   if (isSameVNode(n1, n2)) {
+      //     patch(n1, n2, el);
+      //   } else {
+      //     break;
+      //   }
+      //   i++;
+      // }
+
+      //   if (i > e1) {
+      //   if (i <= e2) {
+      //     while (i <= e2) {
+      //       patch(null, c2[i], el); // 插入节点
+      //       i++;
+      //     }
+      //   }
+      // }
+      // render(
+      //   h("div", [
+      //     h("p", { key: "a" }, "a"),
+      //     h("p", { key: "b" }, "b"),
+      //     h("p", { key: "c" }, "c"),
+      //     h("p", { key: "d" }, "d"),
+      //   ]),
+      //   app
+      // );
+      // setTimeout(() => {
+      //   render(
+      //     h("div", [
+      //       h("p", { key: "a" }, "a"),
+      //       h("p", { key: "b" }, "b"),
+      //       h("p", { key: "c" }, "c"),
+      //       h("p", { key: "d" }, "d"),
+      //       h("p", { key: "e" }, "e"),
+      //       h("p", { key: "f" }, "f"),
+      //     ]),
+      //     app
+      //   );
+      // }, 1000);
+
+      // render(
+      //   h("div", [
+      //     h("p", { key: "c" }, "c"),
+      //     h("p", { key: "d" }, "d"),
+      //     h("p", { key: "e" }, "e"),
+      //     h("p", { key: "f" }, "f"),
+      //   ]),
+      //   app
+      // );
+      // setTimeout(() => {
+      //   render(
+      //     h("div", [
+      //       h("p", { key: "a" }, "a"),
+      //       h("p", { key: "b" }, "b"),
+      //       h("p", { key: "c" }, "c"),
+      //       h("p", { key: "d" }, "d"),
+      //       h("p", { key: "e" }, "e"),
+      //       h("p", { key: "f" }, "f"),
+      //     ]),
+      //     app
+      //   );
+      // }, 1000);
+
+      // render(
+      //   h("div", [
+      //     h("p", { key: "a" }, "a"),
+      //     h("p", { key: "b" }, "b"),
+      //     h("p", { key: "c" }, "c"),
+      //     h("p", { key: "d" }, "d"),
+      //     h("p", { key: "e" }, "e"),
+      //     h("p", { key: "f" }, "f"),
+      //   ]),
+      //   app
+      // );
+      // setTimeout(() => {
+      //   render(
+      //     h("div", [
+      //       h("p", { key: "a" }, "a"),
+      //       h("p", { key: "b" }, "b"),
+      //       h("p", { key: "c" }, "c"),
+      //       h("p", { key: "d" }, "d"),
+      //       h("p", { key: "e" }, "e"),
+      //       h("p", { key: "f" }, "f"),
+      //     ]),
+      //     app
+      //   );
+      // }, 1000);
+
       render(
-        h("div", { style: { color: "red" } }, [
-          h("p", { key: "a1", style: { color: "red" } }, "hello"),
-          h("p", { key: "a2", style: { color: "yellow" } }, "world"),
+        h("div", [
+          h("p", { key: "a" }, "a"),
+          h("p", { key: "b" }, "b"),
+          h("p", { key: "c" }, "c"),
+          h("p", { key: "d" }, "d"),
+          h("p", { key: "e" }, "e"),
+          h("p", { key: "f" }, "f"),
+          h("p", { key: "g" }, "g"),
         ]),
         app
       );
-
       setTimeout(() => {
         render(
-          h("div", { style: { color: "red" } }, [
-            h("p", { key: "a1", style: { color: "pink" } }, "hello 1"),
+          h("div", [
+            h("p", { key: "a" }, "a"),
+            h("p", { key: "b" }, "b"),
+            h("p", { key: "d" }, "d"),
+            h("p", { key: "e" }, "e"),
+            h("p", { key: "q" }, "q"),
+            h("p", { key: "f" }, "f"),
+            h("p", { key: "g" }, "g"),
           ]),
           app
         );
