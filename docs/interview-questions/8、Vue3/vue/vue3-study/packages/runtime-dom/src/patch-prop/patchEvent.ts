@@ -14,7 +14,7 @@ export function patchEvent(el, key, nextValue) {
     // 进行换绑
     exitingInvoker.value = nextValue;
   } else {
-    const eventName = key.slice(2).toowerCase();
+    const eventName = key.slice(2).toLowerCase();
     if (nextValue) {
       // 不存在缓存的情况
       const invoker = createInvoker(nextValue);

@@ -1,7 +1,7 @@
 export function patchStyle(el, preValue, nextValue) {
   const style = el.style;
   for (let key in nextValue) {
-    style[key] = nextValue[key];
+    style.setProperty(key, nextValue[key]);
   }
 
   if (preValue) {
@@ -12,6 +12,4 @@ export function patchStyle(el, preValue, nextValue) {
       }
     }
   }
-
-  el.setAttribute("style", style);
 }

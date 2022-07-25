@@ -5,6 +5,10 @@ export function isVNode(value) {
   return !!value.__v_isVNode;
 }
 
+export function isSameVNode(v1, v2) {
+  return v1.type === v2.type && v1.key === v2.key;
+}
+
 export function createVNode(type, props = null, children = null) {
   // 判断后有不同类型的虚拟节点
   let shapeFlags = isString(type) ? ShapeFlags.ELEMENT : 0; // 标记出来自己是什么类型

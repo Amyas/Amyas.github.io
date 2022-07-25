@@ -12,8 +12,19 @@
     <script>
       const { createRenderer, h, render } = VueRuntimeDOM;
 
-      render(h("h1", ["hello", h("span", "world")]), app);
-      // render(h("h1", h("span", "hello world")), app);
+      // render(
+      //   h(
+      //     "h1",
+      //     {
+      //       a: 1,
+      //       b: 2,
+      //       style: { color: "red" },
+      //       onClick: () => console.log(1),
+      //     },
+      //     "hello world"
+      //   ),
+      //   app
+      // );
 
       // setTimeout(() => {
       //   render(h("h1", h("span", "hello world 123")), app);
@@ -21,6 +32,65 @@
       // setTimeout(() => {
       //   render(h(null, app));
       // }, 2000);
+
+      // render(h("h1", h("span", "hello world")), app);
+      // setTimeout(() => {
+      //   render(h("h2", h("span", "hello world update")), app);
+      // }, 1000);
+
+      // render(h("h1", { style: { color: "red" } }, "hello world"), app);
+      // setTimeout(() => {
+      //   render(h("h1", { style: { color: "blue" } }, "hello world"), app);
+      // }, 1000);
+
+      // 1.文本  数组  删除儿子、设置文本内容
+      // render(h("h1", ["hello", "world"]), app);
+      // setTimeout(() => {
+      //   render(h("h1", "update"), app);
+      // }, 1000);
+      // render(h("h1", "hello"), app);
+      // setTimeout(() => {
+      //   render(h("h1", "update"), app);
+      // }, 1000);
+
+      // 7.空    数组  删除所有儿子
+      // render(h("h1", ["hello", "world"]), app);
+      // setTimeout(() => {
+      //   render(h("h1"), app);
+      // }, 1000);
+
+      // 5.数组  文本  清空文本，进行挂载
+      // render(h("h1", "hello"), app);
+      // setTimeout(() => {
+      //   render(h("h1", ["hello", "world"]), app);
+      // }, 1000);
+      // 6.数组  空    进行挂载
+      // render(h("h1"), app);
+      // setTimeout(() => {
+      //   render(h("h1", ["hello", "world"]), app);
+      // }, 1000);
+      // 8.空    文本  清空文本
+      // render(h("h1", "hello"), app);
+      // setTimeout(() => {
+      //   render(h("h1"), app);
+      // }, 1000);
+
+      render(
+        h("div", { style: { color: "red" } }, [
+          h("p", { key: "a1", style: { color: "red" } }, "hello"),
+          h("p", { key: "a2", style: { color: "yellow" } }, "world"),
+        ]),
+        app
+      );
+
+      setTimeout(() => {
+        render(
+          h("div", { style: { color: "red" } }, [
+            h("p", { key: "a1", style: { color: "pink" } }, "hello 1"),
+          ]),
+          app
+        );
+      }, 1000);
     </script>
   </body>
 </html>
