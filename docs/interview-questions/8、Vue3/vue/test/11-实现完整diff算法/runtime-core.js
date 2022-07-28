@@ -18,6 +18,10 @@ function isVNode(value) {
   return !!value.__v_isVNode;
 }
 
+function isSameVNode(v1, v2) {
+  return v1.type === v2.type && v1.key === v2.key;
+}
+
 function createVNode(type, props = null, children = null) {
   const shapeFlag = isString(type) ? ShapeFlags.ELEMENT : 0;
 
