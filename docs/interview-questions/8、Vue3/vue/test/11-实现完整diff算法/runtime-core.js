@@ -18,7 +18,7 @@ function isVNode(value) {
   return !!value.__v_isVNode;
 }
 
-function isSameVNode(v1, v2) {
+function isSameVnode(v1, v2) {
   return v1.type === v2.type && v1.key === v2.key;
 }
 
@@ -85,7 +85,7 @@ function createRenderer(options) {
     patchProp: hostPatchProp,
   } = options;
 
-  function patch(n1, n2, container) {
+  function patch(n1, n2, container, anchor) {
     if (n1 && !isSameVnode(n1, n2)) {
       unmount(n1);
       n1 = null;
@@ -99,7 +99,7 @@ function createRenderer(options) {
         break;
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
-          processElement(n1, n2, container);
+          processElement(n1, n2, container, anchor);
         }
         break;
     }
@@ -111,15 +111,15 @@ function createRenderer(options) {
     }
   }
 
-  function processElement(n1, n2, container) {
+  function processElement(n1, n2, container, anchor) {
     if (n1 === null) {
-      mountElement(n2, container);
+      mountElement(n2, container, anchor);
     } else {
       patchElement(n1, n2);
     }
   }
 
-  function mountElement(vnode, container) {
+  function mountElement(vnode, container, anchor) {
     const { type, props, children, shapeFlag } = vnode;
 
     const el = (vnode.el = hostCreateElement(type));
@@ -136,7 +136,7 @@ function createRenderer(options) {
       mountChildren(children, el);
     }
 
-    hostInsert(el, container);
+    hostInsert(el, container, anchor);
   }
 
   function mountChildren(children, container) {
@@ -195,7 +195,7 @@ function createRenderer(options) {
       }
     } else {
       if (oldShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        if (newShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
           patchKeyedChildren(oldChildren, newChildren, el);
         } else {
           unmountChildren(oldChildren);
@@ -225,7 +225,7 @@ function createRenderer(options) {
       } else {
         break;
       }
-      i++;
+      index++;
     }
 
     while (index <= oldLastIndex && index <= newLastIndex) {

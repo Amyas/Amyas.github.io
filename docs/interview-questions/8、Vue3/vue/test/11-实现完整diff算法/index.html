@@ -17,9 +17,26 @@
     <script src="./runtime-core.js"></script>
     <script src="./runtime-dom.js"></script>
     <script>
-      const res = h('h1',[123, h('span',321)])
-      render(res, app)
-      // render(h("h1", ["hello", h("span", "world")]), app);
+      function createRenderer$(vnode) {
+        return render(vnode, app);
+      }
+
+      const vnode = h("div", [
+        h("p", { key: "a" }, "a"),
+        h("p", { key: "b" }, "b"),
+      ]);
+
+      createRenderer$(vnode);
+
+      setTimeout(() => {
+        const vnode = h("div", [
+          h("p", { key: "a" }, "a"),
+          h("p", { key: "c" }, "c"),
+          h("p", { key: "b" }, "b"),
+        ]);
+        debugger;
+        createRenderer$(vnode);
+      }, 1000);
     </script>
   </body>
 </html>
