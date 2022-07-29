@@ -272,10 +272,10 @@ function createRenderer(options) {
       }
     }
 
-    let oldStartIndex = index;
-    let newStartIndex = index;
+    const oldStartIndex = index;
+    const newStartIndex = index;
 
-    let toBePatched = newLastIndex - newStartIndex + 1;
+    const toBePatched = newLastIndex - newStartIndex + 1;
     const keyToNewIndexMap = new Map();
     for (let i = newStartIndex; i <= newLastIndex; i++) {
       keyToNewIndexMap.set(newChildren[i].key, i);
