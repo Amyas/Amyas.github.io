@@ -99,6 +99,7 @@ function createRenderer(options) {
       unmount(oldVnode);
       oldVnode = null;
     }
+
     const { type, shapeFlag } = newVnode;
 
     switch (type) {
@@ -150,10 +151,25 @@ function createRenderer(options) {
     hostInsert(el, container, anchor);
   }
 
-  function mountChildren(children, container) {
+  function patchProps(oldProps, newProps, el) {
+    if (oldProps === null) oldProps = {};
+    if (newProps === null) newProps = {};
+
+    for (let key in newProps) {
+      hostPatchProp(el, key, oldProps[key], newProps[key]);
+    }
+
+    for (let key in oldProps) {
+      if (newProps[key] === null) {
+        hostPatchProp(el, key, oldProps[key], null);
+      }
+    }
+  }
+
+  function mountChildren(children, el) {
     for (let i = 0; i < children.length; i++) {
       const child = normalize(children, i);
-      patch(null, child, container);
+      patch(null, child, el);
     }
   }
 
@@ -174,7 +190,7 @@ function createRenderer(options) {
     patchChildren(oldVnode, newVnode, el);
   }
 
-  function patchChildren(oldVnode, newVnode, container) {
+  function patchChildren(oldVnode, newVnode, el) {
     const oldChildren = oldVnode.children;
     const newChildren = newVnode.children;
 
@@ -187,28 +203,28 @@ function createRenderer(options) {
       }
 
       if (oldChildren !== newChildren) {
-        hostSetElementText(container, newChildren);
+        hostSetElementText(el, newChildren);
       }
     } else {
       if (oldShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
         if (newShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-          patchKeyedChildren(oldChildren, newChildren, container);
+          patchKeyedChildren(oldChildren, newChildren, el);
         } else {
           unmountChildren(oldChildren);
         }
       } else {
         if (oldShapeFlag & ShapeFlags.TEXT_CHILDREN) {
-          hostSetElementText(container, "");
+          hostSetElementText(el, "");
         }
 
         if (newShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-          mountChildren(newChildren, container);
+          mountChildren(newChildren, el);
         }
       }
     }
   }
 
-  function patchKeyedChildren(oldChildren, newChildren, container) {
+  function patchKeyedChildren(oldChildren, newChildren, el) {
     let index = 0;
 
     let oldLastIndex = oldChildren.length - 1;
@@ -218,7 +234,7 @@ function createRenderer(options) {
       const oldVnode = oldChildren[index];
       const newVnode = newChildren[index];
       if (isSameVNode(oldVnode, newVnode)) {
-        patch(oldVnode, newVnode, container);
+        patch(oldVnode, newVnode, el);
       } else {
         break;
       }
@@ -229,7 +245,7 @@ function createRenderer(options) {
       const oldVnode = oldChildren[oldLastIndex];
       const newVnode = newChildren[newLastIndex];
       if (isSameVNode(oldVnode, newVnode)) {
-        patch(oldVnode, newVnode, container);
+        patch(oldVnode, newVnode, el);
       } else {
         break;
       }
@@ -243,7 +259,7 @@ function createRenderer(options) {
           const nextPos = newLastIndex + 1;
           const anchor =
             newChildren.length <= nextPos ? null : newChildren[nextPos].el;
-          patch(null, newChildren[index], container, anchor);
+          patch(null, newChildren[index], el, anchor);
           index++;
         }
       }
@@ -256,16 +272,16 @@ function createRenderer(options) {
       }
     }
 
-    let s1 = index;
-    let s2 = index;
+    let oldStartIndex = index;
+    let newStartIndex = index;
 
-    let toBePatched = newLastIndex - s2 + 1;
+    let toBePatched = newLastIndex - newStartIndex + 1;
     const keyToNewIndexMap = new Map();
-    for (let i = s2; i <= oldLastIndex; i++) {
+    for (let i = newStartIndex; i <= newLastIndex; i++) {
       keyToNewIndexMap.set(newChildren[i].key, i);
     }
 
-    for (let i = s1; i <= oldLastIndex; i++) {
+    for (let i = oldStartIndex; i <= oldLastIndex; i++) {
       const oldVnode = oldChildren[i];
       const newIndex = keyToNewIndexMap.get(oldVnode.key);
 
@@ -277,7 +293,7 @@ function createRenderer(options) {
     }
 
     for (let i = toBePatched - 1; i >= 0; i--) {
-      const currentIndex = s2 + 1;
+      const currentIndex = newStartIndex + i;
       const child = newChildren[currentIndex];
       const anchor =
         currentIndex + 1 < newChildren.length
@@ -285,26 +301,9 @@ function createRenderer(options) {
           : null;
 
       if (child.el === null) {
-        patch(null, child, el.anchor);
+        patch(null, child, el, anchor);
       } else {
         hostInsert(child.el, el, anchor);
-      }
-    }
-  }
-
-  function patchProps(oldProps, newProps, container) {
-    if (oldProps === null) oldProps = {};
-    if (newProps === null) newProps = {};
-
-    for (let key in newProps) {
-      hostPatchProp(container, key, oldProps[key], newProps[key]);
-    }
-
-    if (oldProps) {
-      for (let key in oldProps) {
-        if (newProps[key] === null) {
-          hostPatchProp(container, key, oldProps[key], null);
-        }
       }
     }
   }
