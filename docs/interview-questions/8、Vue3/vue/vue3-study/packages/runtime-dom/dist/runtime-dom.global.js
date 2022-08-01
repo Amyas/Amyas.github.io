@@ -34,6 +34,7 @@ var VueRuntimeDOM = (() => {
   // packages/runtime-dom/src/index.ts
   var src_exports = {};
   __export(src_exports, {
+    ReactiveEffect: () => ReactiveEffect,
     computed: () => computed,
     createRenderer: () => createRenderer,
     createVNode: () => createVNode,
@@ -72,7 +73,7 @@ var VueRuntimeDOM = (() => {
     return v1.type === v2.type && v1.key === v2.key;
   }
   function createVNode(type, props = null, children = null) {
-    let shapeFlags = isString(type) ? ShapeFlags.ELEMENT : 0;
+    let shapeFlags = isString(type) ? ShapeFlags.ELEMENT : isObject(type) ? ShapeFlags.STATEFUL_COMPONENT : 0;
     const vnode = {
       __v_isVNode: true,
       type,
@@ -407,6 +408,30 @@ var VueRuntimeDOM = (() => {
     }
   }
 
+  // packages/runtime-core/src/component.ts
+  function createComponentInstance(vnode) {
+    const instance = {
+      data: null,
+      vnode,
+      subTree: null,
+      inMounted: false,
+      update: null,
+      render: null
+    };
+    return instance;
+  }
+  function setupComponent(instance) {
+    const { type, props, children } = instance.vnode;
+    const { data, render: render2 } = type;
+    if (data) {
+      if (!isFunction(data)) {
+        return console.warn("data must a funciton");
+      }
+      instance.data = reactive(data.call({}));
+    }
+    instance.render = render2;
+  }
+
   // packages/runtime-core/src/renderer.ts
   function createRenderer(options) {
     const {
@@ -599,9 +624,40 @@ var VueRuntimeDOM = (() => {
         default:
           if (shapeFlags & 1 /* ELEMENT */) {
             processElement(n1, n2, container, anchor);
+          } else if (shapeFlags & 4 /* STATEFUL_COMPONENT */) {
+            processComponent(n1, n2, container, anchor);
           }
           break;
       }
+    }
+    function processComponent(n1, n2, container, anchor) {
+      if (n1 === null) {
+        mountComponent(n2, container, anchor);
+      } else {
+      }
+    }
+    function mountComponent(vnode, container, anchor) {
+      const instance = vnode.component = createComponentInstance(vnode);
+      setupComponent(instance);
+      setupRenderEffect(instance, container, anchor);
+    }
+    function setupRenderEffect(instance, container, anchor) {
+      const componentUpdate = () => {
+        const { render: render3, data } = instance;
+        if (!instance.isMounted) {
+          const subTree = render3.call(data);
+          patch(null, subTree, container, anchor);
+          instance.subTree = subTree;
+          instance.isMounted = true;
+        } else {
+          const subTree = render3.call(data);
+          patch(instance.subTree, subTree, container, anchor);
+          instance.subTree = subTree;
+        }
+      };
+      const effect2 = new ReactiveEffect(componentUpdate);
+      const update = instance.update = effect2.run.bind(effect2);
+      update();
     }
     function render2(vnode, container) {
       if (vnode === null) {

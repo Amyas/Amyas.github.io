@@ -1,5 +1,7 @@
 import { isNumber, isString } from "@vue/shared";
 import { createVNode, isSameVNode, ShapeFlags, Text } from "./createVNode";
+import { createComponentInstance, setupComponent } from "./component";
+import { ReactiveEffect } from "@vue/reactivity";
 
 export function createRenderer(options) {
   const {
@@ -281,9 +283,53 @@ export function createRenderer(options) {
       default:
         if (shapeFlags & ShapeFlags.ELEMENT) {
           processElement(n1, n2, container, anchor);
+        } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
+          processComponent(n1, n2, container, anchor);
         }
         break;
     }
+  }
+
+  function processComponent(n1, n2, container, anchor) {
+    if (n1 === null) {
+      // 初始化
+      mountComponent(n2, container, anchor);
+    } else {
+      // 组件更新，插槽更新，属性更新
+    }
+  }
+
+  function mountComponent(vnode, container, anchor) {
+    // 1)组件挂载前，需要产生一个组件的实例，组件的状态、组件的属性组件对应的生命周期
+    // 我们需要将创建的实例保存到vnode上
+    const instance = (vnode.component = createComponentInstance(vnode));
+    // 2)组件的插槽，处理组件的属性，给组件的实例赋值
+    setupComponent(instance);
+    // 3)给组件产生一个effect，这样可以组件数据变化后重新渲染
+    setupRenderEffect(instance, container, anchor);
+    // 组件的优点？复用，逻辑拆分，方便维护，vue组件级更新
+  }
+
+  function setupRenderEffect(instance, container, anchor) {
+    const componentUpdate = () => {
+      const { render, data } = instance;
+      if (!instance.isMounted) {
+        // 初始化
+        const subTree = render.call(data);
+        patch(null, subTree, container, anchor);
+        instance.subTree = subTree;
+        instance.isMounted = true;
+      } else {
+        // 更新逻辑
+        const subTree = render.call(data);
+        patch(instance.subTree, subTree, container, anchor);
+        instance.subTree = subTree;
+      }
+    };
+    const effect = new ReactiveEffect(componentUpdate);
+    // 用户想强制更新，instance.update()
+    const update = (instance.update = effect.run.bind(effect));
+    update();
   }
 
   function render(vnode, container) {
