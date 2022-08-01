@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./dist/runtime-dom.global.js"></script>
+    <script>
+      const { h, render } = VueRuntimeDOM;
+
+      const ChildComponent = {
+        props: {
+          a: Object,
+        },
+        render() {
+          return h("a", this.a);
+        },
+      };
+
+      const VueComponent = {
+        data() {
+          return {
+            flag: true,
+          };
+        },
+        render() {
+          return h("div", [
+            h(ChildComponent, { a: this.flag ? 1 : 2 }),
+            h(
+              "button",
+              {
+                onClick: () => {
+                  this.flag = !this.flag;
+                },
+              },
+              "重新渲染组件"
+            ),
+          ]);
+        },
+      };
+
+      // 处理h函数，让h函数支持组建类型
+      render(h(VueComponent), app);
+    </script>
+  </body>
+</html>

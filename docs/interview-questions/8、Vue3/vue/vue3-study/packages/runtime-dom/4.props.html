@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./dist/runtime-dom.global.js"></script>
+    <script>
+      const { h, render } = VueRuntimeDOM;
+
+      const VueComponent = {
+        props: {
+          a: Number,
+          b: Object,
+        },
+        data() {
+          return {
+            name: "amyas",
+          };
+        },
+        render() {
+          return h(
+            "button",
+            {
+              onClick: () => {
+                // this.name = "update";
+                // this.b.b = 3
+              },
+            },
+            [
+              h("span", this.name),
+              h("span", this.b.b),
+              h("span", this.$attrs.c),
+            ]
+          );
+        },
+      };
+
+      // 处理h函数，让h函数支持组建类型
+      render(h(VueComponent, { a: 1, b: { b: 2 }, c: 3 }), app);
+    </script>
+  </body>
+</html>

@@ -15,3 +15,6 @@ export const isArray = Array.isArray;
 export const isNumber = (value) => {
   return typeof value === "number";
 };
+
+const hasOwnPropertry = Object.prototype.hasOwnProperty;
+export const hasOwn = (obj, key) => hasOwnPropertry.call(obj, key);

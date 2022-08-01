@@ -253,7 +253,7 @@ export function createRenderer(options) {
 
       // 判断是移动还是新增，如何知道child是新增的
       // 如果有el是渲染过的
-      if (child.el === null) {
+      if (!child.el) {
         patch(null, child, el, anchor);
       } else {
         hostInsert(child.el, el, anchor);
@@ -290,13 +290,60 @@ export function createRenderer(options) {
     }
   }
 
+  // 组件初渲染的过程
+  // 1)创建实例、这里噢鱼一个代理对象回代理data、props、attrs
+  // 2)给组件实例赋值，给instance属性赋值
+  // 3)创建一个组件的effect运行
+  // 组件更新过程
+  // 1)组件的状态发生变化会触发自己effect重新执行
+  // 2)属性更新，会执行updateComponent内部会比较要不要更新，如果要更新则会调用instance.update方法，在调用render之前，更新属性即可
   function processComponent(n1, n2, container, anchor) {
     if (n1 === null) {
       // 初始化
       mountComponent(n2, container, anchor);
     } else {
       // 组件更新，插槽更新，属性更新
+      updateComponent(n1, n2);
     }
+  }
+
+  function shouldComponentUpdate(n1, n2) {
+    // 这个props中包含attrs
+    const prevProps = n1.props;
+    const nextProps = n2.props;
+    return hasChangeProps(prevProps, nextProps);
+  }
+
+  function updateComponent(n1, n2) {
+    // 拿到之前的属性和之后的属性看下是否有变化
+    const instance = (n2.component = n1.component);
+
+    if (shouldComponentUpdate(n1, n2)) {
+      instance.next = n2; //保留最新的虚拟节点
+      instance.update();
+    }
+  }
+
+  function updateProps(instance, prevProps, nextProps) {
+    if (hasChangeProps(prevProps, nextProps)) {
+      for (let key in nextProps) {
+        instance.props[key] = nextProps[key];
+      }
+      for (let key in instance.props) {
+        if (!(key in nextProps)) {
+          delete instance.props;
+        }
+      }
+    }
+  }
+
+  function hasChangeProps(prevProps, nextProps) {
+    for (let key in nextProps) {
+      if (nextProps[key] !== prevProps[key]) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function mountComponent(vnode, container, anchor) {
@@ -313,15 +360,21 @@ export function createRenderer(options) {
   function setupRenderEffect(instance, container, anchor) {
     const componentUpdate = () => {
       const { render, data } = instance;
+      // render函数中的this可以取到props，也可以取到data，也可以取到attr
       if (!instance.isMounted) {
         // 初始化
-        const subTree = render.call(data);
+        const subTree = render.call(instance.proxy);
         patch(null, subTree, container, anchor);
         instance.subTree = subTree;
         instance.isMounted = true;
       } else {
         // 更新逻辑
-        const subTree = render.call(data);
+        const next = instance.next; // 表示新的虚拟节点
+        if (next) {
+          // 更新属性，不会导致页面重新渲染，当前effect正在执行，触发的执行和当前effect一致
+          updateComponentPreRender(instance, next);
+        }
+        const subTree = render.call(instance.proxy);
         patch(instance.subTree, subTree, container, anchor);
         instance.subTree = subTree;
       }
@@ -330,6 +383,12 @@ export function createRenderer(options) {
     // 用户想强制更新，instance.update()
     const update = (instance.update = effect.run.bind(effect));
     update();
+  }
+
+  function updateComponentPreRender(instance, next) {
+    instance.next = null;
+    instance.vnode = next; // 更新
+    updateProps(instance, instance.props, next.props);
   }
 
   function render(vnode, container) {

@@ -7,7 +7,7 @@ function createInvoker(preValue) {
 }
 
 export function patchEvent(el, key, nextValue) {
-  const invokers = el._vei || (el.__vei = {}); // __vei === vueEventInvokers
+  const invokers = el._vei || (el._vei = {}); // __vei === vueEventInvokers
 
   const exitingInvoker = invokers[key];
   if (exitingInvoker && nextValue) {
@@ -23,7 +23,7 @@ export function patchEvent(el, key, nextValue) {
     } else if (exitingInvoker) {
       // 没有新值，但是之前绑定过
       el.removeEventListener(eventName, exitingInvoker);
-      invokers[eventName] = null;
+      invokers[key] = null;
     }
   }
 }
