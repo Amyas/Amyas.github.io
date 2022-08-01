@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./shared.js"></script>
+    <script src="./effect.js"></script>
+    <script src="./reactive.js"></script>
+    <script src="./computed.js"></script>
+    <script src="./watch.js"></script>
+    <script src="./ref.js"></script>
+    <script src="./runtime-core.js"></script>
+    <script src="./runtime-dom.js"></script>
+    <script>
+      function createRenderer$(vnode) {
+        return render(vnode, app);
+      }
+
+      const vnode = h("div", [
+        h("p", { key: "a" }, "a"),
+        h("p", { key: "b" }, "b"),
+        h("p", { key: "c" }, "c"),
+        h("p", { key: "d" }, "d"),
+        h("p", { key: "e" }, "e"),
+        h("p", { key: "f" }, "f"),
+        h("p", { key: "g" }, "g"),
+      ]);
+
+      createRenderer$(vnode);
+
+      setTimeout(() => {
+        const vnode = h("div", [
+          h("p", { key: "a" }, "a"),
+          h("p", { key: "b" }, "b"),
+          h("p", { key: "e" }, "e"),
+          h("p", { key: "q" }, "q"),
+          h("p", { key: "d" }, "d"),
+          h("p", { key: "f" }, "f"),
+          h("p", { key: "g" }, "g"),
+        ]);
+        createRenderer$(vnode);
+      }, 1000);
+    </script>
+  </body>
+</html>
