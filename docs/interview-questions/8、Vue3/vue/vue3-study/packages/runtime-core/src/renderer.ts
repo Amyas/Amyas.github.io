@@ -26,11 +26,11 @@ export function createRenderer(options) {
     return children[i];
   }
 
-  function mountChildren(children, container) {
+  function mountChildren(children, container, parent) {
     for (let i = 0; i < children.length; i++) {
       let child = normalize(children, i);
       // 子元素可能是文本节点
-      patch(null, child, container);
+      patch(null, child, container, parent);
     }
   }
 
@@ -51,7 +51,7 @@ export function createRenderer(options) {
     }
   }
 
-  function mountElement(vnode, container, anchor) {
+  function mountElement(vnode, container, anchor, parent) {
     const { type, props, children, shapeFlags } = vnode;
 
     // 因为我们后续需要对比虚拟节点的差异更新页面，所以需要保留对应的真实节点
@@ -66,7 +66,7 @@ export function createRenderer(options) {
       hostSetElementText(el, children);
     }
     if (shapeFlags & ShapeFlags.ARRAY_CHILDREN) {
-      mountChildren(children, el);
+      mountChildren(children, el, parent);
     }
 
     hostInsert(el, container, anchor);
@@ -78,16 +78,16 @@ export function createRenderer(options) {
     }
   }
 
-  function processElement(n1, n2, container, anchor) {
+  function processElement(n1, n2, container, anchor, parent) {
     if (n1 === null) {
-      mountElement(n2, container, anchor);
+      mountElement(n2, container, anchor, parent);
     } else {
       // 比较元素
-      patchElement(n1, n2);
+      patchElement(n1, n2, parent);
     }
   }
 
-  function patchElement(n1, n2) {
+  function patchElement(n1, n2, parent) {
     // n1 和 n2 能复用，说明dom节点不用删除
     const el = (n2.el = n1.el);
     const oldProps = n1.props;
@@ -96,7 +96,7 @@ export function createRenderer(options) {
     patchProps(oldProps, newProps, el);
 
     // 自己比较完，比较儿子
-    patchChildren(n1, n2, el);
+    patchChildren(n1, n2, el, parent);
   }
 
   function unmountChildren(children) {
@@ -105,7 +105,7 @@ export function createRenderer(options) {
     });
   }
 
-  function patchChildren(n1, n2, el) {
+  function patchChildren(n1, n2, el, parent) {
     const c1 = n1.children;
     const c2 = n2.children;
 
@@ -156,7 +156,7 @@ export function createRenderer(options) {
           hostSetElementText(el, "");
         }
         if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-          mountChildren(c2, el);
+          mountChildren(c2, el, parent);
         }
       }
     }
@@ -268,7 +268,7 @@ export function createRenderer(options) {
 
   // n1 之前的节点
   // n2 现在的节点
-  function patch(n1, n2, container, anchor = null) {
+  function patch(n1, n2, container, anchor = null, parent = null) {
     // 判断标签名和对应的key如果是一样的，说明是同一个节点
     if (n1 && !isSameVNode(n1, n2)) {
       unmount(n1);
@@ -283,9 +283,9 @@ export function createRenderer(options) {
         break;
       default:
         if (shapeFlags & ShapeFlags.ELEMENT) {
-          processElement(n1, n2, container, anchor);
+          processElement(n1, n2, container, anchor, parent);
         } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(n1, n2, container, anchor);
+          processComponent(n1, n2, container, anchor, parent);
         }
         break;
     }
@@ -298,10 +298,10 @@ export function createRenderer(options) {
   // 组件更新过程
   // 1)组件的状态发生变化会触发自己effect重新执行
   // 2)属性更新，会执行updateComponent内部会比较要不要更新，如果要更新则会调用instance.update方法，在调用render之前，更新属性即可
-  function processComponent(n1, n2, container, anchor) {
+  function processComponent(n1, n2, container, anchor, parent) {
     if (n1 === null) {
       // 初始化
-      mountComponent(n2, container, anchor);
+      mountComponent(n2, container, anchor, parent);
     } else {
       // 组件更新，插槽更新，属性更新
       updateComponent(n1, n2);
@@ -347,10 +347,10 @@ export function createRenderer(options) {
     return false;
   }
 
-  function mountComponent(vnode, container, anchor) {
+  function mountComponent(vnode, container, anchor, parent) {
     // 1)组件挂载前，需要产生一个组件的实例，组件的状态、组件的属性组件对应的生命周期
     // 我们需要将创建的实例保存到vnode上
-    const instance = (vnode.component = createComponentInstance(vnode));
+    const instance = (vnode.component = createComponentInstance(vnode, parent));
     // 2)组件的插槽，处理组件的属性，给组件的实例赋值
     setupComponent(instance);
     // 3)给组件产生一个effect，这样可以组件数据变化后重新渲染
@@ -369,13 +369,12 @@ export function createRenderer(options) {
         }
         // 初始化
         const subTree = render.call(instance.proxy);
-        patch(null, subTree, container, anchor);
+        patch(null, subTree, container, anchor, instance);
         instance.subTree = subTree;
-        instance.isMounted = true;
-
         if (m) {
           invokerFns(m);
         }
+        instance.isMounted = true;
       } else {
         // 更新逻辑
         const next = instance.next; // 表示新的虚拟节点
@@ -384,7 +383,7 @@ export function createRenderer(options) {
           updateComponentPreRender(instance, next);
         }
         const subTree = render.call(instance.proxy);
-        patch(instance.subTree, subTree, container, anchor);
+        patch(instance.subTree, subTree, container, anchor, instance);
         // 生命周期更新
         if (instance.u) {
           invokerFns(instance.u);

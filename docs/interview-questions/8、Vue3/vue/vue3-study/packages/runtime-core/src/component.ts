@@ -7,7 +7,7 @@ export let instance = null;
 export const getCurrentInstance = () => instance;
 export const setCurrentInstance = (i) => (instance = i);
 
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parent) {
   const instance = {
     data: null, // 组件本身的数据
     vnode, // 组件的虚拟节点
@@ -21,6 +21,8 @@ export function createComponentInstance(vnode) {
     proxy: null,
     setupState: {}, // setup返回的是对象则给这个对象赋值
     slots: {}, //存放组件所有插槽信息
+    parent, // 标记当前组件的父亲
+    provides: parent ? parent.provides : Object.create(null), // 父->儿->孙用同一个对象
   };
 
   return instance;
