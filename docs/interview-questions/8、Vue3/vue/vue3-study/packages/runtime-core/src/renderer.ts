@@ -1,4 +1,4 @@
-import { isNumber, isString } from "@vue/shared";
+import { invokerFns, isNumber, isString } from "@vue/shared";
 import { createVNode, isSameVNode, ShapeFlags, Text } from "./createVNode";
 import { createComponentInstance, setupComponent } from "./component";
 import { ReactiveEffect } from "@vue/reactivity";
@@ -363,11 +363,19 @@ export function createRenderer(options) {
       const { render, data } = instance;
       // render函数中的this可以取到props，也可以取到data，也可以取到attr
       if (!instance.isMounted) {
+        const { bm, m } = instance;
+        if (bm) {
+          invokerFns(bm);
+        }
         // 初始化
         const subTree = render.call(instance.proxy);
         patch(null, subTree, container, anchor);
         instance.subTree = subTree;
         instance.isMounted = true;
+
+        if (m) {
+          invokerFns(m);
+        }
       } else {
         // 更新逻辑
         const next = instance.next; // 表示新的虚拟节点
@@ -377,6 +385,10 @@ export function createRenderer(options) {
         }
         const subTree = render.call(instance.proxy);
         patch(instance.subTree, subTree, container, anchor);
+        // 生命周期更新
+        if (instance.u) {
+          invokerFns(instance.u);
+        }
         instance.subTree = subTree;
       }
     };

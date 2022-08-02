@@ -18,3 +18,9 @@ export const isNumber = (value) => {
 
 const hasOwnPropertry = Object.prototype.hasOwnProperty;
 export const hasOwn = (obj, key) => hasOwnPropertry.call(obj, key);
+
+export function invokerFns(fns) {
+  for (let i = 0; i < fns.length; i++) {
+    fns[i]();
+  }
+}

@@ -10,11 +10,22 @@
     <div id="app"></div>
     <script src="./dist/runtime-dom.global.js"></script>
     <script>
-      const { h, render, reactive, toRefs, onMounted } = VueRuntimeDOM;
+      const { h, render, reactive, toRefs, onMounted, getCurrentInstance } =
+        VueRuntimeDOM;
 
       const VueComponent = {
         setup() {
-          onMounted(() => {});
+          console.log(getCurrentInstance());
+          onMounted(() => {
+            console.log(getCurrentInstance());
+            console.log("m1");
+          });
+          onMounted(() => {
+            console.log("m2");
+          });
+          onMounted(() => {
+            console.log("m3");
+          });
         },
         render() {
           return h("div", "hello");

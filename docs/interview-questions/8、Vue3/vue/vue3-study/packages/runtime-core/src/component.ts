@@ -2,6 +2,11 @@ import { hasOwn, isFunction, isObject } from "@vue/shared";
 import { proxyRefs, reactive } from "@vue/reactivity";
 import { ShapeFlags } from "./createVNode";
 
+export let instance = null;
+
+export const getCurrentInstance = () => instance;
+export const setCurrentInstance = (i) => (instance = i);
+
 export function createComponentInstance(vnode) {
   const instance = {
     data: null, // 组件本身的数据
@@ -55,7 +60,9 @@ export function setupComponent(instance) {
       slots: instance.slots,
     };
     // setup在执行的时候有两个参数
+    setCurrentInstance(instance);
     const setupResult = setup(instance.props, context);
+    setCurrentInstance(null);
 
     if (isFunction(setupResult)) {
       instance.render = setupResult;
