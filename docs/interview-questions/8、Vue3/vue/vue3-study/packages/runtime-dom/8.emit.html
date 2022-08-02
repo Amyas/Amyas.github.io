@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./dist/runtime-dom.global.js"></script>
+    <script>
+      const { h, render, reactive, toRefs } = VueRuntimeDOM;
+
+      function useCount() {
+        const data = reactive({
+          count: 0,
+        });
+
+        const handleClick = () => {
+          data.count++;
+        };
+
+        return {
+          data,
+          handleClick,
+        };
+      }
+
+      const MyComponent = {
+        props: {
+          count: Number,
+        },
+        setup(props, context) {
+          return () => {
+            return h("div", [
+              h("span", {}, props.count),
+              h(
+                "button",
+                { onClick: () => context.emit("onChildUpdate") },
+                "触发emit事件"
+              ),
+            ]);
+          };
+        },
+      };
+
+      const VueComponent = {
+        setup() {
+          const { data, handleClick } = useCount();
+
+          return {
+            ...toRefs(data),
+            handleClick,
+          };
+          // return function render() {
+          //   return h("h1", "hello");
+          // };
+        },
+        render() {
+          console.log("render");
+          return h("div", [
+            h(
+              "button",
+              {
+                onClick: () => this.handleClick(),
+              },
+              "增加"
+            ),
+            h("span", this.count),
+            h(MyComponent, {
+              count: this.count,
+              onChildUpdate: () => {
+                this.handleClick();
+              },
+            }),
+          ]);
+        },
+      };
+
+      render(h(VueComponent), app);
+    </script>
+  </body>
+</html>

@@ -28,7 +28,7 @@ export function createVNode(type, props = null, children = null) {
     shapeFlags,
   };
 
-  if (children) {
+  if (children !== undefined) {
     let temp = 0;
     if (isArray(children)) {
       // 走到createVNode要么是数组要么是字符串

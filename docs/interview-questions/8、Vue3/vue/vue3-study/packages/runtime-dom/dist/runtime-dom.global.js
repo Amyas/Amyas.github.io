@@ -85,7 +85,7 @@ var VueRuntimeDOM = (() => {
       el: null,
       shapeFlags
     };
-    if (children) {
+    if (children !== void 0) {
       let temp = 0;
       if (isArray(children)) {
         temp = ShapeFlags.ARRAY_CHILDREN;
@@ -422,13 +422,14 @@ var VueRuntimeDOM = (() => {
       propsOptions: vnode.type.props || {},
       props: {},
       attrs: {},
-      proxy: null
+      proxy: null,
+      setupState: {}
     };
     return instance;
   }
   function setupComponent(instance) {
     const { type, props, children } = instance.vnode;
-    const { data, render: render2 } = type;
+    const { data, render: render2, setup } = type;
     initProps(instance, props);
     instance.proxy = new Proxy(instance, instanceProxy);
     if (data) {
@@ -437,16 +438,38 @@ var VueRuntimeDOM = (() => {
       }
       instance.data = reactive(data.call({}));
     }
-    instance.render = render2;
+    if (setup) {
+      const context = {
+        emit: (eventName, ...args) => {
+          const invoker = instance.vnode.props[eventName];
+          invoker && invoker(...args);
+        },
+        attrs: instance.attrs
+      };
+      const setupResult = setup(instance.props, context);
+      if (isFunction(setupResult)) {
+        instance.render = setupResult;
+      } else if (isObject(setupResult)) {
+        instance.setupState = proxyRefs(setupResult);
+      }
+    }
+    if (!instance.render) {
+      if (render2) {
+        instance.render = render2;
+      } else {
+      }
+    }
   }
   var publicProperites = {
     $attrs: (instance) => instance.attrs
   };
   var instanceProxy = {
     get(target, key, receiver) {
-      const { data, props } = target;
+      const { data, props, setupState } = target;
       if (data && hasOwn(data, key)) {
         return data[key];
+      } else if (setupState && hasOwn(setupState, key)) {
+        return setupState[key];
       } else if (props && hasOwn(props, key)) {
         return props[key];
       }
@@ -456,9 +479,11 @@ var VueRuntimeDOM = (() => {
       }
     },
     set(target, key, value, receiver) {
-      const { data, props } = target;
+      const { data, props, setupState } = target;
       if (data && hasOwn(data, key)) {
         data[key] = value;
+      } else if (setupState && hasOwn(setupState, key)) {
+        setupState[key] = value;
       } else if (props && hasOwn(props, key)) {
         console.warn("props not update");
         return false;
@@ -482,6 +507,29 @@ var VueRuntimeDOM = (() => {
     }
     instance.props = reactive(props);
     instance.attrs = attrs;
+  }
+
+  // packages/runtime-core/src/scheduler.ts
+  var queue = [];
+  var isFlushing = false;
+  var resolvePromise = Promise.resolve();
+  function queueJob(job) {
+    if (!queue.includes(job)) {
+      queue.push(job);
+    }
+    if (!isFlushing) {
+      isFlushing = true;
+      resolvePromise.then(() => {
+        isFlushing = false;
+        const copyQueue = queue.slice(0);
+        queue.length = 0;
+        for (let i = 0; i < copyQueue.length; i++) {
+          const job2 = copyQueue[i];
+          job2();
+        }
+        copyQueue.length = 0;
+      });
+    }
   }
 
   // packages/runtime-core/src/renderer.ts
@@ -744,7 +792,7 @@ var VueRuntimeDOM = (() => {
           instance.subTree = subTree;
         }
       };
-      const effect2 = new ReactiveEffect(componentUpdate);
+      const effect2 = new ReactiveEffect(componentUpdate, () => queueJob(instance.update));
       const update = instance.update = effect2.run.bind(effect2);
       update();
     }

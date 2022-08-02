@@ -1,5 +1,5 @@
-import { hasOwn, isFunction } from "@vue/shared";
-import { reactive } from "@vue/reactivity";
+import { hasOwn, isFunction, isObject } from "@vue/shared";
+import { proxyRefs, reactive } from "@vue/reactivity";
 
 export function createComponentInstance(vnode) {
   const instance = {
@@ -13,6 +13,7 @@ export function createComponentInstance(vnode) {
     props: {}, // 用户接收生命的属性
     attrs: {}, // props没有接收的放到这里
     proxy: null,
+    setupState: {}, // setup返回的是对象则给这个对象赋值
   };
 
   return instance;
@@ -20,7 +21,7 @@ export function createComponentInstance(vnode) {
 
 export function setupComponent(instance) {
   const { type, props, children } = instance.vnode;
-  const { data, render } = type;
+  const { data, render, setup } = type;
 
   initProps(instance, props);
 
@@ -33,7 +34,32 @@ export function setupComponent(instance) {
     instance.data = reactive(data.call({}));
   }
 
-  instance.render = render;
+  if (setup) {
+    const context = {
+      emit: (eventName, ...args) => {
+        const invoker = instance.vnode.props[eventName];
+        // 调用绑定的事件
+        invoker && invoker(...args);
+      },
+      attrs: instance.attrs,
+    };
+    // setup在执行的时候有两个参数
+    const setupResult = setup(instance.props, context);
+
+    if (isFunction(setupResult)) {
+      instance.render = setupResult;
+    } else if (isObject(setupResult)) {
+      instance.setupState = proxyRefs(setupResult);
+    }
+  }
+
+  if (!instance.render) {
+    if (render) {
+      instance.render = render;
+    } else {
+      // 模版编译，赋值给render
+    }
+  }
 }
 
 const publicProperites = {
@@ -41,9 +67,11 @@ const publicProperites = {
 };
 const instanceProxy = {
   get(target, key, receiver) {
-    const { data, props } = target;
+    const { data, props, setupState } = target;
     if (data && hasOwn(data, key)) {
       return data[key];
+    } else if (setupState && hasOwn(setupState, key)) {
+      return setupState[key];
     } else if (props && hasOwn(props, key)) {
       return props[key];
     }
@@ -55,9 +83,11 @@ const instanceProxy = {
     }
   },
   set(target, key, value, receiver) {
-    const { data, props } = target;
+    const { data, props, setupState } = target;
     if (data && hasOwn(data, key)) {
       data[key] = value;
+    } else if (setupState && hasOwn(setupState, key)) {
+      setupState[key] = value;
     } else if (props && hasOwn(props, key)) {
       console.warn("props not update");
       return false;

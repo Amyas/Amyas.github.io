@@ -2,6 +2,7 @@ import { isNumber, isString } from "@vue/shared";
 import { createVNode, isSameVNode, ShapeFlags, Text } from "./createVNode";
 import { createComponentInstance, setupComponent } from "./component";
 import { ReactiveEffect } from "@vue/reactivity";
+import { queueJob } from "./scheduler";
 
 export function createRenderer(options) {
   const {
@@ -379,7 +380,9 @@ export function createRenderer(options) {
         instance.subTree = subTree;
       }
     };
-    const effect = new ReactiveEffect(componentUpdate);
+    const effect = new ReactiveEffect(componentUpdate, () =>
+      queueJob(instance.update)
+    );
     // 用户想强制更新，instance.update()
     const update = (instance.update = effect.run.bind(effect));
     update();
