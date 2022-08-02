@@ -1,5 +1,6 @@
 import { hasOwn, isFunction, isObject } from "@vue/shared";
 import { proxyRefs, reactive } from "@vue/reactivity";
+import { ShapeFlags } from "./createVNode";
 
 export function createComponentInstance(vnode) {
   const instance = {
@@ -14,9 +15,16 @@ export function createComponentInstance(vnode) {
     attrs: {}, // props没有接收的放到这里
     proxy: null,
     setupState: {}, // setup返回的是对象则给这个对象赋值
+    slots: {}, //存放组件所有插槽信息
   };
 
   return instance;
+}
+
+function initSlots(instance, children) {
+  if (instance.vnode.shapeFlags & ShapeFlags.SLOTS_CHILDREN) {
+    instance.slots = children; // 将用户的children 映射到 slots上
+  }
 }
 
 export function setupComponent(instance) {
@@ -24,6 +32,8 @@ export function setupComponent(instance) {
   const { data, render, setup } = type;
 
   initProps(instance, props);
+
+  initSlots(instance, children);
 
   instance.proxy = new Proxy(instance, instanceProxy);
 
@@ -42,6 +52,7 @@ export function setupComponent(instance) {
         invoker && invoker(...args);
       },
       attrs: instance.attrs,
+      slots: instance.slots,
     };
     // setup在执行的时候有两个参数
     const setupResult = setup(instance.props, context);
@@ -64,6 +75,7 @@ export function setupComponent(instance) {
 
 const publicProperites = {
   $attrs: (instance) => instance.attrs,
+  $slots: (instance) => instance.slots,
 };
 const instanceProxy = {
   get(target, key, receiver) {
