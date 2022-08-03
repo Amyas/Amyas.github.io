@@ -263,6 +263,12 @@ export function createRenderer(options) {
   }
 
   function unmount(n1) {
+    const { shapeFlags, component } = n1;
+
+    if (shapeFlags & ShapeFlags.COMPONENT) {
+      return unmount(component.subTree);
+    }
+
     hostRemove(n1.el);
   }
 
