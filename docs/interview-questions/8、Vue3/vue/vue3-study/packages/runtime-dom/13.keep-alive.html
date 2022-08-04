@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./dist/runtime-dom.global.js"></script>
+    <script>
+      const { defineAsyncComponent, h, render, KeepAlive } = VueRuntimeDOM;
+
+      // 弄一个盒子，将渲染的结果临时移动到内存中，如果后续切换回来，再从内存中直接拿出来
+
+      const Component1 = {
+        name: "c1",
+        render: () => {
+          console.log("render1");
+          return h("div", "component1");
+        },
+      };
+
+      const Component2 = {
+        name: "c2",
+        render: () => {
+          console.log("render2");
+          return h("div", "component2");
+        },
+      };
+
+      render(
+        h(KeepAlive, null, {
+          default: () => h(Component1),
+        }),
+        app
+      );
+
+      setTimeout(() => {
+        render(
+          h(KeepAlive, null, {
+            default: () => h(Component2),
+          }),
+          app
+        );
+      }, 1000);
+
+      setTimeout(() => {
+        render(
+          h(KeepAlive, null, {
+            default: () => h(Component1),
+          }),
+          app
+        );
+      }, 2000);
+    </script>
+  </body>
+</html>

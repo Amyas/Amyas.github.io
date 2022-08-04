@@ -9,6 +9,7 @@ export const setCurrentInstance = (i) => (instance = i);
 
 export function createComponentInstance(vnode, parent) {
   const instance = {
+    ctx: {} as any, // 当前实例的上下文，用于存储信息
     data: null, // 组件本身的数据
     vnode, // 组件的虚拟节点
     subTree: null, // 组件对应渲染的虚拟节点

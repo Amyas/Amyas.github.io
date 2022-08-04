@@ -318,7 +318,14 @@ export function createRenderer(options) {
     // 这个props中包含attrs
     const prevProps = n1.props;
     const nextProps = n2.props;
-    return hasChangeProps(prevProps, nextProps);
+    if (hasChangeProps(prevProps, nextProps)) {
+      return true;
+    }
+    // 插槽更新
+    if (n1.children || n2.children) {
+      return true;
+    }
+    return false;
   }
 
   function updateComponent(n1, n2) {
@@ -357,6 +364,15 @@ export function createRenderer(options) {
     // 1)组件挂载前，需要产生一个组件的实例，组件的状态、组件的属性组件对应的生命周期
     // 我们需要将创建的实例保存到vnode上
     const instance = (vnode.component = createComponentInstance(vnode, parent));
+    // 渲染的时候用到的方法
+    instance.ctx.renderer = {
+      createElement: hostCreateElement, // 创建元素
+      move(vnode, container) {
+        // 移动dom
+        hostInsert(vnode.component.subTree.el, container);
+      },
+      unmount, //卸载dom
+    };
     // 2)组件的插槽，处理组件的属性，给组件的实例赋值
     setupComponent(instance);
     // 3)给组件产生一个effect，这样可以组件数据变化后重新渲染
@@ -409,6 +425,8 @@ export function createRenderer(options) {
     instance.next = null;
     instance.vnode = next; // 更新
     updateProps(instance, instance.props, next.props);
+    // 插槽更新，用新的节点覆盖掉
+    Object.assign(instance.slots, next.children);
   }
 
   function render(vnode, container) {

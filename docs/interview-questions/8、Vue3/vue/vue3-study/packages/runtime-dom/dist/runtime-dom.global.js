@@ -34,6 +34,7 @@ var VueRuntimeDOM = (() => {
   // packages/runtime-dom/src/index.ts
   var src_exports = {};
   __export(src_exports, {
+    KeepAlive: () => KeepAlive,
     LifyCycle: () => LifyCycle,
     ReactiveEffect: () => ReactiveEffect,
     computed: () => computed,
@@ -432,6 +433,7 @@ var VueRuntimeDOM = (() => {
   var setCurrentInstance = (i) => instance = i;
   function createComponentInstance(vnode, parent) {
     const instance2 = {
+      ctx: {},
       data: null,
       vnode,
       subTree: null,
@@ -776,7 +778,13 @@ var VueRuntimeDOM = (() => {
     function shouldComponentUpdate(n1, n2) {
       const prevProps = n1.props;
       const nextProps = n2.props;
-      return hasChangeProps(prevProps, nextProps);
+      if (hasChangeProps(prevProps, nextProps)) {
+        return true;
+      }
+      if (n1.children || n2.children) {
+        return true;
+      }
+      return false;
     }
     function updateComponent(n1, n2) {
       const instance2 = n2.component = n1.component;
@@ -807,6 +815,13 @@ var VueRuntimeDOM = (() => {
     }
     function mountComponent(vnode, container, anchor, parent) {
       const instance2 = vnode.component = createComponentInstance(vnode, parent);
+      instance2.ctx.renderer = {
+        createElement: hostCreateElement,
+        move(vnode2, container2) {
+          hostInsert(vnode2.component.subTree.el, container2);
+        },
+        unmount
+      };
       setupComponent(instance2);
       setupRenderEffect(instance2, container, anchor);
     }
@@ -846,6 +861,7 @@ var VueRuntimeDOM = (() => {
       instance2.next = null;
       instance2.vnode = next;
       updateProps(instance2, instance2.props, next.props);
+      Object.assign(instance2.slots, next.children);
     }
     function render2(vnode, container) {
       if (vnode === null) {
@@ -978,6 +994,35 @@ var VueRuntimeDOM = (() => {
       }
     };
   }
+
+  // packages/runtime-core/src/keepAlive.ts
+  var KeepAlive = {
+    __isKeepAlive: true,
+    setup(props, { slots }) {
+      const keys = /* @__PURE__ */ new Set();
+      const cache = /* @__PURE__ */ new Map();
+      const instance2 = getCurrentInstance();
+      let pendingCatchKey = null;
+      onMounted(() => {
+        cache.set(pendingCatchKey, instance2.subTree);
+      });
+      return () => {
+        const vnode = slots.default();
+        if (vnode.shapeFlags & 4 /* STATEFUL_COMPONENT */) {
+          return vnode;
+        }
+        const currentComponent = vnode.type;
+        const key = vnode.key === null ? currentComponent : vnode.key;
+        pendingCatchKey = key;
+        const cacheVnode = cache.get(key);
+        if (cacheVnode) {
+        } else {
+          keys.add(key);
+        }
+        return vnode;
+      };
+    }
+  };
 
   // packages/runtime-dom/src/nodeOps.ts
   var nodeOps = {
