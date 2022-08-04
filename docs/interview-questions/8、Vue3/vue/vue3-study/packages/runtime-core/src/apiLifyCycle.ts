@@ -23,4 +23,4 @@ function createInvoker(type) {
 
 export const onBeforeMount = createInvoker(LifyCycle.BEFORE_MOUNT);
 export const onMounted = createInvoker(LifyCycle.MOUNT);
-export const onUpdate = createInvoker(LifyCycle.UPDATE);
+export const onUpdated = createInvoker(LifyCycle.UPDATE);

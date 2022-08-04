@@ -99,9 +99,9 @@ export function createRenderer(options) {
     patchChildren(n1, n2, el, parent);
   }
 
-  function unmountChildren(children) {
+  function unmountChildren(children, parent) {
     children.forEach((child) => {
-      unmount(child);
+      unmount(child, parent);
     });
   }
 
@@ -132,7 +132,7 @@ export function createRenderer(options) {
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
         // 1.文本  数组  删除儿子、设置文本内容
-        unmountChildren(c1);
+        unmountChildren(c1, parent);
       }
       if (c1 !== c2) {
         hostSetElementText(el, c2);
@@ -143,10 +143,10 @@ export function createRenderer(options) {
         // 之前是数组
         if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
           // 4.数组  数组  diff算法
-          patchKeyedChildren(c1, c2, el);
+          patchKeyedChildren(c1, c2, el, parent);
         } else {
           // 7.空    数组  删除所有儿子
-          unmountChildren(c1);
+          unmountChildren(c1, parent);
         }
       } else {
         // 5.数组  文本  清空文本，进行挂载
@@ -162,7 +162,7 @@ export function createRenderer(options) {
     }
   }
 
-  function patchKeyedChildren(c1, c2, el) {
+  function patchKeyedChildren(c1, c2, el, parent) {
     // 比较c1和c2两个数组之间的差异，再去更新el
     // 尽量复用节点，而且找到变化的位置
     let i = 0;
@@ -213,7 +213,7 @@ export function createRenderer(options) {
       // 老的多、新的少
       if (i <= e1) {
         while (i <= e1) {
-          unmount(c1[i]);
+          unmount(c1[i], parent);
           i++;
         }
       }
@@ -239,7 +239,7 @@ export function createRenderer(options) {
       const newIndex = keyToNewIndexMap.get(oldVNode.key);
 
       if (!newIndex) {
-        unmount(oldVNode); // 新的里面找不到，直接移除
+        unmount(oldVNode, parent); // 新的里面找不到，直接移除
       } else {
         patch(oldVNode, c2[newIndex], el); // 如果新老都哦鱼，我们需要比较比较两个节点的差异，再去比较他们的儿子
       }
@@ -262,11 +262,15 @@ export function createRenderer(options) {
     }
   }
 
-  function unmount(n1) {
+  function unmount(n1, parent) {
     const { shapeFlags, component } = n1;
 
+    if (shapeFlags & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
+      parent.ctx.deactivate(n1);
+    }
+
     if (shapeFlags & ShapeFlags.COMPONENT) {
-      return unmount(component.subTree);
+      return unmount(component.subTree, parent);
     }
 
     hostRemove(n1.el);
@@ -277,7 +281,7 @@ export function createRenderer(options) {
   function patch(n1, n2, container, anchor = null, parent = null) {
     // 判断标签名和对应的key如果是一样的，说明是同一个节点
     if (n1 && !isSameVNode(n1, n2)) {
-      unmount(n1);
+      unmount(n1, parent);
       n1 = null; // 将n1设置为null，此时会走n2的初始化重建
     }
 
@@ -306,8 +310,13 @@ export function createRenderer(options) {
   // 2)属性更新，会执行updateComponent内部会比较要不要更新，如果要更新则会调用instance.update方法，在调用render之前，更新属性即可
   function processComponent(n1, n2, container, anchor, parent) {
     if (n1 === null) {
-      // 初始化
-      mountComponent(n2, container, anchor, parent);
+      if (n2.shapeFlags & ShapeFlags.COMPONENT_KEPT_ALIVE) {
+        // 当第一次component1卸载的时候，将dom元素移动到内存中，下次再渲染在拿回来
+        parent.ctx.active(n2, container, anchor);
+      } else {
+        // 初始化
+        mountComponent(n2, container, anchor, parent);
+      }
     } else {
       // 组件更新，插槽更新，属性更新
       updateComponent(n1, n2);
@@ -433,7 +442,7 @@ export function createRenderer(options) {
     if (vnode === null) {
       // 卸载元素
       if (container._vnode) {
-        unmount(container._vnode);
+        unmount(container._vnode, null);
       }
     } else {
       // 初始化、更新
