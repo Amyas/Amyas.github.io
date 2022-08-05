@@ -5,11 +5,9 @@ const docsPath = path.join(__dirname, "..");
 
 const sidebarInstance = new GenerateSidebar(docsPath, [
   ".vuepress",
-  "vue2-study",
-  "vue2-router-study",
-  "vue3-study",
-  "test"
-])
+  "_hidden",
+  "_test",
+]);
 
 module.exports = {
   title: "Amyas ' Blog",
@@ -43,6 +41,6 @@ module.exports = {
         link: "/data-structure-and-algorithm/",
       },
     ],
-    sidebar: sidebarInstance.getSidebar()
+    sidebar: sidebarInstance.getSidebar(),
   },
 };
