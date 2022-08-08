@@ -1,5 +1,5 @@
 // 单向链表节点结构
-class LinkedListNode {
+export class LinkedListNode {
   public value: Number | null = null;
   public next: LinkedListNode | null = null;
 
@@ -12,7 +12,7 @@ class LinkedListNode {
 }
 
 // 双向链表节点结构
-class DoubleLinkedListNode {
+export class DoubleLinkedListNode {
   public value: Number | null = null;
   public prev: DoubleLinkedListNode | null = null;
   public next: DoubleLinkedListNode | null = null;
@@ -31,7 +31,30 @@ class DoubleLinkedListNode {
   }
 }
 
-class Code01_ReverseList {
+export class LinkedListBase {
+  /**
+   * 根据数组生成单或双链表
+   */
+  public static generateLinkedList(
+    arr: Number[],
+    type: "linked" | "double"
+  ): LinkedListNode | DoubleLinkedListNode {
+    const list = arr.map((i) =>
+      type === "linked" ? new LinkedListNode(i) : new DoubleLinkedListNode(i)
+    );
+    list.forEach((item, index) => {
+      item.next = list[index + 1] || null;
+
+      if (type === "double") {
+        (item as DoubleLinkedListNode).prev =
+          (list[index - 1] as DoubleLinkedListNode) || null;
+      }
+    });
+    return list[0];
+  }
+}
+
+class Code01_ReverseList extends LinkedListBase {
   /**
    * 单链表反转
    */
@@ -72,54 +95,6 @@ class Code01_ReverseList {
     return pre;
   }
   /**
-   * 删除链表指定值的节点
-   */
-  public static removeValue(
-    head: LinkedListNode | null,
-    num: Number
-  ): LinkedListNode | null {
-    while (head !== null) {
-      if (head.value !== num) {
-        break;
-      }
-      head = head.next;
-    }
-
-    let pre = head;
-    let cur = head;
-
-    while (cur !== null && pre !== null) {
-      if (cur.value === num) {
-        pre.next = cur.next;
-      } else {
-        pre = cur;
-      }
-      cur = cur.next;
-    }
-
-    return head;
-  }
-  /**
-   * 根据数组生成单或双链表
-   */
-  public static generateLinkedList(
-    arr: Number[],
-    type: "linked" | "double"
-  ): LinkedListNode | DoubleLinkedListNode {
-    const list = arr.map((i) =>
-      type === "linked" ? new LinkedListNode(i) : new DoubleLinkedListNode(i)
-    );
-    list.forEach((item, index) => {
-      item.next = list[index + 1] || null;
-
-      if (type === "double") {
-        (item as DoubleLinkedListNode).prev =
-          (list[index - 1] as DoubleLinkedListNode) || null;
-      }
-    });
-    return list[0];
-  }
-  /**
    * 测试单向链表
    */
   public static testReverseLinkedList() {
@@ -139,18 +114,7 @@ class Code01_ReverseList {
     const res = this.reverseDoubleLinkedList(head);
     console.log(res?.toString());
   }
-  /**
-   * 测试删除节点
-   */
-  public static testRemoveValue() {
-    const arr = [1, 2, 3, 4, 4, 3, 3, 2, 5, 1, 4];
-    const head = this.generateLinkedList(arr, "linked") as LinkedListNode;
-
-    const res = this.removeValue(head, 4);
-    console.log(res?.toString());
-  }
 }
 
 // Code01_ReverseList.testReverseLinkedList();
-// Code01_ReverseList.testReverseDoubleLinkedList();
-Code01_ReverseList.testRemoveValue();
+Code01_ReverseList.testReverseDoubleLinkedList();
