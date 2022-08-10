@@ -12,15 +12,16 @@ public class Main {
 		list.add(2);
 		list.add(3);
 		list.add(4);
-		list.add(5);
-		list.add(6);
-		list.add(7);
-		list.add(8);
-		list.add(9);
 
-		list.remove(0);
-		list.remove(list.size() - 1);
-		list.remove(3);
+		// list.remove(0);
+		// list.remove(list.size() - 1);
+		// list.remove(3);
+
+		list.add(0, 100);
+		list.add(5, 100);
+		list.add(list.size(), 200);
+
+		list.set(3, 80);
 
 		System.out.println(list);
 	}
