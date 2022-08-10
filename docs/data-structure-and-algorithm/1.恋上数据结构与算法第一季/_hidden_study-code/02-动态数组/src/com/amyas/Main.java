@@ -3,30 +3,19 @@ package com.amyas;
 public class Main {
 
 	public static void main(String[] args) {
-		int array[] = new int[] { 11, 22, 33 };
+		ArrayList<Person> persons = new ArrayList<>();
+		persons.add((new Person(10, "amyas1")));
+		persons.add((new Person(11, "amyas2")));
+		persons.add((new Person(12, "amyas3")));
 
-		ArrayList list = new ArrayList();
-		// list.get(0);
+		System.out.println(persons);
 
-		list.add(1);
-		list.add(2);
-		list.add(3);
-		list.add(4);
+		ArrayList<Integer> ints = new ArrayList<>();
+		ints.add(1);
+		ints.add(2);
+		ints.add(3);
 
-		// list.remove(0);
-		// list.remove(list.size() - 1);
-		// list.remove(3);
-
-		list.add(0, 100);
-		list.add(5, 100);
-		list.add(list.size(), 200);
-
-		list.set(3, 80);
-
-		Asserts.test(list.get(0) == 100);
-		Asserts.test(list.size() == 7);
-
-		System.out.println(list);
-	}
+		System.out.println(ints);
+	} 
 
 }
