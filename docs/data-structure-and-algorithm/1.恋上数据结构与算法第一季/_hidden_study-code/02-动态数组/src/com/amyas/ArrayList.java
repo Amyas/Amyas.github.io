@@ -63,7 +63,8 @@ public class ArrayList {
    * @param element
    */
   public void add(int element) {
-
+    elements[size] = element;
+    size++;
   }
 
   /**
@@ -127,5 +128,22 @@ public class ArrayList {
         return i;
     }
     return ELEMENT_NOT_FOUND;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder string = new StringBuilder();
+
+    string.append("Size=").append(size).append(", [");
+    for (int i = 0; i < size; i++) {
+      if (i != 0) {
+        string.append(", ");
+      }
+      string.append(elements[i]);
+    }
+
+    string.append("]");
+
+    return string.toString();
   }
 }
