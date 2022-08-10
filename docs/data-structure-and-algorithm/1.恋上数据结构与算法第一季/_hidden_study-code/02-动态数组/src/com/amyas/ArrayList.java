@@ -99,6 +99,8 @@ public class ArrayList {
    */
   public void add(int index, int element) {
     rangeCheckForAdd(index);
+    ensureCapacity(size + 1);
+
     for (int i = size - 1; i >= index; i--) {
       elements[i + 1] = elements[i];
     }
@@ -134,6 +136,22 @@ public class ArrayList {
         return i;
     }
     return ELEMENT_NOT_FOUND;
+  }
+
+  private void ensureCapacity(int capacity) {
+    int oldCapacity = elements.length;
+    if (oldCapacity >= capacity)
+      return;
+
+    // 旧容量的1.5倍，位运算速度快，>> 1 === oldCapacity / 2
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
+    int[] newElements = new int[newCapacity];
+    for (int i = 0; i < size; i++) {
+      newElements[i] = elements[i];
+    }
+    elements = newElements;
+
+    // System.out.println("oldCapacity:" + oldCapacity + "newCapacity:" + newCapacity);
   }
 
   private void outOfBounds(int index) {
