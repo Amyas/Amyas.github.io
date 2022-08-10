@@ -18,7 +18,11 @@ public class Main {
 		list.add(8);
 		list.add(9);
 
-		System.out.println(list.toString());
+		list.remove(0);
+		list.remove(list.size() - 1);
+		list.remove(3);
+
+		System.out.println(list);
 	}
 
 }

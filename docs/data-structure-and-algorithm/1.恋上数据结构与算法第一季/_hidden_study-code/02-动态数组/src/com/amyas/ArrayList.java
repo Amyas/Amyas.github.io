@@ -113,7 +113,15 @@ public class ArrayList {
    * @return
    */
   public int remove(int index) {
-    return 0;
+    if (index < 0 || index >= size) {
+      throw new IndexOutOfBoundsException("Index:" + index + ", Size:" + size);
+    }
+    int old = elements[index];
+    for (int i = index + 1; i <= size - 1; i++) {
+      elements[i - 1] = elements[i];
+    }
+    size--;
+    return old;
   }
 
   /**
