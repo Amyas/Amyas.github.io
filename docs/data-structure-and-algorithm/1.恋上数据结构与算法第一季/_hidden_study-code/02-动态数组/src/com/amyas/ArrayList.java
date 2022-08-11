@@ -124,6 +124,7 @@ public class ArrayList<E> {
       elements[i - 1] = elements[i];
     }
     size--;
+    elements[size] = null;
     return old;
   }
 
