@@ -84,6 +84,8 @@ public class ArrayList<E> extends AbstractList<E> {
     }
     size--;
     elements[size] = null;
+
+    trim();
     return old;
   }
 
@@ -123,6 +125,21 @@ public class ArrayList<E> extends AbstractList<E> {
 
     // System.out.println("oldCapacity:" + oldCapacity + "newCapacity:" +
     // newCapacity);
+  }
+
+  private void trim() {
+    int capacity = elements.length;
+    int newCapacity = capacity >> 1;
+
+    // size 大于等于 总容量的一半，总容量小于默认容量，不在缩容
+    if (size >= (newCapacity) || capacity <= DEFAULT_CAPACITY)
+      return;
+
+    E[] newElements = (E[]) new Object[newCapacity];
+    for (int i = 0; i < size; i++) {
+      newElements[i] = elements[i];
+    }
+    elements = newElements;
   }
 
   @Override
