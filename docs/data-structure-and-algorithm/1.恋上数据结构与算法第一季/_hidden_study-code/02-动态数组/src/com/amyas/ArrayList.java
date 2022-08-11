@@ -1,5 +1,6 @@
 package com.amyas;
 
+@SuppressWarnings("unchecked")
 public class ArrayList<E> {
   /**
    * 元素的数量
