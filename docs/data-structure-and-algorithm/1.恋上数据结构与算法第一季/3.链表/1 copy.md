@@ -1,0 +1,348 @@
+# 1.接口设计
+
+## 接口设计
+
+<img src="https://raw.githubusercontent.com/Amyas/picgo-bed/master/amyas.github.io/1%20copy2022-08-11-14-56-34.png" alt="1 copy2022-08-11-14-56-34" width="" height="" />
+
+## Code
+
+```java
+package com.amyas;
+
+public interface List<E> {
+  static final int ELEMENT_NOT_FOUND = -1;
+  
+  /**
+   * 清空所有元素
+   */
+  void clear();
+
+  /**
+   * 元素的数量
+   * 
+   * @return
+   */
+  int size();
+
+  /**
+   * 是否为空
+   * 
+   * @return
+   */
+  boolean isEmpty();
+
+  /**
+   * 是否包含某个元素
+   * 
+   * @param element
+   * @return
+   */
+  boolean contains(E element);
+
+  /**
+   * 添加元素到尾部
+   * 
+   * @param element
+   */
+  void add(E element);
+
+  /**
+   * 获取index位置的元素
+   * 
+   * @param index
+   * @return 获取的元素
+   */
+  E get(int index);
+
+  /**
+   * 设置index位置的元素
+   * 
+   * @param index
+   * @param element
+   * @return 原来的元素
+   */
+  E set(int index, E element);
+
+  /**
+   * 在index位置插入一个元素
+   * 
+   * @param index
+   * @param element
+   */
+  void add(int index, E element);
+
+  /**
+   * 删除index位置的元素
+   * 
+   * @param index
+   * @return
+   */
+  E remove(int index);
+
+  /**
+   * 查看元素的索引
+   * 
+   * @param element
+   * @return
+   */
+  int indexOf(E element);
+}
+```
+
+```java
+package com.amyas;
+
+public abstract class AbstractList<E> implements List<E> {
+  /**
+   * 元素的数量
+   */
+  protected int size;
+
+  /**
+   * 元素的数量
+   * 
+   * @return
+   */
+  public int size() {
+    return size;
+  }
+
+  /**
+   * 是否为空
+   * 
+   * @return
+   */
+  public boolean isEmpty() {
+    return size == 0;
+  }
+
+  /**
+   * 是否包含某个元素
+   * 
+   * @param element
+   * @return
+   */
+  public boolean contains(E element) {
+    return indexOf(element) != ELEMENT_NOT_FOUND;
+  }
+
+  /**
+   * 添加元素到尾部
+   * 
+   * @param element
+   */
+  public void add(E element) {
+    add(size, element);
+  }
+
+  protected void outOfBounds(int index) {
+    throw new IndexOutOfBoundsException("Index:" + index + ", Size:" + size);
+  }
+
+  protected void rangeCheck(int index) {
+    if (index < 0 || index >= size) {
+      outOfBounds(index);
+    }
+  }
+
+  protected void rangeCheckForAdd(int index) {
+    if (index < 0 || index > size) {
+      outOfBounds(index);
+    }
+  }
+}
+```
+
+```java
+package com.amyas;
+
+@SuppressWarnings("unchecked")
+public class ArrayList<E> extends AbstractList<E> {
+  /**
+   * 所有的元素
+   */
+  private E[] elements;
+
+  private static final int DEFAULT_CAPACITY = 10;
+
+  public ArrayList(int capacity) {
+    capacity = (capacity < DEFAULT_CAPACITY) ? DEFAULT_CAPACITY : capacity;
+    elements = (E[]) new Object[capacity];
+  }
+
+  public ArrayList() {
+    this(DEFAULT_CAPACITY);
+  }
+
+  /**
+   * 清空所有元素
+   */
+  public void clear() {
+    for (int i = 0; i < size; i++) {
+      elements[i] = null;
+    }
+    size = 0;
+  }
+
+  /**
+   * 获取index位置的元素
+   * 
+   * @param index
+   * @return 获取的元素
+   */
+  public E get(int index) {
+    rangeCheck(index);
+    return elements[index];
+  }
+
+  /**
+   * 设置index位置的元素
+   * 
+   * @param index
+   * @param element
+   * @return 原来的元素
+   */
+  public E set(int index, E element) {
+    rangeCheck(index);
+    E old = elements[index];
+    elements[index] = element;
+    return old;
+  }
+
+  /**
+   * 在index位置插入一个元素
+   * 
+   * @param index
+   * @param element
+   */
+  public void add(int index, E element) {
+    rangeCheckForAdd(index);
+    ensureCapacity(size + 1);
+
+    for (int i = size - 1; i >= index; i--) {
+      elements[i + 1] = elements[i];
+    }
+    elements[index] = element;
+    size++;
+  }
+
+  /**
+   * 删除index位置的元素
+   * 
+   * @param index
+   * @return
+   */
+  public E remove(int index) {
+    rangeCheck(index);
+    E old = elements[index];
+    for (int i = index + 1; i <= size - 1; i++) {
+      elements[i - 1] = elements[i];
+    }
+    size--;
+    elements[size] = null;
+    return old;
+  }
+
+  /**
+   * 查看元素的索引
+   * 
+   * @param element
+   * @return
+   */
+  public int indexOf(E element) {
+    if (element == null) {
+      for (int i = 0; i < size; i++) {
+        if (elements[i] == null)
+          return i;
+      }
+    } else {
+      for (int i = 0; i < size; i++) {
+        if (elements[i].equals(element))
+          return i;
+      }
+    }
+    return ELEMENT_NOT_FOUND;
+  }
+
+  private void ensureCapacity(int capacity) {
+    int oldCapacity = elements.length;
+    if (oldCapacity >= capacity)
+      return;
+
+    // 旧容量的1.5倍，位运算速度快，>> 1 === oldCapacity / 2
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
+    E[] newElements = (E[]) new Object[newCapacity];
+    for (int i = 0; i < size; i++) {
+      newElements[i] = elements[i];
+    }
+    elements = newElements;
+
+    // System.out.println("oldCapacity:" + oldCapacity + "newCapacity:" +
+    // newCapacity);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder string = new StringBuilder();
+
+    string.append("Size=").append(size).append(", [");
+    for (int i = 0; i < size; i++) {
+      if (i != 0) {
+        string.append(", ");
+      }
+      string.append(elements[i]);
+    }
+
+    string.append("]");
+
+    return string.toString();
+  }
+}
+```
+
+```java
+package com.amyas;
+
+public class LinkedList<E> extends AbstractList<E> {
+  private Node<E> first;
+
+  private static class Node<E> {
+    E element;
+    Node<E> next;
+
+    public Node(E element, Node<E> next) {
+      this.element = element;
+      this.next = next;
+    }
+  }
+
+  @Override
+  public void clear() {
+  }
+
+  @Override
+  public E get(int index) {
+    return null;
+  }
+
+  @Override
+  public E set(int index, E element) {
+    return null;
+  }
+
+  @Override
+  public void add(int index, E element) {
+
+  }
+
+  @Override
+  public E remove(int index) {
+    return null;
+  }
+
+  @Override
+  public int indexOf(E element) {
+    return 0;
+  }
+}
+```
