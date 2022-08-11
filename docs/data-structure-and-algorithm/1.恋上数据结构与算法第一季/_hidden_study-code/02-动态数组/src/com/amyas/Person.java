@@ -19,4 +19,10 @@ public class Person {
     super.finalize();
     System.out.println("Person - finalize");
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    Person person = (Person) obj;
+    return this.age == person.age;
+  }
 }
