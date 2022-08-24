@@ -1,7 +1,5 @@
 package com.amyas;
 
-import com.amyas.AbstractList;
-
 public class LinkedList<E> extends AbstractList<E> {
   private Node<E> first;
   private Node<E> last;
@@ -75,14 +73,24 @@ public class LinkedList<E> extends AbstractList<E> {
   public E remove(int index) {
     rangeCheck(index);
 
-    Node<E> node = first;
-    if (index == 0) {
-      first = first.next;
+    Node<E> node = node(index);
+    Node<E> prev = node.prev;
+    Node<E> next = node.next;
+
+    if (prev == null) {
+      // index == 0
+      first = next;
     } else {
-      Node<E> prev = node(index - 1);
-      node = prev.next;
-      prev.next = node.next;
+      prev.next = next;
     }
+
+    if (next == null) {
+      // index == size - 1
+      last = prev;
+    } else {
+      next.prev = prev;
+    }
+
     size--;
     return node.element;
   }
