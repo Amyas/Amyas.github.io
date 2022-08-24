@@ -42,12 +42,32 @@ public class LinkedList<E> extends AbstractList<E> {
   public void add(int index, E element) {
     rangeCheckForAdd(index);
 
-    if (index == 0) {
-      first = new Node<>(element, first);
+    if (index == size) {// 往最后面添加元素
+      // last = new Node<>(last, element, null);
+      // last.prev.next = last;
+
+      Node<E> oldLast = last;
+      last = new Node<>(oldLast, element, null);
+      if (oldLast == null) {
+        // 链表第一个元素
+        first = last;
+      } else {
+        oldLast.next = last;
+      }
     } else {
-      Node<E> prev = node(index - 1);
-      prev.next = new Node<>(element, prev.next);
+      Node<E> next = node(index);
+      Node<E> prev = next.prev;
+      Node<E> node = new Node<>(prev, element, next);
+      node.prev = node;
+
+      if (prev == null) {
+        // index == 0
+        first = node;
+      } else {
+        prev.next = node;
+      }
     }
+
     size++;
   }
 
