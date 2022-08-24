@@ -1,18 +1,22 @@
-package com.amyas;
+package com.amyas.single;
 
 import com.amyas.AbstractList;
 
-public class LinkedList<E> extends AbstractList<E> {
+/**
+ * 增加虚拟头节点
+ */
+public class SingleLinkedList2<E> extends AbstractList<E> {
   private Node<E> first;
-  private Node<E> last;
+
+  public SingleLinkedList2() {
+    first = new Node<>(null, null);
+  }
 
   private static class Node<E> {
     E element;
-    Node<E> prev;
     Node<E> next;
 
-    public Node(Node<E> prev, E element, Node<E> next) {
-      this.prev = prev;
+    public Node(E element, Node<E> next) {
       this.element = element;
       this.next = next;
     }
@@ -22,7 +26,6 @@ public class LinkedList<E> extends AbstractList<E> {
   public void clear() {
     size = 0;
     first = null;
-    last = null;
   }
 
   @Override
@@ -42,12 +45,8 @@ public class LinkedList<E> extends AbstractList<E> {
   public void add(int index, E element) {
     rangeCheckForAdd(index);
 
-    if (index == 0) {
-      first = new Node<>(element, first);
-    } else {
-      Node<E> prev = node(index - 1);
-      prev.next = new Node<>(element, prev.next);
-    }
+    Node<E> prev = index == 0 ? first : node(index - 1);
+    prev.next = new Node<>(element, prev.next);
     size++;
   }
 
@@ -55,14 +54,10 @@ public class LinkedList<E> extends AbstractList<E> {
   public E remove(int index) {
     rangeCheck(index);
 
-    Node<E> node = first;
-    if (index == 0) {
-      first = first.next;
-    } else {
-      Node<E> prev = node(index - 1);
-      node = prev.next;
-      prev.next = node.next;
-    }
+    Node<E> prev = index == 0 ? first : node(index - 1);
+    Node<E> node = prev.next;
+    prev.next = node.next;
+
     size--;
     return node.element;
   }
@@ -96,27 +91,18 @@ public class LinkedList<E> extends AbstractList<E> {
   private Node<E> node(int index) {
     rangeCheck(index);
 
-    if (index < (size >> 1)) { // size / 2
-      Node<E> node = first;
-      for (int i = 0; i < index; i++) {
-        node = node.next;
-      }
-      return node;
-    } else {
-      Node<E> node = last;
-      for (int i = size - 1; i > index; i--) {
-        node = node.prev;
-      }
-      return node;
+    Node<E> node = first.next;
+    for (int i = 0; i < index; i++) {
+      node = node.next;
     }
-
+    return node;
   }
 
   @Override
   public String toString() {
     StringBuilder string = new StringBuilder();
 
-    Node<E> node = first;
+    Node<E> node = first.next;
     string.append("Size=").append(size).append(", [");
 
     for (int i = 0; i < size; i++) {

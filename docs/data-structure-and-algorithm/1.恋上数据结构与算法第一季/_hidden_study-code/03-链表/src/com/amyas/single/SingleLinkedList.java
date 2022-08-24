@@ -1,14 +1,9 @@
-package com.amyas;
+package com.amyas.single;
 
-/**
- * 增加虚拟头节点
- */
-public class LinkedList2<E> extends AbstractList<E> {
+import com.amyas.AbstractList;
+
+public class SingleLinkedList<E> extends AbstractList<E> {
   private Node<E> first;
-
-  public LinkedList2() {
-    first = new Node<>(null, null);
-  }
 
   private static class Node<E> {
     E element;
@@ -43,8 +38,12 @@ public class LinkedList2<E> extends AbstractList<E> {
   public void add(int index, E element) {
     rangeCheckForAdd(index);
 
-    Node<E> prev = index == 0 ? first : node(index - 1);
-    prev.next = new Node<>(element, prev.next);
+    if (index == 0) {
+      first = new Node<>(element, first);
+    } else {
+      Node<E> prev = node(index - 1);
+      prev.next = new Node<>(element, prev.next);
+    }
     size++;
   }
 
@@ -52,10 +51,14 @@ public class LinkedList2<E> extends AbstractList<E> {
   public E remove(int index) {
     rangeCheck(index);
 
-    Node<E> prev = index == 0 ? first : node(index - 1);
-    Node<E> node = prev.next;
-    prev.next = node.next;
-
+    Node<E> node = first;
+    if (index == 0) {
+      first = first.next;
+    } else {
+      Node<E> prev = node(index - 1);
+      node = prev.next;
+      prev.next = node.next;
+    }
     size--;
     return node.element;
   }
@@ -89,7 +92,7 @@ public class LinkedList2<E> extends AbstractList<E> {
   private Node<E> node(int index) {
     rangeCheck(index);
 
-    Node<E> node = first.next;
+    Node<E> node = first;
     for (int i = 0; i < index; i++) {
       node = node.next;
     }
@@ -100,7 +103,7 @@ public class LinkedList2<E> extends AbstractList<E> {
   public String toString() {
     StringBuilder string = new StringBuilder();
 
-    Node<E> node = first.next;
+    Node<E> node = first;
     string.append("Size=").append(size).append(", [");
 
     for (int i = 0; i < size; i++) {
