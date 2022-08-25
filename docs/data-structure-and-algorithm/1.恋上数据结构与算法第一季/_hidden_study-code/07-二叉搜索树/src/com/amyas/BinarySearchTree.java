@@ -67,7 +67,8 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
       } else if (cmp < 0) { // 找left
         node = node.left;
       } else { // 相等
-        return;
+        node.element = element;
+        return; 
       }
     }
 
