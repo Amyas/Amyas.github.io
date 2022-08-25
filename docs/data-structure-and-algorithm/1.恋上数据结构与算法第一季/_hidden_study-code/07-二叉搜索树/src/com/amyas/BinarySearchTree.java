@@ -1,6 +1,10 @@
 package com.amyas;
 
-public class BinarySearchTree<E> {
+import java.lang.Comparable;
+import com.amyas.printer.BinaryTreeInfo;
+
+@SuppressWarnings("unchecked")
+public class BinarySearchTree<E> implements BinaryTreeInfo {
   private int size;
   private Node<E> root;
   private Comparator<E> comparator;
@@ -98,5 +102,25 @@ public class BinarySearchTree<E> {
     if (element == null) {
       throw new IllegalArgumentException("element must not be null");
     }
+  }
+
+  @Override
+  public Object root() {
+    return root;
+  }
+
+  @Override
+  public Object left(Object node) {
+    return ((Node<E>) node).left;
+  }
+
+  @Override
+  public Object right(Object node) {
+    return ((Node<E>) node).right;
+  }
+
+  @Override
+  public Object string(Object node) {
+    return ((Node<E>) node).element;
   }
 }
