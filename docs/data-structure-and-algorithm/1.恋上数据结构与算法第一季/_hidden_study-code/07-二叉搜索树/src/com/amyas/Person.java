@@ -1,5 +1,7 @@
 package com.amyas;
 
+import java.lang.Comparable;
+
 public class Person implements Comparable<Person> {
   private int age;
 
@@ -19,5 +21,10 @@ public class Person implements Comparable<Person> {
     // return -1;
     // return 0;
     return age - e.age;
+  }
+
+  @Override
+  public String toString() {
+    return "Person_age=" + age;
   }
 }
