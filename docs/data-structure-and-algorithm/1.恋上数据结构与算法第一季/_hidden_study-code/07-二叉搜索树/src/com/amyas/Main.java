@@ -1,6 +1,6 @@
 package com.amyas;
 
-import com.amyas.BinarySearchTree.Visitor;
+// import com.amyas.BinaryTree.Visitor;
 import com.amyas.printer.BinaryTrees;
 
 public class Main {
@@ -9,7 +9,7 @@ public class Main {
         7, 4, 9, 2, 5, 8, 11, 3, 12, 1
     };
 
-    BinarySearchTree<Integer> bst = new BinarySearchTree<>();
+    BST<Integer> bst = new BST<>();
 
     for (int i = 0; i < data.length; i++) {
       bst.add(data[i]);
@@ -23,7 +23,7 @@ public class Main {
         7, 4, 9, 2, 5, 8, 11, 3, 12, 1
     };
 
-    BinarySearchTree<Person> bst = new BinarySearchTree<>();
+    BST<Person> bst = new BST<>();
 
     for (int i = 0; i < data.length; i++) {
       bst.add(new Person(data[i]));
@@ -37,7 +37,7 @@ public class Main {
         7, 4, 9, 2, 5, 8, 11, 3, 12, 1
     };
 
-    BinarySearchTree<Person> bst = new BinarySearchTree<>(new Comparator<Person>() {
+    BST<Person> bst = new BST<>(new Comparator<Person>() {
       @Override
       public int compare(Person e1, Person e2) {
         return e2.getAge() - e1.getAge();
@@ -52,7 +52,7 @@ public class Main {
   }
 
   static void test4() {
-    BinarySearchTree<Integer> bst = new BinarySearchTree<>();
+    BST<Integer> bst = new BST<>();
     for (int i = 0; i < 30; i++) {
       bst.add((int) (Math.random() * 100));
     }
@@ -64,7 +64,7 @@ public class Main {
         7, 4, 9, 2, 5, 8, 11, 3, 1
     };
 
-    BinarySearchTree<Integer> bst = new BinarySearchTree<>();
+    BST<Integer> bst = new BST<>();
 
     for (int i = 0; i < data.length; i++) {
       bst.add(data[i]);
@@ -101,7 +101,7 @@ public class Main {
         7, 4, 9, 2, 5, 8, 11, 3, 1
     };
 
-    BinarySearchTree<Integer> bst = new BinarySearchTree<>();
+    BST<Integer> bst = new BST<>();
 
     for (int i = 0; i < data.length; i++) {
       bst.add(data[i]);
