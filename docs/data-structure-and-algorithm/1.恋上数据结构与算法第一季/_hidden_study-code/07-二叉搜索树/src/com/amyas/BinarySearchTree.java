@@ -68,7 +68,7 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
         node = node.left;
       } else { // 相等
         node.element = element;
-        return; 
+        return;
       }
     }
 
@@ -89,6 +89,18 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
 
   public boolean contains(E element) {
     return false;
+  }
+
+  public void preorderTraversal() {
+    preorderTraversal(root);
+  }
+
+  private void preorderTraversal(Node<E> node) {
+    if (node == null)
+      return;
+    System.out.println(node.element);
+    preorderTraversal(node.left);
+    preorderTraversal(node.right);
   }
 
   // =0，相等，>0，e1>e2，<0，e1<e2
