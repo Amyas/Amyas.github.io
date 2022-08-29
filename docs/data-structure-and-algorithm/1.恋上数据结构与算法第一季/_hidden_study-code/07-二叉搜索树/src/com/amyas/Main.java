@@ -59,7 +59,6 @@ public class Main {
     BinaryTrees.println(bst);
   }
 
-
   static void test5() {
     Integer data[] = new Integer[] {
         7, 4, 9, 2, 5, 8, 11, 3, 12, 1
@@ -78,8 +77,17 @@ public class Main {
     // bst.levelOrderTraversal();
     bst.levelOrder(new Visitor<Integer>() {
       @Override
-      public void visit(Integer element) {
+      public boolean visit(Integer element) {
         System.out.print("_" + element);
+        return element == 2 ? true : false;
+      }
+    });
+    System.out.println("\n\n");
+    bst.preorder(new Visitor<Integer>() {
+      @Override
+      public boolean visit(Integer element) {
+        System.out.print("_" + element);
+        return element == 2 ? true : false;
       }
     });
   }
