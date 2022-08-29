@@ -5,6 +5,7 @@ import java.util.Queue;
 
 import com.amyas.printer.BinaryTreeInfo;
 
+@SuppressWarnings("unchecked")
 public class BinaryTree<E> implements BinaryTreeInfo {
   protected int size;
   protected Node<E> root;

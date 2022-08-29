@@ -1,8 +1,6 @@
 package com.amyas;
 
 import java.lang.Comparable;
-import java.util.LinkedList;
-import java.util.Queue;
 
 // BinarySearchTree
 
