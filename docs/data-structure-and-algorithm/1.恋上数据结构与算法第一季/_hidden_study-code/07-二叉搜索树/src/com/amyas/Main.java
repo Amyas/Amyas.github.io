@@ -1,5 +1,6 @@
 package com.amyas;
 
+import com.amyas.BinarySearchTree.Visitor;
 import com.amyas.printer.BinaryTrees;
 
 public class Main {
@@ -74,7 +75,13 @@ public class Main {
     // bst.preorderTraversal();
     // bst.inorderTraversal();
     // bst.postorderTraversal();
-    bst.levelOrderTraversal();
+    // bst.levelOrderTraversal();
+    bst.levelOrder(new Visitor<Integer>() {
+      @Override
+      public void visit(Integer element) {
+        System.out.print("_" + element);
+      }
+    });
   }
 
   public static void main(String[] args) {

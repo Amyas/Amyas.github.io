@@ -20,6 +20,68 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     this.comparator = comparator;
   }
 
+  public void preorder(Visitor<E> visitor) {
+    preorder(root, visitor);
+  }
+
+  private void preorder(Node<E> node, Visitor<E> visitor) {
+    if (node == null || visitor == null)
+      return;
+
+    visitor.visit(node.element);
+    preorder(node.left, visitor);
+    preorder(node.right, visitor);
+  }
+
+  public void inorder(Visitor<E> visitor) {
+    inorder(root, visitor);
+  }
+
+  private void inorder(Node<E> node, Visitor<E> visitor) {
+    if (node == null || visitor == null)
+      return;
+
+    inorder(node.left, visitor);
+    visitor.visit(node.element);
+    inorder(node.right, visitor);
+  }
+
+  public void postorder(Visitor<E> visitor) {
+    postorder(root, visitor);
+  }
+
+  private void postorder(Node<E> node, Visitor<E> visitor) {
+    if (node == null || visitor == null)
+      return;
+
+    postorder(node.left, visitor);
+    postorder(node.right, visitor);
+    visitor.visit(node.element);
+  }
+
+  public void levelOrder(Visitor<E> visitor) {
+    if (root == null || visitor == null)
+      return;
+
+    Queue<Node<E>> queue = new LinkedList<>();
+    queue.offer(root);
+
+    while (!queue.isEmpty()) {
+      Node<E> node = queue.poll();
+      visitor.visit(node.element);
+      if (node.left != null) {
+        queue.offer(node.left);
+      }
+      if (node.right != null) {
+        queue.offer(node.right);
+      }
+    }
+  }
+
+  public static interface Visitor<E> {
+    void visit(E element);
+  }
+
   private static class Node<E> {
     E element;
     Node<E> left;
