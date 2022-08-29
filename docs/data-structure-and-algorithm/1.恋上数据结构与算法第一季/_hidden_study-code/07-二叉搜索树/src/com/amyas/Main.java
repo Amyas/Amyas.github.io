@@ -95,10 +95,39 @@ public class Main {
     System.out.println(bst.isComplete());
   }
 
+
+  static void test6() {
+    Integer data[] = new Integer[] {
+        7, 4, 9, 2, 5, 8, 11, 3, 1
+    };
+
+    BinarySearchTree<Integer> bst = new BinarySearchTree<>();
+
+    for (int i = 0; i < data.length; i++) {
+      bst.add(data[i]);
+    }
+
+    bst.remove(9);
+    BinaryTrees.println(bst);
+
+    bst.remove(2);
+    BinaryTrees.println(bst);
+
+    bst.remove(11);
+    BinaryTrees.println(bst);
+
+    bst.remove(1);
+    BinaryTrees.println(bst);
+
+    bst.remove(7);
+    BinaryTrees.println(bst);
+  }
+
   public static void main(String[] args) {
     // test2();
     // test3();
     // test4();
-    test5();
+    // test5();
+    test6();
   }
 }
