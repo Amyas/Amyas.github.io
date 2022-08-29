@@ -316,36 +316,79 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     return true;
   }
 
+  private Node<E> predecessor(Node<E> node) {
+    if (node == null) {
+      return null;
+    }
+    Node<E> p = node.left;
+
+    // 前驱节点在左子树当中(left.right.right.right....)
+    if (node.left != null) {
+      while (p.right != null) {
+        p = p.right;
+      }
+      return p;
+    }
+
+    // 从父节点、祖父节点中寻找前驱节点
+    while (node.parent != null && node == node.parent.left) {
+      node = node.parent;
+    }
+
+    // node.parent == null
+    // node == node.parent.right
+    return node.parent;
+  }
+
+  private Node<E> successor(Node<E> node) {
+    if (node == null) {
+      return null;
+    }
+    Node<E> s = node.right;
+    if (node.right != null) {
+      while (s.left != null) {
+        s = s.left;
+      }
+      return s;
+    }
+
+    while (node.parent != null && node == node.parent.right) {
+      node = node.parent;
+    }
+
+    return node.parent;
+  }
+
   // public boolean isComplete() {
-  //   if (root == null) {
-  //     return false;
-  //   }
+  // if (root == null) {
+  // return false;
+  // }
 
-  //   Queue<Node<E>> queue = new LinkedList<>();
-  //   queue.offer(root);
+  // Queue<Node<E>> queue = new LinkedList<>();
+  // queue.offer(root);
 
-  //   boolean leaf = false;
-  //   while (!queue.isEmpty()) {
-  //     Node<E> node = queue.poll();
-  //     if (leaf && !node.isLeaf()) {
-  //       return false;
-  //     }
+  // boolean leaf = false;
+  // while (!queue.isEmpty()) {
+  // Node<E> node = queue.poll();
+  // if (leaf && !node.isLeaf()) {
+  // return false;
+  // }
 
-  //     if (node.hasTwoChildren()) {
-  //       queue.offer(node.left);
-  //       queue.offer(node.right);
-  //     } else if (node.left == null && node.right != null) {
-  //       return false;
-  //     } else {
-  //       // 后面遍历的节点都必须是叶子结点
-  //       leaf = true;
-  //       if (node.left != null) {
-  //         queue.offer(node.left);
-  //       }
-  //     }
-  //   }
+  // if (node.hasTwoChildren()) {
+  // queue.offer(node.left);
+  // queue.offer(node.right);
+  // } else if (node.left == null && node.right != null) {
+  // return false;
+  // } else {
+  // // 后面遍历的节点都必须是叶子结点
+  // leaf = true;
+  // if (node.left != null) {
+  // queue.offer(node.left);
+  // }
+  // }
+  // }
 
-  //   return true;
+  // return true;
   // }
 
   @Override
