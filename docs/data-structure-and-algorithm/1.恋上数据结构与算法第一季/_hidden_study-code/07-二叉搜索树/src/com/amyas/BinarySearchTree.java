@@ -1,6 +1,9 @@
 package com.amyas;
 
 import java.lang.Comparable;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.amyas.printer.BinaryTreeInfo;
 
 @SuppressWarnings("unchecked")
@@ -125,6 +128,24 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     postorderTraversal(node.left);
     postorderTraversal(node.right);
     System.out.println(node.element);
+  }
+
+  public void levelOrderTraversal() {
+    if (root == null)
+      return;
+    Queue<Node<E>> queue = new LinkedList<>();
+    queue.offer(root);
+
+    while (!queue.isEmpty()) {
+      Node<E> node = queue.poll();
+      System.out.println(node.element);
+      if (node.left != null) {
+        queue.offer(node.left);
+      }
+      if (node.right != null) {
+        queue.offer(node.right);
+      }
+    }
   }
 
   // =0，相等，>0，e1>e2，<0，e1<e2
