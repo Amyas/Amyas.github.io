@@ -72,7 +72,8 @@ public class Main {
 
     BinaryTrees.println(bst);
     // bst.preorderTraversal();
-    bst.inorderTraversal();
+    // bst.inorderTraversal();
+    bst.postorderTraversal();
   }
 
   public static void main(String[] args) {

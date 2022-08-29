@@ -115,6 +115,18 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     inorderTraversal(node.right);
   }
 
+  public void postorderTraversal() {
+    postorderTraversal(root);
+  }
+
+  private void postorderTraversal(Node<E> node) {
+    if (node == null)
+      return;
+    postorderTraversal(node.left);
+    postorderTraversal(node.right);
+    System.out.println(node.element);
+  }
+
   // =0，相等，>0，e1>e2，<0，e1<e2
   private int compare(E e1, E e2) {
     if (comparator != null) {
