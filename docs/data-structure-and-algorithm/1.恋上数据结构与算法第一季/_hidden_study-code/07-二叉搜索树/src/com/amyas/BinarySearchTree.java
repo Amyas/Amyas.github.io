@@ -102,6 +102,14 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
     Node<E> right;
     Node<E> parent;
 
+    public boolean isLeaf() {
+      return left == null && right == null;
+    }
+
+    public boolean hasTwoChildren() {
+      return left != null && right != null;
+    }
+
     public Node(E element, Node<E> parent) {
       this.element = element;
       this.parent = parent;
@@ -277,6 +285,68 @@ public class BinarySearchTree<E> implements BinaryTreeInfo {
       return 0;
     return 1 + Math.max(height(node.left), height(node.right));
   }
+
+  public boolean isComplete() {
+    if (root == null) {
+      return false;
+    }
+
+    Queue<Node<E>> queue = new LinkedList<>();
+    queue.offer(root);
+
+    boolean leaf = false;
+    while (!queue.isEmpty()) {
+      Node<E> node = queue.poll();
+      if (leaf && !node.isLeaf()) {
+        return false;
+      }
+
+      if (node.left != null) {
+        queue.offer(node.left);
+      } else if (node.right != null) {
+        return false;
+      }
+      if (node.right != null) {
+        queue.offer(node.right);
+      } else {
+        leaf = true;
+      }
+    }
+
+    return true;
+  }
+
+  // public boolean isComplete() {
+  //   if (root == null) {
+  //     return false;
+  //   }
+
+  //   Queue<Node<E>> queue = new LinkedList<>();
+  //   queue.offer(root);
+
+  //   boolean leaf = false;
+  //   while (!queue.isEmpty()) {
+  //     Node<E> node = queue.poll();
+  //     if (leaf && !node.isLeaf()) {
+  //       return false;
+  //     }
+
+  //     if (node.hasTwoChildren()) {
+  //       queue.offer(node.left);
+  //       queue.offer(node.right);
+  //     } else if (node.left == null && node.right != null) {
+  //       return false;
+  //     } else {
+  //       // 后面遍历的节点都必须是叶子结点
+  //       leaf = true;
+  //       if (node.left != null) {
+  //         queue.offer(node.left);
+  //       }
+  //     }
+  //   }
+
+  //   return true;
+  // }
 
   @Override
   public String toString() {

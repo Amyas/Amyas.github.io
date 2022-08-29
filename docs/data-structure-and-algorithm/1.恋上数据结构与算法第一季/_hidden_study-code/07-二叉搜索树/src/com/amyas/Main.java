@@ -61,7 +61,7 @@ public class Main {
 
   static void test5() {
     Integer data[] = new Integer[] {
-        7, 4, 9, 2, 5, 8, 11, 3, 12, 1
+        7, 4, 9, 2, 5, 8, 11, 3, 1
     };
 
     BinarySearchTree<Integer> bst = new BinarySearchTree<>();
@@ -91,7 +91,8 @@ public class Main {
     // }
     // });
     // System.out.println(bst);
-    System.out.println(bst.height());
+    // System.out.println(bst.height());
+    System.out.println(bst.isComplete());
   }
 
   public static void main(String[] args) {
