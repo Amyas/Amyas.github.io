@@ -75,21 +75,23 @@ public class Main {
     // bst.inorderTraversal();
     // bst.postorderTraversal();
     // bst.levelOrderTraversal();
-    bst.levelOrder(new Visitor<Integer>() {
-      @Override
-      public boolean visit(Integer element) {
-        System.out.print("_" + element);
-        return element == 2 ? true : false;
-      }
-    });
-    System.out.println("\n\n");
-    bst.preorder(new Visitor<Integer>() {
-      @Override
-      public boolean visit(Integer element) {
-        System.out.print("_" + element);
-        return element == 2 ? true : false;
-      }
-    });
+    // bst.levelOrder(new Visitor<Integer>() {
+    // @Override
+    // public boolean visit(Integer element) {
+    // System.out.print("_" + element);
+    // return element == 2 ? true : false;
+    // }
+    // });
+    // System.out.println("\n\n");
+    // bst.preorder(new Visitor<Integer>() {
+    // @Override
+    // public boolean visit(Integer element) {
+    // System.out.print("_" + element);
+    // return element == 2 ? true : false;
+    // }
+    // });
+    // System.out.println(bst);
+    System.out.println(bst.height());
   }
 
   public static void main(String[] args) {
