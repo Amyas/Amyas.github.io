@@ -2,8 +2,10 @@ package com.amyas.heap;
 
 import java.util.Comparator;
 
+import com.amyas.printer.BinaryTreeInfo;
+
 @SuppressWarnings("unchecked")
-public class BinaryHeap<E> implements Heap<E> {
+public class BinaryHeap<E> implements Heap<E>, BinaryTreeInfo {
 	private E[] elements;
 	private int size;
 	private Comparator<E> comparator;
@@ -115,6 +117,31 @@ public class BinaryHeap<E> implements Heap<E> {
 		if (element == null) {
 			throw new IllegalArgumentException("element must not be null");
 		}
+	}
+
+	@Override
+	public Object root() {
+		return 0;
+	}
+
+	@Override
+	public Object left(Object node) {
+		Integer index = (Integer) node;
+		index = (index << 1) + 1; // 2 * index + 1;
+		return index >= size ? null : index;
+	}
+
+	@Override
+	public Object right(Object node) {
+		Integer index = (Integer) node;
+		index = (index << 1) + 2; // 2 * index + 2;
+		return index >= size ? null : index;
+	}
+
+	@Override
+	public Object string(Object node) {
+		Integer index = (Integer) node;
+		return elements[index];
 	}
 
 }
