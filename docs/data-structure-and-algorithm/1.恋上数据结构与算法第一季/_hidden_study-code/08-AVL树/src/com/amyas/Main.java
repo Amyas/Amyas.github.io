@@ -5,7 +5,7 @@ import com.amyas.printer.BinaryTrees;
 public class Main {
   static void test1() {
     Integer data[] = new Integer[] {
-        91, 69, 6, 62, 9, 22, 31, 89, 55, 98, 78, 27, 26, 44, 18, 82, 40, 86, 84
+        85, 19, 69, 3, 7, 99, 95
     };
 
     AVLTree<Integer> avl = new AVLTree<>();
@@ -14,6 +14,11 @@ public class Main {
       avl.add(data[i]);
     }
 
+    BinaryTrees.println(avl);
+
+    avl.remove(99);
+    avl.remove(85);
+    avl.remove(95);
     BinaryTrees.println(avl);
   }
 

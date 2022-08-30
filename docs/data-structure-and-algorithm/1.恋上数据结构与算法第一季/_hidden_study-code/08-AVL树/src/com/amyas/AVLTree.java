@@ -24,6 +24,19 @@ public class AVLTree<E> extends BST<E> {
   }
 
   @Override
+  protected void afterRemove(Node<E> node) {
+    while ((node = node.parent) != null) {
+      if (isBalanced(node)) { // node平衡
+        // 更新高度
+        updateHeight(node);
+      } else { // 不平衡
+        // 恢复平衡
+        reblance(node);
+      }
+    }
+  }
+
+  @Override
   protected Node<E> createNode(E element, Node<E> parent) {
     return new AVLNode<>(element, parent);
   }
