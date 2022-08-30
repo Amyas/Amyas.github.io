@@ -60,11 +60,15 @@ public class AVLTree<E> extends BST<E> {
 
     if (parent.isLeftChild()) { // L
       if (node.isLeftChild()) { // LL
+        rotate(grand, node.left, node, node.right, parent, parent.right, grand, grand.right);
       } else { // LR
+        rotate(grand, parent.left, parent, node.left, node, node.right, grand, grand.right);
       }
     } else { // R
       if (node.isLeftChild()) { // RL
+        rotate(grand, grand.left, grand, node.left, node, node.right, parent, parent.right);
       } else { // RR
+        rotate(grand, grand.left, grand, parent.left, parent, node.left, node, node.right);
       }
     }
   }
@@ -81,6 +85,8 @@ public class AVLTree<E> extends BST<E> {
       r.parent.left = d;
     } else if (r.isRightChild()) {
       r.parent.right = d;
+    } else {
+      root = d;
     }
 
     // a-b-c
@@ -103,7 +109,7 @@ public class AVLTree<E> extends BST<E> {
 
     f.right = g;
     if (g != null) {
-      g.parent = b;
+      g.parent = f;
     }
     updateHeight(f);
 
