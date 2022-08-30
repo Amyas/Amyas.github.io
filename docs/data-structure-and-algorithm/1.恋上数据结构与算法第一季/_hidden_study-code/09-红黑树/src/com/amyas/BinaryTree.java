@@ -32,6 +32,18 @@ public class BinaryTree<E> implements BinaryTreeInfo {
       return parent != null && this == parent.right;
     }
 
+    public Node<E> sibling() {
+      if (isLeftChild()) {
+        return parent.right;
+      }
+
+      if (isRightChild()) {
+        return parent.left;
+      }
+
+      return null;
+    }
+
     public Node(E element, Node<E> parent) {
       this.element = element;
       this.parent = parent;
