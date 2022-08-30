@@ -36,6 +36,26 @@ public class AVLTree<E> extends BST<E> {
   private void reblance(Node<E> grand) {
     Node<E> parent = ((AVLNode<E>) grand).tallerChild();
     Node<E> node = ((AVLNode<E>) parent).tallerChild();
+    if (parent.isLeftChild()) { // L
+      if (node.isLeftChild()) { // LL
+        rotateRight(grand);
+      } else { // LR
+        rotateLeft(grand);
+      }
+    } else { // R
+      if (node.isLeftChild()) { // RL
+        rotateRight(parent);
+        rotateLeft(grand);
+      } else { // RR
+        rotateLeft(grand);
+      }
+    }
+  }
+
+  private void rotateLeft(Node<E> node) {
+  }
+
+  private void rotateRight(Node<E> node) {
   }
 
   private boolean isBalanced(Node<E> node) {
