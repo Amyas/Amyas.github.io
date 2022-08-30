@@ -30,10 +30,12 @@ public class AVLTree<E> extends BST<E> {
 
   /**
    * 恢复平衡
+   * 
    * @param node 距离新增元素高度最低的那个不平衡节点
    */
-  private void reblance(Node<E> node) {
-
+  private void reblance(Node<E> grand) {
+    Node<E> parent = ((AVLNode<E>) grand).tallerChild();
+    Node<E> node = ((AVLNode<E>) parent).tallerChild();
   }
 
   private boolean isBalanced(Node<E> node) {
@@ -62,6 +64,18 @@ public class AVLTree<E> extends BST<E> {
       int leftHeight = left == null ? 0 : ((AVLNode<E>) left).height;
       int rightHeight = right == null ? 0 : ((AVLNode<E>) right).height;
       height = 1 + Math.max(leftHeight, rightHeight);
+    }
+
+    public Node<E> tallerChild() {
+      int leftHeight = left == null ? 0 : ((AVLNode<E>) left).height;
+      int rightHeight = right == null ? 0 : ((AVLNode<E>) right).height;
+      if (leftHeight > rightHeight) {
+        return left;
+      }
+      if (leftHeight < rightHeight) {
+        return right;
+      }
+      return isLeftChild() ? left : right;
     }
   }
 }

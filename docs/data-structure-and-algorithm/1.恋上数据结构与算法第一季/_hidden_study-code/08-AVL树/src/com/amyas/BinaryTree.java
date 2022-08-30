@@ -24,6 +24,14 @@ public class BinaryTree<E> implements BinaryTreeInfo {
       return left != null && right != null;
     }
 
+    public boolean isLeftChild() {
+      return parent != null && this == parent.left;
+    }
+
+    public boolean isRightChild() {
+      return parent != null && this == parent.right;
+    }
+
     public Node(E element, Node<E> parent) {
       this.element = element;
       this.parent = parent;
