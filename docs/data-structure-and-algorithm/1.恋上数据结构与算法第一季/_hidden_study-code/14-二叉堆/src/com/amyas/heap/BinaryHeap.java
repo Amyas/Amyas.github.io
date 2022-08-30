@@ -41,6 +41,8 @@ public class BinaryHeap<E> implements Heap<E> {
 		elementNotNullCheck(element);
 		ensureCapacity(size + 1);
 
+		elements[size++] = element;
+		siftUp(size - 1);
 	}
 
 	@Override
@@ -57,6 +59,29 @@ public class BinaryHeap<E> implements Heap<E> {
 	@Override
 	public E replace(E element) {
 		return null;
+	}
+
+	/**
+	 * 让index位置的元素上滤
+	 * 
+	 * @param index
+	 */
+	private void siftUp(int index) {
+		E element = elements[index];
+
+		while (index > 0) {
+			int parentIndex = (index - 1) >> 1; // (index - 1) / 2 向下取整
+			E parent = elements[parentIndex];
+			if (compare(element, parent) <= 0) { // 当前插入的元素 <= 父元素
+				return;
+			}
+
+			// 交换 parent、element
+			E tmp = elements[index];
+			elements[index] = elements[parentIndex];
+			elements[parentIndex] = tmp;
+			index = parentIndex;
+		}
 	}
 
 	private int compare(E e1, E e2) {
