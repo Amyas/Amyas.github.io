@@ -40,7 +40,8 @@ public class AVLTree<E> extends BST<E> {
       if (node.isLeftChild()) { // LL
         rotateRight(grand);
       } else { // LR
-        rotateLeft(grand);
+        rotateLeft(parent);
+        rotateRight(grand);
       }
     } else { // R
       if (node.isLeftChild()) { // RL
@@ -52,10 +53,37 @@ public class AVLTree<E> extends BST<E> {
     }
   }
 
-  private void rotateLeft(Node<E> node) {
+  private void rotateLeft(Node<E> grand) {
+    Node<E> parent = grand.right;
+    Node<E> child = parent.left;
+
+    grand.right = parent.left;
+    parent.left = grand;
+
+    // 让parent成为根节点
+    parent.parent = grand.parent;
+    if (grand.isLeftChild()) {
+      grand.parent.left = parent;
+    } else if (grand.isRightChild()) {
+      grand.parent.right = parent;
+    } else { // grand 是 root节点
+      root = parent;
+    }
+
+    // 更新child的parent
+    if (child != null) {
+      child.parent = grand;
+    }
+
+    // 更新grand的parent
+    grand.parent = parent;
+
+    // 更新高度
+    updateHeight(grand);
+    updateHeight(parent);
   }
 
-  private void rotateRight(Node<E> node) {
+  private void rotateRight(Node<E> grand) {
   }
 
   private boolean isBalanced(Node<E> node) {
