@@ -33,9 +33,10 @@ public class AVLTree<E> extends BST<E> {
    * 
    * @param node 距离新增元素高度最低的那个不平衡节点
    */
-  private void reblance(Node<E> grand) {
+  protected void reblance1(Node<E> grand) {
     Node<E> parent = ((AVLNode<E>) grand).tallerChild();
     Node<E> node = ((AVLNode<E>) parent).tallerChild();
+
     if (parent.isLeftChild()) { // L
       if (node.isLeftChild()) { // LL
         rotateRight(grand);
@@ -51,6 +52,67 @@ public class AVLTree<E> extends BST<E> {
         rotateLeft(grand);
       }
     }
+  }
+
+  private void reblance(Node<E> grand) {
+    Node<E> parent = ((AVLNode<E>) grand).tallerChild();
+    Node<E> node = ((AVLNode<E>) parent).tallerChild();
+
+    if (parent.isLeftChild()) { // L
+      if (node.isLeftChild()) { // LL
+      } else { // LR
+      }
+    } else { // R
+      if (node.isLeftChild()) { // RL
+      } else { // RR
+      }
+    }
+  }
+
+  private void rotate(
+      Node<E> r, // 当前子树的root根节点
+      Node<E> a, Node<E> b, Node<E> c,
+      Node<E> d,
+      Node<E> e, Node<E> f, Node<E> g) {
+    d.parent = r.parent;
+
+    // 让d成为子树的根节点
+    if (r.isLeftChild()) {
+      r.parent.left = d;
+    } else if (r.isRightChild()) {
+      r.parent.right = d;
+    }
+
+    // a-b-c
+    b.left = a;
+    if (a != null) {
+      a.parent = b;
+    }
+
+    b.right = c;
+    if (c != null) {
+      c.parent = b;
+    }
+    updateHeight(b);
+
+    // e-f-g
+    f.left = e;
+    if (e != null) {
+      e.parent = f;
+    }
+
+    f.right = g;
+    if (g != null) {
+      g.parent = b;
+    }
+    updateHeight(f);
+
+    // b-d-f
+    d.left = b;
+    d.right = f;
+    b.parent = d;
+    f.parent = d;
+    updateHeight(d);
   }
 
   private void rotateLeft(Node<E> grand) {
