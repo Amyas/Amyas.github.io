@@ -38,6 +38,8 @@ public class BinaryHeap<E> implements Heap<E> {
 
 	@Override
 	public void add(E element) {
+		elementNotNullCheck(element);
+		ensureCapacity(size + 1);
 
 	}
 
@@ -61,9 +63,32 @@ public class BinaryHeap<E> implements Heap<E> {
 		return comparator != null ? comparator.compare(e1, e2) : ((Comparable<E>) e1).compareTo(e2);
 	}
 
+	private void ensureCapacity(int capacity) {
+		int oldCapacity = elements.length;
+		if (oldCapacity >= capacity)
+			return;
+
+		// 旧容量的1.5倍，位运算速度快，>> 1 === oldCapacity / 2
+		int newCapacity = oldCapacity + (oldCapacity >> 1);
+		E[] newElements = (E[]) new Object[newCapacity];
+		for (int i = 0; i < size; i++) {
+			newElements[i] = elements[i];
+		}
+		elements = newElements;
+
+		// System.out.println("oldCapacity:" + oldCapacity + "newCapacity:" +
+		// newCapacity);
+	}
+
 	private void emptyCheck() {
 		if (size == 0) {
 			throw new IndexOutOfBoundsException("Heap is empty");
+		}
+	}
+
+	private void elementNotNullCheck(E element) {
+		if (element == null) {
+			throw new IllegalArgumentException("element must not be null");
 		}
 	}
 
