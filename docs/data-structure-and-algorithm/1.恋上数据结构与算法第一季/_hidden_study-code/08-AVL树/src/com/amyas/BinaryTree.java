@@ -36,6 +36,10 @@ public class BinaryTree<E> implements BinaryTreeInfo {
     abstract boolean visit(E element);
   }
 
+  protected Node<E> createNode(E element, Node<E> parent) {
+    return new Node<>(element, parent);
+  }
+
   public int size() {
     return size;
   }
