@@ -1,6 +1,12 @@
 package com.amyas;
 
-import com.amyas.tools.Asserts;
+import java.util.Arrays;
+
+import com.amyas.sort.BubbleSort1;
+import com.amyas.sort.BubbleSort2;
+import com.amyas.sort.BubbleSort3;
+import com.amyas.sort.SelectionSort;
+import com.amyas.sort.Sort;
 import com.amyas.tools.Integers;
 
 public class Main {
@@ -24,11 +30,27 @@ public class Main {
     // bubbleSort3(array3);
     // });
 
-    Integer[] array = Integers.random(10, 1, 100);
-    Integers.println(array);
-    selectorSort(array);
-    Integers.println(array);
-    Asserts.test(Integers.isAscOrder(array));
+    // Integer[] array = Integers.random(10, 1, 100);
+    // Integers.println(array);
+    // selectorSort(array);
+    // Integers.println(array);
+    // Asserts.test(Integers.isAscOrder(array));
+
+    Integer[] array = Integers.random(1000, 1, 20000);
+    testSorts(
+        array,
+        new BubbleSort1(), new BubbleSort2(), new BubbleSort3(),
+        new SelectionSort());
+  }
+
+  static void testSorts(Integer[] array, Sort... sorts) {
+    for (Sort sort : sorts) {
+      sort.sort(Integers.copy(array));
+    }
+    Arrays.sort(sorts);
+    for (Sort sort : sorts) {
+      System.out.println(sort);
+    }
   }
 
   static void selectorSort(Integer[] array) {
