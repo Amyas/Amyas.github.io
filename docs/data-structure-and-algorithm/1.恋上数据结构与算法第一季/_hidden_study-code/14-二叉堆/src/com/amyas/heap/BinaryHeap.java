@@ -75,15 +75,15 @@ public class BinaryHeap<E> implements Heap<E>, BinaryTreeInfo {
 			int parentIndex = (index - 1) >> 1; // (index - 1) / 2 向下取整
 			E parent = elements[parentIndex];
 			if (compare(element, parent) <= 0) { // 当前插入的元素 <= 父元素
-				return;
+				break;
 			}
 
 			// 交换 parent、element
-			E tmp = elements[index];
-			elements[index] = elements[parentIndex];
-			elements[parentIndex] = tmp;
+			elements[index] = parent;
+
 			index = parentIndex;
 		}
+		elements[index] = element;
 	}
 
 	private int compare(E e1, E e2) {
