@@ -15,7 +15,10 @@ public class Main {
     heap.add(90);
     heap.add(65);
     BinaryTrees.println(heap);
-    heap.remove();
+    // heap.remove();
+    // BinaryTrees.println(heap);
+
+    System.out.println(heap.replace(79));
     BinaryTrees.println(heap);
   }
 }
