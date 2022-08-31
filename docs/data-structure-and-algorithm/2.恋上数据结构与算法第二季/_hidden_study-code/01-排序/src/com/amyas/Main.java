@@ -3,7 +3,8 @@ package com.amyas;
 import java.util.Arrays;
 
 import com.amyas.sort.BubbleSort3;
-import com.amyas.sort.InsertionSort;
+import com.amyas.sort.InsertionSort1;
+import com.amyas.sort.InsertionSort2;
 import com.amyas.sort.SelectionSort;
 import com.amyas.sort.Sort;
 import com.amyas.tools.Asserts;
@@ -15,7 +16,8 @@ public class Main {
     Integer[] array = Integers.random(1000, 1, 20000);
     testSorts(
         array,
-        new InsertionSort(),
+        new InsertionSort1(),
+        new InsertionSort2(),
         new BubbleSort3(),
         new SelectionSort());
   }
