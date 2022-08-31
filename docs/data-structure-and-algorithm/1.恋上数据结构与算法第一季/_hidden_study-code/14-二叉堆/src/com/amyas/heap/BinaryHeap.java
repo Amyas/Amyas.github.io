@@ -61,7 +61,41 @@ public class BinaryHeap<E> extends AbstractHeap<E> implements BinaryTreeInfo {
 	}
 
 	private void siftDown(int index) {
+		E element = elements[index];
+		// 第一个叶子结点的索引 == 非叶子结点的数量
+		// 非叶子结点的数量 = n1 + n2 = floor(n / 2) = ceiling((n - 1) / 2)
+		// 非叶子结点的数量 = 叶子结点第一个的索引
+		// index < 第一个叶子结点的索引
+		int half = size >> 1;
+		while (index < half) { // 必须保证index是非叶子结点
+			// index的节点有两种情况
+			// 1.只有左子结点
+			// 2.同时有左右子结点
 
+			// 默认为左子结点进行比较
+			int childIndex = (index << 1) + 1; // 2i + 1
+			E child = elements[childIndex];
+
+			// 右子结点
+			int rightIndex = childIndex + 1; // 2i + 2
+
+			// 选出左右子结点最大的那个
+			// 证明右子结点存在，并且右边比左边大
+			if (rightIndex < size && compare(elements[rightIndex], child) > 0) {
+				child = elements[childIndex = rightIndex];
+			}
+
+			if (compare(element, child) >= 0) {
+				break;
+			}
+
+			// 将子结点存放到index位置
+			elements[index] = child;
+
+			index = childIndex;
+		}
+
+		elements[index] = element;
 	}
 
 	/**
