@@ -40,6 +40,10 @@ module.exports = {
         text: "数据结构与算法",
         link: "/data-structure-and-algorithm/",
       },
+      {
+        text: "C++逆向",
+        link: "/cplus-reverse/",
+      },
     ],
     sidebar: sidebarInstance.getSidebar(),
   },
