@@ -13,13 +13,19 @@ import com.amyas.tools.Integers;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Main {
   public static void main(String[] args) {
-    Integer[] array = Integers.random(1000, 1, 20000);
-    testSorts(
-        array,
-        new InsertionSort1(),
-        new InsertionSort2(),
-        new BubbleSort3(),
-        new SelectionSort());
+    Integer[] array = { 2, 4, 6, 8, 10 };
+    Asserts.test(BinarySearch.indexOf(array, 4) == 1);
+    Asserts.test(BinarySearch.indexOf(array, 2) == 0);
+    Asserts.test(BinarySearch.indexOf(array, 10) == 4);
+    Asserts.test(BinarySearch.indexOf(array, 56) == -1);
+
+    // Integer[] array = Integers.random(1000, 1, 20000);
+    // testSorts(
+    // array,
+    // new InsertionSort1(),
+    // new InsertionSort2(),
+    // new BubbleSort3(),
+    // new SelectionSort());
   }
 
   static void testSorts(Integer[] array, Sort... sorts) {
