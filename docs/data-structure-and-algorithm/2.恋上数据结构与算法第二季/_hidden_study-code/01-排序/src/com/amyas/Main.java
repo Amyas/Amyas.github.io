@@ -3,10 +3,9 @@ package com.amyas;
 import java.util.Arrays;
 
 import com.amyas.sort.BubbleSort3;
-import com.amyas.sort.InsertionSort1;
-import com.amyas.sort.InsertionSort2;
 import com.amyas.sort.InsertionSort3;
 import com.amyas.sort.MergeSort;
+import com.amyas.sort.QuickSort;
 import com.amyas.sort.SelectionSort;
 import com.amyas.sort.Sort;
 import com.amyas.tools.Asserts;
@@ -15,12 +14,11 @@ import com.amyas.tools.Integers;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Main {
   public static void main(String[] args) {
-    Integer[] array = Integers.random(10000, 1, 20000);
+    Integer[] array = Integers.random(30000, 1, 20000);
     testSorts(
         array,
+        new QuickSort(),
         new MergeSort(),
-        new InsertionSort1(),
-        new InsertionSort2(),
         new InsertionSort3(),
         new BubbleSort3(),
         new SelectionSort());
