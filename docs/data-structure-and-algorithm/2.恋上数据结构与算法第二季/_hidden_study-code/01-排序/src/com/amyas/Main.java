@@ -6,6 +6,7 @@ import com.amyas.sort.BubbleSort3;
 import com.amyas.sort.InsertionSort1;
 import com.amyas.sort.InsertionSort2;
 import com.amyas.sort.InsertionSort3;
+import com.amyas.sort.MergeSort;
 import com.amyas.sort.SelectionSort;
 import com.amyas.sort.Sort;
 import com.amyas.tools.Asserts;
@@ -17,6 +18,7 @@ public class Main {
     Integer[] array = Integers.random(10000, 1, 20000);
     testSorts(
         array,
+        new MergeSort(),
         new InsertionSort1(),
         new InsertionSort2(),
         new InsertionSort3(),
