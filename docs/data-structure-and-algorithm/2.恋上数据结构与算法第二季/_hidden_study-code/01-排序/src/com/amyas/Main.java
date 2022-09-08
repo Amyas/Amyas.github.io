@@ -7,6 +7,7 @@ import com.amyas.sort.InsertionSort3;
 import com.amyas.sort.MergeSort;
 import com.amyas.sort.QuickSort;
 import com.amyas.sort.SelectionSort;
+import com.amyas.sort.ShellSort;
 import com.amyas.sort.Sort;
 import com.amyas.tools.Asserts;
 import com.amyas.tools.Integers;
@@ -14,9 +15,10 @@ import com.amyas.tools.Integers;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Main {
   public static void main(String[] args) {
-    Integer[] array = Integers.random(30000, 1, 20000);
+    Integer[] array = Integers.random(30000, 1, 30000);
     testSorts(
         array,
+        new ShellSort(),
         new QuickSort(),
         new MergeSort(),
         new InsertionSort3(),
